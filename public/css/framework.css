@@ -1,0 +1,497 @@
+/* Framework Helper classes */
+em {font-style: italic}
+strong {font-weight: bold}
+.hide {display: none;}
+.megahide {display: none !important;}
+.pull-left {float: left;}
+.pull-right {float: right;}
+.clear {clear: both;}
+.inline-block {display: inline-block; vertical-align: middle; margin-right: 2%}
+.inline-block.top {vertical-align: top}
+.inline-block.bottom {vertical-align: bottom}
+.twocolumn {
+    width: 64%;
+    margin-right: 1%;
+}
+.onecolumn {
+    width: 32%;
+    margin-right: 1%;
+}
+.spanhalf {
+    width: 48%;
+    margin-right: 2%;
+    float: left;
+}
+.onecolumn:last-of-type, .twocolumn:last-of-type, .spanhalf:last-of-type {margin-right: 0;}
+.callout {
+    line-height: 1.8;
+}
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+.center-text { text-align: center; }
+.arrow-up, .arrow-down, .arrow-left, .arrow-right {
+	width: 0; 
+	height: 0; 
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	border-bottom: 6px solid black;
+}
+    .arrow-white {
+        border-bottom-color: white;
+    }
+.arrow-down {
+	-webkit-transform: rotateZ(180deg);
+	transform: rotateZ(180deg);
+}
+.arrow-right {
+	-webkit-transform: rotateZ(90deg);
+	transform: rotateZ(90deg);
+}
+.arrow-left {
+	-webkit-transform: rotateZ(-90deg);
+	transform: rotateZ(-90deg);
+}
+
+.fade {
+    opacity: 0;
+    transition: opacity 300ms;
+}
+    .fade.in {
+        opacity: 1;
+    }
+
+.dropdown-button { transition: box-shadow 200ms; }
+    .dropdown-button [class*='arrow-'] {
+        -webkit-transition: -webkit-transform 200ms;
+        transition: transform 200ms;
+    }
+    .dropdown-button.dropdown-active .arrow-down {
+        -webkit-transform: rotateZ(0deg);
+        transform: rotateZ(0deg);
+    }
+    .dropdown-button.dropdown-active .arrow-up {
+        -webkit-transform: rotateZ(180deg);
+        transform: rotateZ(0deg);
+    }
+.dropdown {
+    display: inline-block;
+    position: absolute;
+    top: -9999em;
+    overflow: hidden;
+    z-index: 500;
+}
+    .dropdown.showing { transition: height 300ms, top 300ms; }
+    .dropdown.ready {
+        overflow: visible;
+    }
+
+.blue {color: #0066FF}
+.drawer {
+    position: relative;
+}
+.drawer.ready {
+    transition: width 1s 500ms, box-shadow 500ms, height 1s, top 1s;
+}
+.drawer.ready.close {
+    transition: width 1s, box-shadow 500ms 500ms, height 1s, top 1s;
+}
+    .drawer-handle {
+        display: block;
+        position: absolute;
+        cursor: pointer;
+    }
+    .drawer-handle.top {
+        width: 50px;
+        top: 100%;
+        left: -25px;
+        margin-left: 50%;
+    }
+    .drawer-handle.right {
+        height: 50px;
+        top: 40%;
+        margin-top: -25px;
+        right: 100%;
+    }
+    .drawer.ready .drawer-handle span {
+        transition: transform 500ms 500ms;
+        -webkit-transition: -webkit-transform 500ms 500ms;
+    }
+    .drawer.close.ready .drawer-handle .arrow-up {
+        transform: rotateZ(180deg);
+        -webkit-transform: rotateZ(180deg);
+    }
+    .drawer.close.ready .drawer-handle .arrow-down {
+        transform: rotateZ(0deg);
+        -webkit-transform: rotateZ(0deg);
+    }
+
+    .drawer.close.ready .drawer-handle .arrow-left {
+        transform: rotateZ(90deg);
+        -webkit-transform: rotateZ(90deg);
+    }
+
+    .drawer.close.ready .drawer-handle .arrow-right {
+        transform: rotateZ(-90deg);
+        -webkit-transform: rotateZ(-90deg);
+    }
+
+
+.expandable {
+    overflow: hidden;
+    height: 0px;
+    position: relative;
+}
+    .expandable.expanded {
+        height: auto;
+    }
+    .expandable.ready {
+        transition: height 800ms;
+    }
+    
+[class*='icon-'] {
+    background-image: url('../images/icons.stock.png');
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+[class*='icon-'].icon-white {
+    background-image: url('../images/icons.white.png');
+}
+/*
+a:hover [class*='icon-'] {
+    background-image: url('../images/icons.hover.png');
+}
+*/
+.icon-plus {background-position: 0px 0px;}
+.icon-box {background-position: -20px 0px;}
+.icon-search {background-position: -40px 0px;}
+.icon-categories {background-position: -60px 0px;}
+.icon-cart {background-position: -80px 0px;}
+.icon-menu {background-position: -100px 0px;}
+.icon-dollar {background-position: -120px 0px;}
+.icon-gear {background-position: -140px 0px;}
+.icon-receipt {background-position: -160px 0px;}
+.icon-receipt-history {background-position: -180px 0px;}
+.icon-register {background-position: -200px 0px;}
+.icon-shelf {background-position: -220px 0px;}
+.icon-customer {background-position: -240px 0px}
+.icon-calendar {background-position: -260px 0px}
+.icon-report {background-position: -280px 0px}
+.icon-support {background-position: -300px 0px}
+.icon-live {background-position: -320px 0px}
+.icon-location {background-position: -340px 0px}
+.icon-user {background-position: -360px 0px}
+.icon-user-pin {background-position: -380px 0px}
+.icon-tag {background-position: -400px 0px}
+.icon-newsletter {background-position: -420px 0px}
+.icon-prices {background-position: -440px 0px}
+.icon-service {background-position: -460px 0px}
+.icon-ingredients {background-position: -480px 0px}
+.icon-sandwich {background-position: -500px 0px}
+.icon-boxes {background-position: -520px 0px}
+.icon-gift {background-position: -540px 0px}
+
+/*SHADOWS!*/
+.shadow1 {box-shadow: 1px 1px 10px rgba(0,0,0,0.5);}
+.shadow2 {box-shadow: 2px 2px 10px rgba(0,0,0,0.5);}
+.shadow3 {box-shadow: 3px 3px 8px rgba(0,0,0,0.4);}
+.shadow4 {box-shadow: 4px 4px 10px rgba(0,0,0,0.4);}
+.shadow5 {box-shadow: 5px 5px 12px rgba(0,0,0,0.5);}
+.shadow6 {}
+.shadow7 {box-shadow: 6px 6px 15px rgba(0,0,0,0.3);}
+.shadow8 {box-shadow: 8px 8px 20px rgba(0,0,0,0.3);}
+.shadow9 {}
+.shadow10 { box-shadow: 7px 9px 20px rgba(0,0,0,0.3); }
+/* this might be necessary for inset shadows to look right
+but this will require some javascript magic, probably
+[class*='inner-shadow'] {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+*/
+.inner-shadow1 { box-shadow: 0px 1px 15px rgba(0,0,0,0.5) inset; }
+.inner-shadow2 { box-shadow: 2px 2px 10px rgba(0,0,0,0.5) inset; }
+.inner-shadow3 {}
+.inner-shadow4 {}
+.inner-shadow5 { box-shadow: 3px 3px 20px rgba(0,0,0,0.5) inset; }
+.inner-shadow6 {}
+.inner-shadow7 {}
+.inner-shadow8 {}
+.inner-shadow9 {}
+.inner-shadow10 {}
+
+/* Tooltips */
+.tooltip {
+    position: absolute;
+    z-index: 9001;
+    background: #000;
+    color: #FFF;
+    padding: 3px 5px;
+    max-width: 200px;
+    cursor: default;
+    line-height: 1.2;
+}
+    .tooltip [class*='arrow-'] {
+        position: absolute;
+        -webkit-transform-origin: 0% 100%;
+        -ms-transform-origin: 0% 100%;
+        transform-origin: 0% 100%;
+    }
+    .tooltip .arrow-left {
+        margin-top: -12px;
+    }
+    .tooltip .arrow-right {
+        margin-top: -12px;
+    }
+    .tooltip .arrow-up {
+    }
+    .tooltip .arrow-down {
+    }
+
+/* DELICIOUS TURNOVERS */
+.turnover {
+    display: none;
+    text-align: left;
+    position: absolute;
+    z-index: 1000;
+    padding: 10px;
+    border: 1px solid #000;
+    max-width: 500px;
+}
+.turnover.prep {
+    top: -9999em;
+    display: block;
+}
+.turnover.ready {
+    display: block;
+    transition: top 500ms, left 500ms;
+}
+    .turnover > [class*='arrow-'] {
+        position: absolute;
+        -webkit-transform-origin: 0% 100%;
+        -ms-transform-origin: 0% 100%;
+        transform-origin: 0% 100%;
+    }
+    .turnover.ready > [class*='arrow-'] {
+        transition: all 500ms;
+    }
+    .turnover > .arrow-left, .turnover > .arrow-right {
+        top: -12px;
+        margin-top: 0px;
+        margin-left: 0px;
+    }
+    .turnover > .arrow-up, .turnover > .arrow-down {
+        left: 50%;
+    }
+    .turnover > .arrow-left { right: 100%; }
+    .turnover > .arrow-right { left: 100%; }
+    .turnover > .arrow-up { bottom: 100%; }
+    .turnover > .arrow-down { top: 100% }
+
+/* AUTOCOMPLETE TEXTBOX */
+.autocomplete-menu {
+    position: absolute;
+}
+
+/* SLIGHTLY LESS DELICIOUS TOAST */
+.toast {
+    position: fixed;
+    font-size: 20px;
+    background: rgba(0,0,0,0.8);
+    color: #FFF;
+    z-index: 5000;
+    top: 66%;
+    padding: 15px;
+    opacity: 0;
+    margin-left: 50%;
+}
+    .toast.show {
+        opacity: 1;
+        -webkit-transition: all 300ms;
+        transition: all 300ms;
+    }
+    .toast.done {
+        opacity: 0;
+        -webkit-transition: all 2s 6s;
+        transition: all 2s 6s;
+    }
+
+/* Tables! */
+table th.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-left: 20px;
+}
+    table th.sortable:before {
+        content: "";
+        width: 20px;
+        height: 20px;
+        background-image: url(../images/icons.stock.png);
+        background-repeat: no-repeat;
+        background-position: 0px -20px;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+    table th.sortable.asc:before {
+        background-position: -40px -20px;
+    }
+    table th.sortable.desc:before {
+        background-position: -20px -20px;
+    }
+
+/* Deny Dynamic Tables! */
+.dt-table-container {
+    position: relative;
+    overflow: hidden;
+}
+.dt-table-head {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+}
+    .dt-table-head-shadow {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        opacity: 0;
+        z-index: 1;
+
+        -webkit-transition: opacity 100ms;
+        transition: opacity 100ms;
+    }
+    .dt-table-head .dt-row {
+        position: relative;
+        z-index: 5;
+    }
+.dt-table {
+    position: absolute;
+    top: 50px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: auto;
+}
+    .dt-row {
+        clear: both;
+        overflow: hidden;
+    }
+        .dt-row > .dt-cell {
+            box-sizing: border-box;
+            padding: 10px;
+            border-width: 0 1px 1px 0;
+            border-color: #000;
+            border-style: solid;
+            float: left;
+            height: 100%;
+            max-width: 40%;
+            overflow: hidden;
+        }
+            .dt-table-head .dt-row > .dt-cell {
+                border-width: 2px 1px 2px 0;
+                font-weight: bold;
+            }
+            .dt-table-head .dt-row > .dt-cell.sortable {
+                cursor: pointer;
+            }
+                .dt-row > .dt-cell:first-child {
+                    border-left-width: 2px;
+                }
+                .dt-row > .dt-cell:last-child {
+                    border-right-width: 2px;
+                }
+                .dt-table .dt-row:last-child > .dt-cell {
+                    border-bottom-width: 2px;
+                }
+
+/* ANIMATIONS */
+.intoggle {
+    opacity: 0;
+    -webkit-transform: translateX(40px);
+    transform: translateX(40px);
+}
+.intoggle.anim {
+    -webkit-animation: fadeToggle 500ms both;
+    animation: fadeToggle 500ms both;
+}
+.outtoggle {
+    opacity: 1;
+    -webkit-transform: translateX(0px);
+    transform: translateX(0px);
+}
+.outtoggle.anim {
+    -webkit-animation: fadeToggle_out 500ms both;
+    animation: fadeToggle_out 500ms both;
+}
+
+.intoggle.right {
+    opacity: 0;
+    -webkit-transform: translateX(-40px);
+    transform: translateX(-40px);
+}
+.intoggle.right.anim {
+    -webkit-animation: fadeToggle_out 500ms both reverse;
+    animation: fadeToggle_out 500ms both reverse;
+}
+.outtoggle.right {
+    opacity: 1;
+    -webkit-transform: translateX(0px);
+    transform: translateX(0px);
+}
+.outtoggle.right.anim {
+    -webkit-animation: fadeToggle 500ms both reverse;
+    animation: fadeToggle 500ms both reverse;
+}
+@-webkit-keyframes fadeToggle {
+    0% {
+        opacity: 0;
+        -webkit-transform: translateX(40px);
+    }
+    100% {
+        opacity: 1;
+        -webkit-transform: translateX(0px);
+    }
+}
+@keyframes fadeToggle {
+    0% {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0px);
+    }
+}
+@-webkit-keyframes fadeToggle_out {
+    0% {
+        opacity: 1;
+        -webkit-transform: translateX(0px);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: translateX(-40px);
+    }
+}
+@keyframes fadeToggle_out {
+    0% {
+        opacity: 1;
+        transform: translateX(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+}

@@ -1,0 +1,155 @@
+#loader_content.loader_show {
+    top: 30%;
+    left: 30%;
+    transform: rotateZ(-12deg) scale(1);
+    -ms-transform: rotateZ(-12deg) scale(1);
+}
+#loader_shadow.loader_show {
+    top: 30%;
+    left: 30%;
+    transform: rotateZ(-12deg) scale(1);
+    -ms-transform: rotateZ(-12deg) scale(1);
+    opacity: 0.2;
+}
+#loader_content.loader_hide {
+    left: -250px;
+    top: 25%;
+    transform: rotateZ(15deg);
+    -ms-transform: rotateZ(15deg);
+}
+#loader_shadow.loader_hide {
+    left: -250px;
+    top: 25%;
+    transform: rotateZ(15deg);
+    -ms-transform: rotateZ(15deg);
+    opacity: 0.8;
+}
+
+#book #front_cover_turn.animate {
+    display: none;
+}
+#book #front_cover_turn.close {
+    display: block;
+}
+#book #spine.animate {
+    box-shadow: -4px 19px 10px rgba(0,0,0,0.5);
+    left: 896px;
+}
+#book #spine.close {
+    box-shadow: -10px 19px 20px rgba(0,0,0,0.5);
+    left: 990px;
+}
+#book .page.front_cover_transition.animate {
+    left: 958px;
+}
+#book .page.front_cover_transition.close {
+    left: 1017px;
+}
+#book .showing_wrapper .page.front_cover_transition.animate {
+    left: 0px;
+}
+#book .showing_wrapper .page.front_cover_transition.close {
+    left: 59px;
+}
+#book #front_page.front_cover_transition {
+    display: none;
+}
+#book #page_spine.front_cover_transition.animate {
+    left: 956px;
+    display: block;
+}
+#book #page_spine.front_cover_transition {
+    display: none;
+}
+
+#book .showing_wrapper.turn_page {
+    display: none;
+}     
+#book .turned_wrapper.turn_page {
+    display: none;
+}            
+#book .showing_wrapper.turn_page .page {
+    display: none;
+}
+#book .turn_page .turned_page {
+    display: none;
+}
+#book .turn_page .turned_page:before {
+    display: none;
+}
+
+#book .showing_wrapper.turn_back {
+    width: 1640px;
+    transform: rotateZ(45deg);
+}     
+#book .turned_wrapper.turn_back {
+    transform: rotateZ(45deg);
+    left: 583px;
+    top: -128px;
+    transform-origin: 820px 870px;
+}
+#book .showing_wrapper.turn_back .page {
+    transform: rotateZ(-45deg);
+}
+#book .turn_back .turned_page {
+    box-shadow: 0px 0px 0px rgba(0,0,0,0);
+    left: 2005px;
+    transform: rotateZ(45deg);
+}
+
+.page .page_before {
+    width: 60px;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 5;
+    filter: progid:DXImageTransform.Microsoft.gradient (startColorstr=#a39b7d, endColorstr=#f8ecc2, GradientType=1)
+}
+#back_page .page_before {
+    left: auto;
+    right: 0px;
+    filter: progid:DXImageTransform.Microsoft.gradient (startColorstr=#f8ecc2, endColorstr=#a39b7d, GradientType=1)
+}
+
+.calendar_container:before {
+    display: none;
+}
+
+.page article .post_image {
+    behavior: url(js/PIE.htc);
+}
+#book #front_cover, #book #back_cover, #book #front_cover_turn {
+    behavior: url(js/PIE.htc);
+}
+#book #front_cover, #book #front_cover_turn {
+    behavior: url(js/PIE.htc);
+}
+#book #page_shadow {
+    behavior: url(js/PIE.htc);
+}
+#book #back_page {
+    behavior: url(js/PIE.htc);
+}
+#book .page {
+    behavior: url(js/PIE.htc);
+}
+#book .turn_page .turned_page,
+#book .turn_back .turned_page {
+    behavior: url(js/PIE.htc);
+}
+.calendar_container {
+    behavior: url(js/PIE.htc);
+}
+.calendar_container .calendar_dropdown.open {
+    behavior: url(js/PIE.htc);
+}
+.calendar_container .calendar {
+    behavior: url(js/PIE.htc);
+}
+.calendar_note {
+    behavior: url(js/PIE.htc);
+}
+.calendar_note .border {
+    behavior: url(js/PIE.htc);
+}

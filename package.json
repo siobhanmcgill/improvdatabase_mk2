@@ -1,0 +1,29 @@
+{
+  "name": "ImprovDatabase",
+  "private": true,
+  "description": "Improv Comedy Database for the 21st century.",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node app"
+  },
+  "author": "Shauvon McGill <smcgill@denyconformity.com>",
+  "engines": {
+    "node": "0.10.21"
+  },
+  "dependencies": {
+    "connect": ">=2.7.2",
+    "config": ">=0.4.20",
+    "express": ">=3.0.6",
+    "request": ">=2.12.0",
+    "requirejs": ">=2.1.2",
+    "underscore": ">=1.4.4",
+    "hbs": ">=1.0.9",
+    "moment": ">=1.7.2",
+    "mime": ">=1.2.9",
+    "handlebars": ">=1.0.12",
+    "form-data": ">=0.1.0",
+    "pg": "~4.0.0"
+  },
+  "amd": true,
+  "devDependencies": {}
+}
