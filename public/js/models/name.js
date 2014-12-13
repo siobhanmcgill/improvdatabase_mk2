@@ -5,6 +5,10 @@ define(['backbone'],
             parse: function(response) {
                 return response;
             },
-            idAttribute: "NameID"
+            idAttribute: "NameID",
+
+            addWeight: function () {
+                this.save({ Weight: this.get('Weight') + 1 });
+            }
         });
     });

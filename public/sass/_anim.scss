@@ -1,0 +1,23 @@
+@import "base";
+
+@include keyframes (shake) {
+    0%, 100% {
+        @include transform(translateX(0px));
+    }
+    10%, 50%, 90% {
+        @include transform(translateX(20px));
+    }
+    30%, 70% {
+        @include transform(translateX(-20px));
+    }
+}
+@include keyframes (bubble_in) {
+  0% {
+    @include transform(translateX(20px) scaleX(0) scaleY(0));
+    opacity: 0;
+  }
+  100% {
+    @include transform(translateX(0px) scaleX(1) scaleY(1));
+    opacity: 1;
+  }
+}

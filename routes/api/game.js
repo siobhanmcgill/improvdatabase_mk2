@@ -88,11 +88,11 @@ exports.update = function(req,res) {
 
     var q = connection.getUpdateQuery('game', data, { GameID: gameid });
 
-    connection.query(q.query, q.values, function(err) {
+    connection.query(q.query, q.values, function(err, response) {
         if (err) {
             res.json("500", err);
         } else {
-            res.send("200", "Game Updated", gameid);
+            res.json("200", response.rows[0]);
         }
     });
 };

@@ -1,5 +1,5 @@
-define(['jquery', 'backbone'],
-    function($, Backbone) {
+define(['jquery', 'backbone', 'underscore'],
+    function($, Backbone, _) {
 
     var DynamicTable = function(element, options) {
         this.$container = $(element).addClass("dt-table-container");
@@ -53,9 +53,11 @@ define(['jquery', 'backbone'],
         this._page = 0;
         this._start = 0;
         this._end = 0;
+        this._total = 0;
         this._pageCount = 0;
         this._sortBy = null;
         this._sortDir = "asc";
+        this._filter = {};
 
         this._sizes = [];
 
@@ -78,7 +80,7 @@ define(['jquery', 'backbone'],
         constructor: DynamicTable,
 
         render: function() {
-            var timer = (new Date()).getTime();
+            //var timer = (new Date()).getTime();
 
             this.$container.empty();
 
@@ -92,7 +94,7 @@ define(['jquery', 'backbone'],
             this.next();
         },
         reload: function() {
-            console.log("Reloading Table", this.options.pageSize, this.data);
+            console.log("Reloading Table", this.options.pageSize, this.data, this._filter);
             var scroll = this.$table.scrollTop();
 
             //this._sizes = [];
@@ -115,96 +117,109 @@ define(['jquery', 'backbone'],
                 this.reload();
             }
         },
-        prev: function(e, raw) {
+
+        prev: function(e) {
             if (this._page > 1) {
                 this._page--;
-                this._end = this._start;
-                this._start = this.options.pageSize === "auto" ? 0 : this._start - this.options.pageSize;
-
-                var data = this.getDataArray();
-
                 this._reverse = true;
-                this.renderTableBody(data);
-                this.resize();
+
+                this.sort();
+
+                this.data.getPage({
+                    //page: this.options.pageSize === 'auto' ? 0 : this._page,
+                    //pageSize: this.options.pageSize === 'auto' ? 0 : this.options.pageSize,
+                    start: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._start - this.options.pageSize,
+                    end: this._start,
+                    sort: {
+                        property: this._sortBy,
+                        dir: this._sortDir
+                    },
+                    filter: this._filter
+                }, $.proxy(function (data) {
+                    this._total = data.total;
+                    this._end = this._start;
+                    this._start = this.options.pageSize === "auto" ? 0 : this._start - this.options.pageSize;
+                    
+                    if (this.options.pageSize === 0) {
+                        this._pageCount = 1;
+                    } else if (this.options.pageSize !== "auto") {
+                        this._pageCount = Math.ceil(data.total / this.options.pageSize);
+                    }
+
+                    this.renderTableBody(data.data);
+                    this.resize();
+
+                    if (this._page > 1) {
+                        this._enablePrev();
+                    } else {
+                        this._disablePrev();
+                    }
+                    this.renderPageIndicator();
+
+                    if (typeof this.options.onRender === "function") {
+                        this.options.onRender(this.$table, data.data);
+                    }
+                }, this));
+            }
+            
+            if (e) {
+                e.stopPropagation();
+                return false;
+            }
+        },
+        next: function(e) {
+            this._page++;
+            this._reverse = false;
+
+            this.sort();
+
+            this.data.getPage({
+                //page: this.options.pageSize === 'auto' ? 0 : this._page,
+                //pageSize: this.options.pageSize === 'auto' ? 0 : this.options.pageSize,
+                start: this._end,
+                end: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._end + this.options.pageSize,
+                sort: {
+                    property: this._sortBy,
+                    dir: this._sortDir
+                },
+                filter: this._filter
+            }, $.proxy(function (data) {
+                this._start = this._end;
+                this._total = data.total;
+                this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this._start + this.options.pageSize;
                 
+                //loop!
+                if (this._start >= data.total) {
+                    this._page = 1;
+                    this._start = 0;
+                    this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this.options.pageSize;
+                }
+                
+                if (this.options.pageSize === 0) {
+                    this._pageCount = 1;
+                } else if (this.options.pageSize !== "auto") {
+                    this._pageCount = Math.ceil(data.total / this.options.pageSize);
+                }
+
+                this.renderTableBody(data.data);
+                this.resize();
+
                 if (this._page > 1) {
                     this._enablePrev();
                 } else {
                     this._disablePrev();
                 }
                 this.renderPageIndicator();
-                
-                if (raw) {
-                    return data;
-                } else {
-                    this.resize();
-                    if (typeof this.options.onRender === "function") {
-                        this.options.onRender(this.$table, data);
-                    }
-                }
-            }
-        },
-        next: function(e, raw) { //TODO: is raw necessary?
-            this._page++;
-            this._start = this._end;
-            this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this.data.length : this._start + this.options.pageSize;
 
-            //loop!
-            if (this._start >= this.data.length) {
-                this._page = 1;
-                this._start = 0;
-                this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this.data.length : this.options.pageSize;
-            }
-            
-            var data = this.getDataArray();
-
-            this._reverse = false;
-            this.renderTableBody(data);
-            this.resize();
-
-            if (this._page > 1) {
-                this._enablePrev();
-            } else {
-                this._disablePrev();
-            }
-            this.renderPageIndicator();
-            
-            if (raw) {
-                return data;
-            } else {
-                this.resize();
                 if (typeof this.options.onRender === "function") {
-                    this.options.onRender(this.$table, data);
+                    this.options.onRender(this.$table, data.data);
                 }
+            }, this));
+            
+            if (e) {
+                e.stopPropagation();
+                return false;
             }
-        },
-        renderPageIndicator: function() {
-            //this.$pageindicator.text(this._page + "/" + this._pageCount);
-            var x = this._start / this.data.length;
-            var w = 1 - (this._start + this.$rows.length) / this.data.length;
-            this.$pageindicator.find("div").css({
-                left: (x * 100) + "%",
-                right: (w * 100) + "%"
-            });
-        },
-
-        mouseoverRow: function(e) {
-            $(e.currentTarget).addClass("dt-hover");
-        },
-        mouseoutRow: function(e) {
-            $(e.currentTarget).removeClass("dt-hover");
-        },
-
-        _clickSort: function(e) {
-            var data = $(e.currentTarget).data("column");
-            var newsort = data.sortProperty ? data.sortProperty : data.property;
-            if (newsort === this._sortBy) {
-                this._sortDir = this._sortDir === "asc" ? "desc" : "asc";
-            } else {
-                this._sortDir = "asc";
-            }
-            this._sortBy = newsort;
-            this.reload();
         },
         sort: function(callback) {
             var prop = this._sortBy,
@@ -250,21 +265,35 @@ define(['jquery', 'backbone'],
             }
         },
 
-        getDataArray: function() {
-            var data;
-            this.sort();
-            if (this.options.pageSize === 0) {
-                this._pageCount = 1;
-            } else if (this.options.pageSize !== "auto") {
-                this._pageCount = Math.ceil(this.data.length / this.options.pageSize);
-            }
-            if (this.options.pageSize === 0) {
-                return this.data.slice(0);
-            } else if (this._end === -1 && this.options.pageSize === "auto") {
-                return this.data.slice(this._start);
+        renderPageIndicator: function() {
+            //this.$pageindicator.text(this._page + "/" + this._pageCount);
+            var x = this._start / this._total;
+            var w = 1 - (this._start + this.$rows.length) / this._total;
+            this.$pageindicator.find("div").css({
+                left: (x * 100) + "%",
+                right: (w * 100) + "%"
+            });
+
+            console.log(this._total + ' items');
+        },
+
+        mouseoverRow: function(e) {
+            $(e.currentTarget).addClass("dt-hover");
+        },
+        mouseoutRow: function(e) {
+            $(e.currentTarget).removeClass("dt-hover");
+        },
+
+        _clickSort: function(e) {
+            var data = $(e.currentTarget).data("column");
+            var newsort = data.sortProperty ? data.sortProperty : data.property;
+            if (newsort === this._sortBy) {
+                this._sortDir = this._sortDir === "asc" ? "desc" : "asc";
             } else {
-                return this.data.slice(this._start, this._end);
+                this._sortDir = "asc";
             }
+            this._sortBy = newsort;
+            this.reload();
         },
 
         _createRow: function() {
@@ -319,12 +348,113 @@ define(['jquery', 'backbone'],
                     this._sortBy = column.property;
                 }
                 th.html(column.header ? column.header : column.property).data("column", column);
+
+                if (column.filter) {
+                    if (column.filter.view) {
+                        column.filter.view._filter = self._filter[column.filter.property];
+                        th.append(column.filter.view.$el);
+                    } else {
+                        th.append(self._createFilterMenu(column));
+                    }
+                }
+
                 tr.append(th);
             });
             if (!this._sortBy) {
                 this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
             }
             this.$head.append(tr);
+
+            this._forEach(this.columns, function(column, i) {
+                if (column.filter) {
+                    if (column.filter.view) {
+                        column.filter.view.on('filter', function (prop, sel) {
+                            self._filter[prop] = sel;
+                            self.reload();
+                        });
+                        column.filter.view.render();
+                    } else {
+                        self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown();
+                        self.$head.find('.dt-header').eq(i).find('.dropdown').on('click', '.dropdown-option', $.proxy(self._clickFilterMenu, self))
+                                    .find('.has-tooltip').tooltip({ direction: "left" });
+                    }
+                }
+            });
+
+
+        },
+
+        _createFilterMenu: function (column) {
+            var iconClass = this._filter[column.filter.property] ? 'active' : '',
+                html;
+
+            html = '<div id="' + column.property + '_filter_toggle" class="filter-button dropdown-button" ';
+            html += 'data-menu="' + column.property + '_selection">';
+            html += '<span class="icon-filter ' + iconClass + '"></span></div>';
+            
+            var $obj;
+            
+            if ($('#' + column.property + '_selection').length) {
+                $obj = $(html);
+                $obj.addClass('dropdown-active');
+            } else {
+                html += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-button="' + column.property + '_filter_toggle">';
+                html += '<div class="dropdown-option has-tooltip filter-all" data-value="all"><span class="icon-checkbox checked" />Show All</div>';
+                if (column.filter.collection) {
+                    var col = column.filter.collection,
+                        attrs = column.filter.attributes;
+                    col.each(function (item) {
+                        var text = item.get(attrs.text),
+                            val = item.get(attrs.value),
+                            title = attrs.title ? item.get(attrs.title) : '';
+                        html += '<div class="dropdown-option has-tooltip " title="' + title + '" data-value="' + val + '">';
+                        html += '<span class="icon-checkbox"></span>';
+                        html += text + '</div>';
+                    });
+                }
+                html += '</div>';
+                $obj = $(html);
+            }
+
+            $obj.data('property', column.filter.property);
+
+            return $obj;
+        },
+        _clickFilterMenu: function (e) {
+            var $option = $(e.currentTarget),
+                checked = $option.find('.icon-checkbox').hasClass('checked'),
+                value = $option.data('value'),
+                $menu = $option.parent(),
+                prop = $menu.data('property'),
+                self = this;
+            
+            if (checked) {
+                $option.find('.icon-checkbox').removeClass('checked');
+                if ($menu.find('.icon-checkbox.checked').length === 0) {
+                    $menu.find('.filter-all .icon-checkbox').addClass('checked');
+                }
+            } else {
+                if (value === 'all') {
+                    $menu.find('.dropdown-option .icon-checkbox').removeClass('checked');
+                } else {
+                    $menu.find('.filter-all .icon-checkbox').removeClass('checked');
+                }
+                $option.find('.icon-checkbox').addClass('checked');
+            }
+
+            if ($menu.find('.filter-all .icon-checkbox').hasClass('checked')) {
+                this._filter[prop] = false;
+            } else {
+                this._filter[prop] = [];
+                $menu.find('.icon-checkbox.checked').each(function () {
+                    self._filter[prop].push($(this).parent().data('value'));
+                });
+            }
+
+            this.reload();
+
+            e.stopPropagation();
+            return false;
         },
 
         _tableBody: function() {
@@ -344,7 +474,7 @@ define(['jquery', 'backbone'],
                 $oldTable.addClass("right");
             }
             this.$container.append(this.$table);
-
+            
             this._forEach(data, function(row, ri) {
                 var tr = self._createRow();
 
@@ -444,7 +574,7 @@ define(['jquery', 'backbone'],
         _autoPageCount: function() {
             //try to figure out the page count
             var self = this;
-            self._pageCount = Math.ceil(self.data.length / self.$rows.length);
+            self._pageCount = Math.ceil(self._total / self.$rows.length);
             self.renderPageIndicator();
             if (self._reverse) {
                 self._start = self._end - self.$rows.length;
@@ -497,7 +627,7 @@ define(['jquery', 'backbone'],
             }
 
             this.setRowWidth(this.$head, this._sizes);
-            this._forEach(this.$rows, function(row, ri) {
+            this._forEach(this.$rows, function(row) {
                 self.setRowWidth(row, self._sizes);
             });
 
@@ -519,7 +649,7 @@ define(['jquery', 'backbone'],
         },
         _fixhead: function() {
             // align the header with the body, in case a scrollbar is throwing off the width
-            this.$head.css("right", (this.$container.outerWidth() - this.$table.find(".dt-row").eq(0).outerWidth()) + "px");
+            this.$head.css("right", (this.$container.width() - this.$table.find(".dt-row").eq(0).outerWidth()) + "px");
             this.$table.css("top", this.$head.outerHeight());
         },
 
@@ -531,7 +661,9 @@ define(['jquery', 'backbone'],
             }, 100);
         },
         _setAllRowHeights: function() {
-            this._forEach(this.$rows, function(row, ri) {
+            this._fixhead();
+            
+            this._forEach(this.$rows, function(row) {
                 row.css("height", "auto");
             });
             
@@ -558,7 +690,7 @@ define(['jquery', 'backbone'],
             this.$head.find(".dt-row").css("height", "auto");
             this.$head.find(".dt-row").css("height", this.$head.find(".dt-row").height());
             
-            this._forEach(this.$rows, function(row, ri) {
+            this._forEach(this.$rows, function(row) {
                 row.css("height", row.height() + pad);
             });
             
@@ -577,7 +709,7 @@ define(['jquery', 'backbone'],
         getHeight: function() {
             this.$table.css("bottom", "auto");
             var r = this.$table.outerHeight();
-            this.$table.css("bottom", "0px");
+            this.$table.css("bottom", "-1px");
             return r;
         }
 

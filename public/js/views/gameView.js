@@ -13,35 +13,84 @@ define(['jquery',
 
         'models/game',
         'models/name',
+        'models/note'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, GameView, DropdownView, TagInputView, Game, Name) {
+    function($, _, Backbone, moment, deny, DynamicTable, GameView, DropdownView, TagInputView, Game, Name, Note) {
         return Backbone.View.extend({
-            el: "#gameBox",
             events: {
                 "click #saveItUp" : "doSave",
 
                 "click #duration_dropdown .edit": "showDurationDropdown",
-                "click #playerCount_dropdown .edit": "showPlayerCountDropdown"
+                "click #playerCount_dropdown .edit": "showPlayerCountDropdown",
+
+                'click .altNameLink': 'showAltNames',
+                'click .altNames .close': 'hideAltNames',
+                
+                'click .altNames .altName': 'toggleNameVoting',
+                'click .altNames .weightUp': 'addNameWeight',
+                'click .altNames .weightDown': 'removeNameWeight',
+
+                'click .altNames .addName': 'showAddName',
+                'click .altNames .alternateNameSubmit': 'saveAlternateName',
+
+                'keyup .altNames input': 'keyupName',
+                
+                'click .showNotes': 'toggleNoteList',
+
+                'click .addNoteLink': 'showAddNote',
+                'click .saveNote': 'saveNote'
             },
             initialize: function(options) {
                 this.router = options.router;
                 this.GameID = options.GameID;
             },
             render: function() {
-                var self = this;
-                
+                var gameName = this.model.Name();
+                this.names = this.router.names.where({GameID: this.model.id});
+                this.notes = this.router.notes.where({GameID: this.model.id});
+
+                this.notes = this.notes.concat(
+                    this.router.notes.where({ DurationID: this.model.get('DurationID') }),
+                    this.router.notes.where({ PlayerCountID: this.model.get('PlayerCountID') })
+                );
+                _.each(this.router.tagGames.where({ GameID: this.model.id} ), $.proxy(function (tagGame) {
+                    this.notes = this.notes.concat(this.router.notes.where({ TagID: tagGame.get('TagID') }));
+                }, this));
+
+                _.each(this.notes, $.proxy(function (note) {
+                    note.user = this.router.users.get(note.get('AddedUserID'));
+                    note.time = moment(note.get('DateModified')).fromNow();
+                    if (note.get('GameID')) {
+                        note.regarding = 'this particular game.';
+                    } else if (note.get('TagID')) {
+                        note.regarding = 'the "' + this.router.tags.get(note.get('TagID')).get('Name') + '" tag.';
+                    } else if (note.get('PlayerCountID')) {
+                        note.regarding = 'the number of players in this game.';
+                    } else if (note.get('DurationID')) {
+                        note.regarding = 'the duration of this game.';
+                    }
+                }, this));
                 var templateData = {
-                    mainName: this.model.Name(),
-                    Description: this.model.get("Description"),
-                    durationName: this.router.durations.get(this.model.get("DurationID")).get("Name"),
-                    durationDescription: this.router.durations.get(this.model.get("DurationID")).get("Description"),
-                    playerCountName: this.router.playerCounts.get(this.model.get("PlayerCountID")).get("Name"),
-                    playerCountDescription: this.router.playerCounts.get(this.model.get("PlayerCountID")).get("Description")
-                };
+                        altNamesShow: this.names.length > 1,
+                        altNames: this.names.reverse(),
+                        nameCount: this.names.length - 1,
+                        namePlural: this.names.length - 1 > 1,
+                        mainName: gameName,
+                        Description: this.model.get("Description"),
+                        durationName: this.router.durations.get(this.model.get("DurationID")).get("Name"),
+                        durationDescription: this.router.durations.get(this.model.get("DurationID")).get("Description"),
+                        playerCountName: this.router.playerCounts.get(this.model.get("PlayerCountID")).get("Name"),
+                        playerCountDescription: this.router.playerCounts.get(this.model.get("PlayerCountID")).get("Description"),
+                        
+                        hasNotes: this.notes.length > 0,
+                        noteCount: this.notes.length,
+                        notePlural: this.notes.length > 1,
+                        notes: this.notes
+                    };
 
-                this.$(".content").html(GameView(templateData)).show();
+                this.$el.addClass("content").html(GameView(templateData)).show();
 
-                this.$("#btnAddGame").show().addClass("active");
+                this.$el.parent().find("#btnAddGame").show().addClass("active");
 
                 this.tagInput = new TagInputView({
                     el: "#tags",
@@ -59,6 +108,205 @@ define(['jquery',
 
                 this.boxHeight();
                 this.$(".has-tooltip").tooltip();
+
+                this.noteDropdown = false;
+                this.noteData = false;
+            },
+
+            showAltNames: function (e) {
+                this.$('.altNameLink').hide();
+                this.$('.altNames').show();
+                this.boxHeight();
+                if (this.names.length > 1) {
+                    this.hideAddName(e);
+                }
+
+                e.stopPropagation();
+                return false;
+            },
+
+            hideAltNames: function (e) {
+                this.$('.altNameLink').show();
+                this.$('.altNames').hide();
+                this.boxHeight();
+                e.stopPropagation();
+            },
+            
+            addNameWeight: function (e) {
+                var NameID = $(e.currentTarget).parent().data('nameid'),
+                    nameModel = this.router.names.get(NameID),
+                    self = this;
+                $(e.currentTarget).text('Wait...');
+                this.listenToOnce(nameModel, 'sync', function (model, response) {
+                    console.log("SYNC", response);
+                    self.render();
+                    setTimeout(function () {
+                        self.$('.altNameLink').click();
+                    }, 100);
+                });
+                nameModel.addWeight();
+                e.stopPropagation();
+                return false;
+            },
+
+            showAddName: function (e) {
+                this.$('.addName').hide();
+                this.$('input[name="alternateName"]').show();
+                this.$('.alternateNameSubmit').show();
+                e.stopPropagation();
+                return false;
+            },
+            hideAddName: function (e) {
+                this.$('.addName').show();
+                this.$('input[name="alternateName"]').hide();
+                this.$('.alternateNameSubmit').hide();
+                e.stopPropagation();
+                return false;
+            },
+
+            saveAlternateName: function (e) {
+                var name = this.$('input[name="alternateName"]').val(),
+                    self = this;
+                if (!name) {
+                    $.toast('You call this game <em>nothing</em>? I don\'t think so.');
+                    return;
+                }
+                self.$('.alternateNameSubmit').text('Wait');
+                var nameModel = new Name({
+                    GameID: this.model.id,
+                    Name: name,
+                    Weight: 1
+                });
+                this.$('input[name="alternateName"]').val('');
+                nameModel.save({}, {
+                    success: function () {
+                        console.log('success');
+                        self.router.names.add(nameModel);
+                        self.render();
+                        setTimeout(function () {
+                            self.$('.altNameLink').click();
+                        }, 100);
+                    },
+                    error: function () {
+                        console.log('error');
+                    }
+                });
+
+                e.stopPropagation();
+                return false;
+            },
+
+            keyupName: function (e) {
+                if(e.keyCode === 13) {
+                    this.saveAlternateName(e);
+                }
+            },
+
+            toggleNoteList: function (e) {
+                if (this.$('.notelist').is(':visible')) {
+                    this.$('.notelist').hide();
+                    this.$('.showNotes').text(this.$('.showNotes').data('text'));
+                } else {
+                    this.$('.notelist').show();
+                    this.$('.showNotes').data('text', this.$('.showNotes').text()).text('Don\'t show notes');
+                }
+                this.boxHeight();
+
+                e.stopPropagation();
+                return false;
+            },
+
+            showAddNote: function (e) {
+                if (this.$('.addNote').is(':visible')) {
+                    this.$('.addNote').hide();
+                    this.$('.addNote textarea').val('');
+                    this.$('.addNoteLink').text('Add Note');
+                } else {
+                    this.$('.addNote').show();
+                    this.$('.addNoteLink').text('Cancel Note');
+                    
+                    if (!this.noteDropdown) {
+                        var dddata = [
+                                {
+                                    id: 'game_' + this.model.id,
+                                    text: 'Game "' + this.model.Name() + '"',
+                                    description: 'Game recognize game. That is, you have comments that apply to this game specifically.',
+                                    data: {
+                                        attr: 'GameID',
+                                        val: this.model.id
+                                    }
+                                },
+                                {
+                                    id: 'duration_' + this.model.get('DurationID'),
+                                    text: 'Duration "' + this.router.durations.get(this.model.get('DurationID')).get('Name') + '"',
+                                    description: 'You have comments for this duration type, which will be shown for all games with this duration. Apparently somebody do got time for that.',
+                                    data: {
+                                        attr: 'DurationID',
+                                        val: this.model.get('DurationID')
+                                    }
+                                },
+                                {
+                                    id: 'playercount_' + this.model.get('PlayerCountID'),
+                                    text: 'Player Count "' + this.router.playerCounts.get(this.model.get('PlayerCountID')).get('Name') + '"',
+                                    description: 'You don\'t hate the playah, but you do have some comments on them. This comment will be shown for all games with this many players.',
+                                    data: {
+                                        attr: 'PlayerCountID',
+                                        val: this.model.get('PlayerCountID')
+                                    }
+                                }
+                            ];
+                        this.$('#tagOutput .tag:not(.hide)').each(function () {
+                            var $t = $(this);
+                            dddata.push({
+                                id: 'tag_' + $t.data('tagid'),
+                                text: 'Tag "' + $t.text() + '"',
+                                description: 'This comment will show on every single game with this tag. Soapbox much?',
+                                data: {
+                                    attr: 'TagID',
+                                    val: $t.data('tagid')
+                                }
+                            });
+                        });
+
+                        this.noteDropdown = new DropdownView({
+                            data: dddata, // look out, Scooby, it's a d-d-d-data!
+                            idattr: "noteDest",
+                            attr: "For",
+                            idname: 'Regarding',
+                            default: 0,
+                            add: false
+                        });
+                        this.$('.addNote').prepend(this.noteDropdown.$el.addClass('noteDropdown'));
+                        this.listenTo(this.noteDropdown, 'change', this.noteDropdownChange);
+                        this.noteDropdown.render();
+                    }
+                }
+                this.boxHeight();
+
+                e.stopPropagation();
+                return false;
+            },
+            noteDropdownChange: function (data) {
+                this.noteData = data;
+                console.log(this.noteData);
+            },
+            saveNote: function (e) {
+                var note = new Note(),
+                    self = this,
+                    noteData = {
+                        Description: this.$('.addNote textarea').val(),
+                        Public: 1
+                    };
+                noteData[this.noteData.attr] = this.noteData.val;
+                note.save(noteData, {
+                    success: function () {
+                        self.router.notes.add(note);
+                        self.render();
+                        self.$('.showNotes').click();
+                    }
+                });
+                e.stopPropagation();
+                return false;
             },
 
             showDurationDropdown: function(e) {
@@ -105,31 +353,79 @@ define(['jquery',
             },
 
             hide: function() {
-                this.$el.removeAttr("style");
-                this.$("#btnAddGame").removeClass("active");
+                this.$el.parent().removeAttr("style").css("overflow", "hidden").removeClass('scrollContent');
+                this.$el.parent().find("#btnAddGame").removeClass("active");
                 var self = this;
 
-                setTimeout(function() {
-                    self.$el.removeClass("open");
-                    self.$(".content").empty().hide();
+                this.hideTimer = setTimeout(function() {
+                    self.$el.parent().removeClass("open");
+                    self.destroy();
                     Backbone.trigger("hide-game");
                 }, 500);
             },
-            boxHeight: function() { //Bruce Boxheigtner
-                var self = this;
-                var h = this.$(".content").outerHeight() + 20;
-                if (h > $(window).height() * 0.6) {
-                    h = $(window).height() * 0.6;
+            destroy: function () {
+                this.undelegateEvents();
+                this.$el.removeData().unbind();
+                this.remove();
+                clearTimeout(this.hideTimer);
+                clearTimeout(this.openTimer);
+            },
+
+            titleSize: function (count) {
+                count = count || 1;
+
+                this.$el.children('h5').css('width', (this.$el.parent().width() - this.$el.parent().find('#btnAddGame').outerWidth() - 20) + 'px');
+
+                if (count > 50) {
+                    return false;
+                } else if (this.$el.children('h5').offset().top > 2 || this.$el.children('h5').height() > 41) {
+                    this.$el.children('h5').css({
+                        'font-size': (27 - (count * 2)) + 'px',
+                        'line-height': '40px'
+                    });
+                    
+                    // if this is two lines, the line heights should be smaller
+                    if (this.$el.children('h5').height() > 41) {
+                        this.$el.children('h5').css({
+                            'line-height': (27 - (count * 2)) + 'px'
+                        });
+                    }
+
+                    this.titleSize(count + 1);
+                } else {
+                    return;
                 }
-                this.$el.css("overflow", "hidden");
+            },
+
+            boxHeight: function() { //Bruce Boxheigtner
+                // fit the title into the space
+                this.titleSize();
+
+                console.log('GAME BOXHEIGHT');
+
+                var self = this;
+                this.$el.parent().removeClass('scrollContent');
+                var h = this.$el.outerHeight();
+                if (h > $(window).height()) {
+                    h = $(window).height();
+                }
+                this.$el.parent().css("overflow", "hidden");
                 setTimeout(function() {
                     Backbone.trigger("show-game");
-                    self.$el.css("height", h);
+                    self.$el.parent().css("height", h);
                 }, 10);
-                setTimeout(function() {
-                    self.$el.addClass("open").css("overflow", "auto");
-                }, 1500);
+
+                var time;
+                if (this.$el.closest('#main').hasClass('showGame')) {
+                    time = 500;
+                } else {
+                    time = 1000;
+                }
+                this.openTimer = setTimeout(function() {
+                    self.$el.parent().addClass("open").addClass('scrollContent');
+                }, time);
             },
+
             clearForm: function() {
                 this.$("input[name=Name]").val("");
                 this.$("textarea").val("");
@@ -139,14 +435,14 @@ define(['jquery',
             doSave: function() {
                 var tags = [];
                 var self = this;
-                this.$(".tag").each(function(tag) {
+                this.$(".tag").each(function() {
                     if ($(this).text()) {
                         tags.push(self.router.tags.findWhere({"Name": $(this).text()}).get("TagID"));
                     }
                 });
                 var data = {
                     Name: this.$("input[name=Name]").val(),
-                    Description: this.$("textarea").val(),
+                    //Description: this.$("textarea").val(),
                     DurationID: this.$("#duration_toggle").data("val").get("DurationID"),
                     PlayerCountID: this.$("#playerCount_toggle").data("val").get("PlayerCountID"),
                     Tags: tags
@@ -154,7 +450,7 @@ define(['jquery',
                 this.$("#saveItUp").addClass("wait");
                 var newModel = new Game();
                 newModel.save(data, {
-                    success: function(model, response, options) {
+                    success: function(model, response) {
                         var newName = new Name({
                             "NameID": response.NameID,
                             "GameID": response.GameID,
@@ -171,7 +467,7 @@ define(['jquery',
 
                         self.clearForm();
                     }, 
-                    error: function(model, xhr, options) {
+                    error: function() {
 
                     }
                 });

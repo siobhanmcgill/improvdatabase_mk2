@@ -50,10 +50,10 @@ define(['jquery', 'backbone'],
                 .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
                 .on('mouseleave', 'li', $.proxy(this.mouseleave, this));
         },
-        focus: function (e) {
+        focus: function () {
             this.focused = true;
         },
-        blur: function(e) {
+        blur: function() {
             this.focused = false;
             if (!this.mousedover && this.shown) {
                 this.hide();
@@ -118,7 +118,7 @@ define(['jquery', 'backbone'],
             }
             e.stopPropagation();
         },
-        next: function (event) {
+        next: function () {
             var active = this.$menu.find('.active').removeClass('active'),
                 next = active.next();
             if (!next.length) {
@@ -126,7 +126,7 @@ define(['jquery', 'backbone'],
             }
             next.addClass('active');
         },
-        prev: function (event) {
+        prev: function () {
             var active = this.$menu.find('.active').removeClass('active'),
                 prev = active.prev();
 
@@ -137,7 +137,6 @@ define(['jquery', 'backbone'],
         },
 
         click: function(e) {
-            console.log("Clicked", e);
             this.select();
             this.$element.focus();
             e.stopPropagation();
@@ -148,7 +147,7 @@ define(['jquery', 'backbone'],
             this.$menu.find('.active').removeClass('active');
             $(e.currentTarget).addClass('active');
         },
-        mouseleave: function(e) {
+        mouseleave: function() {
             this.mousedover = false;
             if (!this.focused && this.shown) {
                 this.hide();
@@ -164,7 +163,8 @@ define(['jquery', 'backbone'],
             case 17: // ctrl
             case 18: // alt
                 break;
-
+            
+            case 188: // comma
             case 9: // tab
             case 13: // enter
                 this.select();
@@ -190,12 +190,13 @@ define(['jquery', 'backbone'],
             if (!val) {
                 val = this.$element.val();
             }
+            val = $.trim(val).replace(',','');
             this.$element.val(val).change().trigger("autoComplete.selection", [val, this.$menu.find(".active").data("val")]);
             return this.hide();
         },
 
         //every time a letter is pressed, look for the value
-        lookup: function(event) {
+        lookup: function() {
             this.query = this.$element.val().toLowerCase();
             if (!this.query || this.query.length < this.options.minLength) {
                 return this.shown ? this.hide() : this;

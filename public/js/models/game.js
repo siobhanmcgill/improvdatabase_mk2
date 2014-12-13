@@ -1,5 +1,5 @@
-define(['backbone', 'underscore'],
-    function(Backbone, _) {
+define(['jquery', 'backbone', 'underscore', 'moment'],
+    function($, Backbone, _, moment) {
         return Backbone.Model.extend({
             url: "/api/game",
             parse: function(response) {
@@ -46,5 +46,10 @@ define(['backbone', 'underscore'],
                 var durobj = window.router.playerCounts.get(this.get("PlayerCountID"));
                 return parseInt("" + (durobj.get("Min") || 0) + (durobj.get("Max") || 0), 10);
             },
+
+            ModifiedDisplay: function () {
+                var timestamp = this.get('DateModified');
+                return moment(timestamp).fromNow();
+            }
         });
     });

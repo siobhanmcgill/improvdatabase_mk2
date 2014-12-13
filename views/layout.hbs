@@ -13,29 +13,33 @@
             });
         </script>
         
-        <link rel="stylesheet" href="/css/reset.css"/>
-        <link rel="stylesheet" href="/css/framework.css"/>
         <link rel="stylesheet" href="/css/style.css"/>
         <link rel="stylesheet" href="/css/lte_ie9.css"/>
-        <link rel="stylesheet" href="/css/anim.css"/>
-        <link rel="stylesheet" href="/css/anim-webkit.css"/>
     </head>
     <body>
+
+        <div id="cornerLogo">
+            <h1>The Improv Comedy Database</h1>
+            <h2>ALPHA</h2>
+        </div>
         
         <div id="pages">
             <div id="main">
                 <h1>IMPROV DATABASE</h1>
                 <nav id="topnav">
                     <div id="searchBox" class="pod">
-                        <input name="search" placeholder="Search" />
                     </div>
-                    <div id="filterBox" class="pod"></div>
+                    <div id="paging" class="pod">
+                        <div id="pageindicator"><div></div></div>
+                    </div>
                     <div id="gameBox" class="pod">
+                        <!-- <input name="search" placeholder="The Improv Comedy Database" /> -->
+                        <!--
                         <div id="btnAddGame" class="btn has-tooltip" title="Add Game">
                             <span class="off">&#43</span>
                             <span class="on">&#8722;</span>
                         </div>
-                        <div class="content"></div>
+                        -->
                     </div>
                 </nav>
                 <div id="gameTable" class="pod"></div>
@@ -48,21 +52,10 @@
                         <a href="#" class="dropdown-option btn" data-value="0">Show All</a>
                         <a href="#" class="dropdown-option btn" data-value="auto">Fit Page</a>
                     </div>
-
-                    <div id="paging" class="pod">
-                        <div id="prevpage" class="btn">&lt;</div>
-                        <div id="pageindicator"><div></div></div>
-                        <div id="nextpage" class="btn">&gt;</div>
-                    </div>
-                    <!--
-                    <div id="paging">
-                        <div id="prevpage" class="pod btn">&lt;</div>
-                        <div id="pageindicator" class="pod"></div>
-                        <div id="nextpage" class="pod btn">&gt;</div>
-                    </div>
-                    -->
                 </nav>
-            </div>
+                <div id="prevpage">&lt;</div>
+                <div id="nextpage">&gt;</div>
+            </div> <!-- end of #main -->
         </div>
 
         <script>

@@ -1,25 +1,74 @@
 <h5>{{mainName}}</h5>
 
-<div>
-    <p>{{Description}}</p>
+<div class="scroll-area">
+    {{#if altNamesShow}}
+    <a class="altNameLink" href="#">{{nameCount}} alternate name{{#if namePlural}}s{{/if}}</a>
+    {{else}}
+    <a class="altNameLink" href="#">Propose alternate name</a>
+    {{/if}}
+    <div class="altNames">
+        <a href="#" class="close">&times;</a>
+        {{#if altNamesShow}}
+        <label>Known Aliases:</label>
+        {{#each altNames}}
+        <div data-nameid="{{attributes.NameID}}">
+            {{attributes.Name}} <a class="weight weightUp">(+{{attributes.Weight}})</a>
+        </div>
+        {{/each}}
+        <a href="#" class="addName">Add alternate name</a>
+        {{else}}
+        <label>What do you call this, then?</label>
+        {{/if}}
+        <input name="alternateName" {{#if altNamesShow}}style="display: none"{{/if}} />
+        <a href="#" {{#if altNamesShow}}style="display: none"{{/if}} class="alternateNameSubmit">Save</a>
+    </div>
+
+    <div>
+        <p>{{Description}}</p>
+    </div>
+
+    <div id="duration_dropdown">
+        <label>Duration:</label>
+        <h5 title="{{durationDescription}}" class="has-tooltip">{{durationName}}</h5>
+        <a href="#" class="edit">Change...</a>
+    </div>
+
+    <div id="playerCount_dropdown">
+        <label>Player Count:</label>
+        <h5 title="{{playerCountDescription}}" class="has-tooltip">{{playerCountName}}</h5>
+        <a href="#" class="edit">Change...</a>
+    </div>
+
+    <div id="tags">
+    </div>
+
+    <div class="btn pull-right hide" id="saveItUp">save</div>
+    
+    <div class="notes">
+        <label>Notes:</label>
+        {{#if hasNotes}}
+        <a href="#" class="showNotes">Show the {{noteCount}} note{{#if notePlural}}s{{/if}} about this game</a>
+        <div class="notelist">
+        {{#each notes}}
+            <div class="note">
+                <p>{{attributes.Description}}</p>
+                <div class="noteSig">Regarding {{regarding}}</div>
+                <div class="noteSig">{{user.attributes.FirstName}} {{user.attributes.LastName}} - {{time}}</div>
+            </div>
+        {{/each}}
+        <a href="#" class="addNoteLink">Add Note</a>
+        </div>
+        {{else}}
+        <span class="showNotes">Nothing has been said.</span>
+        <a href="#" class="addNoteLink">Add Note</a>
+        {{/if}}
+
+        <div class="addNote">
+            <textarea name="Note" rows="5"></textarea>
+            <a href="#" class="saveNote">Save</a>
+        </div>
+    </div>
+    
+    <div class="clear"></div>
 </div>
-
-
-<div id="duration_dropdown">
-    <label>Duration:</label>
-    <h5 title="{{durationDescription}}" class="has-tooltip">{{durationName}}</h5>
-    <a href="#" class="edit">Change...</a>
-</div>
-
-<div id="playerCount_dropdown">
-    <label>Player Count:</label>
-    <h5 title="{{playerCountDescription}}" class="has-tooltip">{{playerCountName}}</h5>
-    <a href="#" class="edit">Change...</a>
-</div>
-
-<div id="tags">
-</div>
-
-<div class="btn pull-right hide" id="saveItUp">save</div>
-<div class="clear"></div>
 

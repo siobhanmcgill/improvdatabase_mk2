@@ -64,21 +64,23 @@ define(['jquery',
             removeTag: function(e) {
                 var tagid = $(e.currentTarget).data("tagid");
                 $(e.currentTarget).remove();
-                this.trigger("tag.remove");
+                this.trigger("tag.remove", tagid);
 
                 if (this.GameID) {
                     this.TagGameCollection.removeTagFromGame(tagid, this.GameID);
                 }
+
+                e.stopPropagation();
+                return false;
             },
             addTag: function(e, name, model) {
-                var $tag = this.$("#tagTemplate").clone(),
-                    tagID;
+                var $tag = this.$("#tagTemplate").clone();
 
                 if (name) {
                     $tag.html(name).attr("id", "").removeClass("hide");
                     this.$(".tags a").before($tag);
                     this.$("input").val("");
-                    this.trigger("tag.add");
+                    this.trigger("tag.add", name);
 
                     if (!model) {
                         var newTag = new Tag();

@@ -298,6 +298,7 @@ but this will require some javascript magic, probably
 /* AUTOCOMPLETE TEXTBOX */
 .autocomplete-menu {
     position: absolute;
+    z-index: 600;
 }
 
 /* SLIGHTLY LESS DELICIOUS TOAST */
@@ -322,6 +323,28 @@ but this will require some javascript magic, probably
         -webkit-transition: all 2s 6s;
         transition: all 2s 6s;
     }
+
+/* ICONS and ICON ACCESSORIES */
+$icon: 18px;
+[class*='icon-'] {
+    display: inline-block;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    background: url('../images/iconsprite.png') no-repeat;
+    
+    @include iconsprite('filter', $icon, 0);
+    @include iconsprite('checkbox', $icon, 1) {
+        &.checked {
+            background-position: (-$icon * 1) (-$icon * 2);
+
+            &:hover {
+                background-position: (-$icon * 1) (-$icon * 3);
+            }
+        }
+    };
+
+}
 
 /* Tables! */
 table th.sortable {
@@ -377,6 +400,21 @@ table th.sortable {
         position: relative;
         z-index: 5;
     }
+    .dt-table-head .dt-row .dt-header {
+        position: relative;
+    }
+    .dt-table-head .dt-row .dt-header .filter-button {
+        position: absolute;
+        top: 50%;
+        margin-top: -9px;
+        right: 5px;
+        display: block;
+        height: 18px;
+        width: 18px;
+        cursor: pointer;
+    }
+
+
 .dt-table {
     position: absolute;
     top: 50px;
@@ -415,6 +453,7 @@ table th.sortable {
                 }
                 .dt-table .dt-row:last-child > .dt-cell {
                     border-bottom-width: 2px;
+                    padding-bottom: 9px;
                 }
 
 /* ANIMATIONS */

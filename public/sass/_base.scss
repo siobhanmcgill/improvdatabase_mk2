@@ -1,0 +1,76 @@
+@import "compass/css3";
+
+@mixin animation($name, $duration, $iteration, $timing) {
+    animation-duration: $duration;
+    -moz-animation-duration: $duration;
+    -webkit-animation-duration: $duration;
+    
+    animation-iteration-count: $iteration;
+    -moz-animation-iteration-count: $iteration;
+    -webkit-animation-iteration-count: $iteration;
+
+    animation-name: $name;
+    -moz-animation-name: $name;
+    -webkit-animation-name: $name;
+
+    animation-timing-function: $timing;
+    -moz-animation-timing-function: $timing;
+    -webkit-animation-timing-function: $timing;
+}
+
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content; 
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  } 
+}
+
+@mixin background-linear-gradient-down($from, $to, $default:$from) {
+    background-color: $default;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from($from), to($to));
+    background-image: -webkit-linear-gradient(top, $from, $to);
+    background-image: -o-linear-gradient(top, $from, $to);
+    background-image: linear-gradient(to bottom, $from, $to);
+    background-image: -moz-linear-gradient(top, $from, $to);
+    background-repeat: repeat-x;
+    @include filter-gradient($from, $to, vertical);
+}
+
+@mixin background-linear-gradient-right($from, $to, $default:$from) {
+    background-color: $default;
+    background-color: transparent;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from($from), to($to));
+    background-image: -webkit-linear-gradient(right, $from, $to);
+    background-image: -o-linear-gradient(right, $from, $to);
+    background-image: linear-gradient(to left, $from, $to);
+    background-image: -moz-linear-gradient(right, $from, $to);
+    background-position: center top;
+    background-repeat: repeat-y;
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='$from', endColorstr='$to', GradientType=0);
+}
+
+@mixin border-box {
+    @include box-sizing(border-box);
+}
+
+@mixin iconsprite($name, $w, $spriteX) {
+    &[class*='#{$name}'] {
+        background-position: (-$w * $spriteX) 0;
+
+        &:hover {
+            background-position: (-$w * $spriteX) (-$w);
+        }
+        &.active {
+            background-position: (-$w * $spriteX) (-($w * 2));
+        }
+        @content;
+    }
+}

@@ -30,7 +30,7 @@ define(['jquery', 'underscore', 'backbone', 'handlebars', 'views/mainView',
                 this.suggestionTypeGames = new SuggestionTypeGameCollection(window.database.suggestiontypegame);
                 this.tags = new TagCollection(window.database.tag);
                 this.tagGames = new TagGameCollection(window.database.taggame);
-                this.users = new UserCollection(window.database.user);
+                this.users = new UserCollection(window.database.users);
 
                 this.mainView = new MainView({router: this});
 

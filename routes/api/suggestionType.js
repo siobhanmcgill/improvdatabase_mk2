@@ -46,11 +46,11 @@ exports.update = function(req,res) {
 
     var q = connection.getUpdateQuery('suggestiontype', data, {SuggestionTypeID: req.params.id});
 
-    connection.query(q.query, q.values, function(err) {
+    connection.query(q.query, q.values, function(err, response) {
         if (err) {
             res.json('500', err);
         } else {
-            res.send('200', 'Suggestion Type Updated', req.params.id);
+            res.json('200', response.rows[0]);
         }
     });
 };

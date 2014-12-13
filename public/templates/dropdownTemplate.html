@@ -1,4 +1,4 @@
-    <label>{{idname}}:</label>
+    {{#if idname}}<label>{{idname}}:</label>{{/if}}
     <div id="{{idattr}}_toggle" class="dropdown-button"><span class="name">Choose</span> <span class="arrow-down pull-right"></span></div>
     <div class="dropdown shadow4" id="{{idattr}}_selection" data-button="{{idattr}}_toggle">
         <div class="dropdown-option new has-tooltip" title="Create a new {{idname}} property.">Create New</div>

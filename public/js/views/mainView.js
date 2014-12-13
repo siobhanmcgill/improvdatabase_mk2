@@ -7,9 +7,10 @@ define(['jquery',
         'dynamictable',
 
         'views/addGameFormView',
-        'views/gameView'
+        'views/gameView',
+        'views/tagFilterView'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, AddGameFormView, GameView) {
+    function($, _, Backbone, moment, deny, DynamicTable, AddGameFormView, GameView, TagFilterView) {
         return Backbone.View.extend({
             el: "#main",
             events: {
@@ -22,31 +23,43 @@ define(['jquery',
 
                 this.listenTo(Backbone, "show-game", function() {
                     this.$el.addClass("showGame");
-                    var self = this;
                     setTimeout(function() {
-                        self.$("#gameTable").dynamictable("reload");
+                        self.reload();
+                        //self.$("#gameTable").dynamictable("reload");
                     }, 500);
                 });
                 this.listenTo(Backbone, "hide-game", function() {
                     this.$el.removeClass("showGame");
-                    var self = this;
+                    this.gameView = false;
                     setTimeout(function() {
-                        self.$("#gameTable").dynamictable("reload");
+                        self.reload();
+                        //self.$("#gameTable").dynamictable("reload");
                     }, 500);
                 });
 
                 this.listenTo(this.router.tagGames, "add remove", function() {
-                    this.$("#gameTable").dynamictable("reload");
+                    self.reload();
+                    //this.$("#gameTable").dynamictable("reload");
                 });
                 this.listenTo(this.router.games, "sync add", function() {
-                    this.$("#gameTable").dynamictable("reload");
+                    self.reload();
+                    //this.$("#gameTable").dynamictable("reload");
                 });
 
                 this.addGameForm = new AddGameFormView({router: this.router});
             },
+
+            reload: function () {
+                clearTimeout(this._reloadTimer);
+                var self = this;
+                this._reloadTimer = setTimeout(function () {
+                    self.$('#gameTable').dynamictable('reload');
+                }, 100);
+            },
+
             render: function() {
-                var headerscale = this.$el.outerWidth() / (this.$("h1").outerWidth() - 4);
-                this.$('h1').css({
+                var headerscale = this.$el.outerWidth() / (this.$el.children("h1").outerWidth() - 4);
+                this.$el.children('h1').css({
                     "-webkit-transform": "scale(" + headerscale + ")"
                 });
 
@@ -54,73 +67,63 @@ define(['jquery',
 
                 this.$("#pagesize").dropdown({width: "auto"});
 
-                var self = this;
+                this.tagFilter = new TagFilterView({
+                    collection: window.router.tags
+                });
+
                 this.$("#gameTable").dynamictable({
                     data: this.router.games,
                     pageindicator: this.$("#pageindicator"),
                     prevpagebutton: this.$("#prevpage"),
                     nextpagebutton: this.$("#nextpage"),
                     pagesizemenu: this.$("#pagesize"),
-                    onRender: function(table, data) {
+                    pageSize: 'auto',
+                    onRender: function(table) {
                         table.find(".has-tooltip").tooltip();
-                    }
-                    /*, MANUAL COLUMN CONFIG
+                    },
                     columns: [
-                        {
-                            header: "Name",
-                            className: "name",
-                            property: function(data) {
-                                var id = data.GameID;
-                                return self.router.names.getMainName(id);
-                            }
-                        }, {
-                            property: 'Description',
-                            sortable: false
-                        }, {
-                            header: "Tags",
-                            sortable: false,
-                            className: "tags",
-                            property: function(data) {
-                                var id = data.GameID;
-                                var taglist = self.router.tagGames.where({"GameID": id});
-                                var obj = $("<div></div>");
-                                _.each(taglist, function(tag) {
-                                    var thisTag = self.router.tags.get(tag.get("TagID"));
-                                    obj.append("<div class='tag'>" + thisTag.get("Name") + "</div>");
-                                });
-                                return obj.html();
-                            }
-                        }, {
-                            header: "Duration",
-                            property: function(data) {
-                                var id = data.DurationID;
-                                var durobj = self.router.durations.get(id);
-                                var d = document.createElement("span");
-                                d.innerHTML = durobj.get("Name");
-                                d.title = durobj.get("Description");
-                                d.className = "has-tooltip";
-
-                                return d;
-                            }
-                        }, {
-                            header: "Number of Players",
-                            property: function(data) {
-                                var id = data.PlayerCountID;
-                                var durobj = self.router.playerCounts.get(id);
-                                var d = document.createElement("span");
-                                d.innerHTML = durobj.get("Name");
-                                d.title = durobj.get("Description");
-                                d.className = "has-tooltip";
-
-                                return d;
-                            }
-                        }, {
-                            header: "Last Updated",
-                            property: function(data) {
-                                return moment(data.DateModified).format("MM/DD/YYYY [at] h:mm:ss a");
-                            }
-                        }
-                    ]*/
+                            "Name",
+                            {
+                                property: "Tags",
+                                sortable: false,
+                                filter: {
+                                    view: this.tagFilter,
+                                    property: 'tag'
+                                }
+                            },
+                            {
+                                property: "Duration",
+                                sortProperty: "DurationSort",
+                                filter: {
+                                    collection: window.router.durations,
+                                    property: 'DurationID',
+                                    attributes: {
+                                        value: 'DurationID',
+                                        title: 'Description',
+                                        text: 'Name'
+                                    }
+                                }
+                            },
+                            {
+                                header: "Number of Players",
+                                property: "PlayerCount",
+                                sortProperty: "PlayerCountSort",
+                                filter: {
+                                    collection: window.router.playerCounts,
+                                    property: 'PlayerCountID',
+                                    attributes: {
+                                        value: 'PlayerCountID',
+                                        title: 'Description',
+                                        text: 'Name'
+                                    }
+                                }
+                            }/*,
+                            {
+                                header: "Last Modified",
+                                property: "ModifiedDisplay",
+                                sortProperty: "DateModified"
+                            }*/
+                    ]
                 });
 
             },
@@ -133,6 +136,7 @@ define(['jquery',
                         this.addGameForm.hide();
                     }
                 } else {
+                    this.$('#gameBox').append(this.addGameForm.$el);
                     this.addGameForm.render();
                 }
             },
@@ -140,11 +144,17 @@ define(['jquery',
             showGame: function(e) {
                 var data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
                 if (data) {
+                    if (this.gameView) {
+                        this.gameView.destroy();
+                    }
+                    this.addGameForm.destroy();
+
                     this.gameView = new GameView({
                         GameID: data.id,
                         router: this.router,
                         model: data
                     });
+                    this.$('#gameBox').append(this.gameView.$el);
                     this.gameView.render();
                 }
             }

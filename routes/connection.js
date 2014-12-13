@@ -102,11 +102,12 @@ exports.getInsertQuery = function (table, data, id) {
 
 exports.getUpdateQuery = function (table, data, where) {
 
-    var query, values = [], cnt = 1;
+    var query, columns, values = [], cnt = 1;
 
     query = 'UPDATE ' + table + ' SET ';
+    columns = '';
 
-    _.each(_.pairs(data), function (item, i) {
+    _.each(_.pairs(data), function (item) {
         if (item[1]) {
             var qval = item[1] === 'NOW' ? 'CURRENT_TIMESTAMP' : '$' + cnt;
             
@@ -133,7 +134,7 @@ exports.getUpdateQuery = function (table, data, where) {
         cnt++;
     });
 
-    query += ';';
+    query += ' RETURNING *;';
 
     return {query: query, values: values};
 };

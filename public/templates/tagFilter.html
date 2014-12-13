@@ -1,0 +1,12 @@
+<div class="dropdown left shadow4" id="tags_filter" data-button="tags_filter_toggle">
+
+    <div class="taginput"></div>
+
+    <label>Available Tags:</label>
+    <div class="taglist">
+    {{#each collection.models}}
+        <span class="tag" data-id="{{id}}">{{attributes.Name}}</span>
+    {{/each}}
+    </div>
+
+</div>

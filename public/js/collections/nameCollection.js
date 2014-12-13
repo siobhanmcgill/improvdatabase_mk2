@@ -15,6 +15,7 @@ define(['backbone', 'underscore', 'models/name'],
             friendlyName: "Game Name",
 
             getMainName: function(GameID) {
+                this.sort();
                 var names = this.where({GameID: GameID});
                 return names.pop().get("Name");
             }
