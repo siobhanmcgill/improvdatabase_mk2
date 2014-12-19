@@ -92,11 +92,12 @@ a:visited {
 }
 .dropdown {
     background: rgba(255,255,255,0.9);
-    border: 1px solid #555;
+    //border: 1px solid #555;
+    //border-top: 0px;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    border-top: 0px;
+    @include border-radius(0 0 10px 10px);
 
     .dropdown-option {
         font-size: 18px;
@@ -187,19 +188,104 @@ nav {
     }
 }
 
-#gameBox #btnAddGame {
-    width: 40px;
-    float: right;
-    font-size: 40px;
-    padding: 0px;
-    border-width: 0 0 1px 1px;
-    position: relative;
-    z-index: 10;
-    
-    &:before {
-        border-width: 0 0 1px 1px;
+#toolbar {
+    .section {
+        float: left;
+
+        & > .btn {
+            width: auto;
+            height: 38px;
+            padding: 0px;
+            border: 0px;
+            line-height: normal;
+            float: left;
+
+            background: rgba(0,0,0,0);
+            @include transition(background-color 500ms, color 500ms);
+
+            &:hover {
+                background: none;
+            }
+        }            
+        
+        i {
+            margin: 0 4px;
+            line-height: 38px;
+        }
+
+        .sub {
+            overflow: hidden;
+            border-width: 0px;
+            width: 0;
+            white-space: nowrap;
+            float: left;
+            @include box-sizing;
+            @include transition(width 500ms);
+            background: rgba(0,0,0,0.3);
+
+            span {
+                font-size: 12px;
+                width: 55px;
+                text-align: left;
+                display: inline-block;
+                vertical-align: middle;
+                margin-left: 5px;
+                white-space: normal;
+                color: #FFF;
+            }
+            .btn {
+                width: 38px;
+                height: 38px;
+                line-height: 38px;
+                line-height: normal;
+                border-left: 1px solid rgba(0,0,0,0.4);
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: -5px;
+                color: #FFF;
+                
+                &:hover {
+                    background: rgba(0,0,0,0.3);
+                }
+                &:last-child {
+                    margin-right: 0px;
+                }
+                &.active {
+                    background: rgba(255,255,255,0.4);
+                }
+            }
+        }
+
+        &#gameTools.active .sub {
+            width: 162px;
+        }
+
+        &.active {
+
+            & > .btn {
+                color: #FFF;
+                background: rgba(0,0,0,0.3);
+            }
+            .sub {
+                border-left: 2px solid rgba(0,0,0,0.5);
+                border-right: 2px solid rgba(0,0,0,0.5);
+            }
+        }
     }
 }
+
+/*
+.icon-database {
+    width: 30px;
+    height: 30px;
+    background: url('../images/app-icons.png') no-repeat;
+}
+.icon-random {
+    width: 30px;
+    height: 30px;
+    background: url('../images/app-icons.png') no-repeat -30px 0px;
+}
+*/
 
 #bottomnav {
     top: auto;
@@ -274,9 +360,21 @@ nav {
             position: absolute;
             top: 0px;
             bottom: 0px;
+            color: #FFF;
+            text-align: center;
 
-            -webkit-transition: left 500ms, right 500ms;
-            transition: left 500ms, right 500ms;
+            @include transition(left 500ms, right 500ms);
+
+            .page {
+                display: block;
+                line-height: 19px;
+                border-bottom: 1px solid #FFF;
+                margin: 0 7%;
+            }
+            .total {
+                display: block;
+                line-height: 20px;
+            }
         }
     }
 }
@@ -286,10 +384,12 @@ nav {
     font-size: 30px;
     line-height: 40px;
     text-align: center;
-
+    
+    /*
     border-width: 1px;
     border-color: #999 #444 #444 #999;
     border-style: solid;
+    */
 
     position: relative;
     color: #444;
@@ -344,14 +444,44 @@ nav {
 
 #tags_filter {
     padding: 10px;
+    @include border-radius(10px 0 10px 10px);
+    #tagOutput > .fa {
+        float: left;
+        font-size: 20px;
+        line-height: 30px;
+        margin-right: 5px;
+    }
+    input {
+        @include border-box;
+        padding: 3px;
+        font-size: 1.2em;
+    }
     .tag {
         cursor: pointer;
+    }
+    .taglist {
+        margin-top: 5px;
+
+        .tag {
+            float: none;
+            display: inline-block;
+
+            &.left {
+                float: left;
+                margin-right: 6px;
+            }
+            &.right {
+                float: right;
+                margin-left: 6px;
+            }
+        }
     }
 }
 
 #gameBox {
     overflow: hidden;
     font-size: 16px;
+    position: relative;
 
     -webkit-transition: height 500ms 500ms;
     transition: height 500ms 500ms;
@@ -364,8 +494,10 @@ nav {
 
     .content {
         display: none;
-        padding: 1px 10px 20px 10px;
+        padding: 1px 10px 35px 10px;
         cursor: initial;
+        position: relative;
+        z-index: 1;
 
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
@@ -398,7 +530,6 @@ nav {
     }
         
     &.scrollContent .content {
-        position: relative;
         height: 100%;
 
         & > h5 {
@@ -513,6 +644,10 @@ nav {
         margin: 0 0 0 5px;
     }
 
+    #playerCount_dropdown {
+        margin-top: 10px;
+    }
+
     #tags {
         margin-top: 10px;
 
@@ -521,10 +656,23 @@ nav {
         }
         #tagOutput {
             margin: 3px 0;
+
+            .fa {
+                line-height: 30px;
+                float: left;
+                margin-right: 5px;
+                font-size: 20px;
+            }
         }
     } /* end of #tags */
 
-
+    .notes {
+        margin-top: 10px;
+        & > .fa {
+            font-size: 20px;
+            margin-right: 3px;
+        }
+    }
     .addNoteLink {
         display: block;
         margin: 16px 0 0;
@@ -543,10 +691,14 @@ nav {
         display: none;
         .note {
             font-size: 0.9em;
-            margin: 10px 0 0 10px;
+            margin: 10px 0 0 20px;
 
             p {
                 margin: 0;
+                text-indent: -10px;
+                i:first-child {
+                    width: 6px;
+                }
             }
             .noteSig {
                 text-align: right;
@@ -554,8 +706,51 @@ nav {
             }
         }
     }
+
+    & > .close {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 20px;
+        text-align: center;
+        background: rgba(0,0,0,0.1);
+        @include transition(opacity 500ms);
+        cursor: pointer;
+        opacity: 0;
+        @include transition(opacity 200ms);
+        z-index: 5;
+    }
+    &.open > .close {
+        opacity: 1;
+    }
 } /* end of #gameBox */
 
+#duration_add {
+    label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+        font-style: italic;
+    }
+    input,
+    textarea,
+    .content .dropdown-button {
+        background: transparent;
+        border: 1px solid #555;
+        width: 100%;
+        font-size: 20px;
+        line-height: 24px;
+        padding: 1px 3px;
+        box-sizing: border-box;
+        color: #444;
+    }
+    textarea {
+        font-size: 16px;
+        line-height: 18px;
+        font-family: Arial;
+    }
+}
 
 #gameTable {
     position: absolute;
@@ -634,6 +829,22 @@ nav {
         &.sortable.desc:before {
             -webkit-transform: rotateZ(90deg);
             transform: rotateZ(90deg);
+        }
+    }
+
+    .filter-button {
+        width: auto;
+        height: auto;
+        margin-top: -10px;
+    }
+    .dropdown-button {
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+
+        &.dropdown-active {
+            @include border-radius(5px 5px 0 0);
         }
     }
 } /* end of #gameTable */

@@ -150,7 +150,8 @@ strong {font-weight: bold}
     .expandable.ready {
         transition: height 800ms;
     }
-    
+
+/*
 [class*='icon-'] {
     background-image: url('../images/icons.stock.png');
     background-repeat: no-repeat;
@@ -161,11 +162,7 @@ strong {font-weight: bold}
 [class*='icon-'].icon-white {
     background-image: url('../images/icons.white.png');
 }
-/*
-a:hover [class*='icon-'] {
-    background-image: url('../images/icons.hover.png');
-}
-*/
+
 .icon-plus {background-position: 0px 0px;}
 .icon-box {background-position: -20px 0px;}
 .icon-search {background-position: -40px 0px;}
@@ -194,6 +191,7 @@ a:hover [class*='icon-'] {
 .icon-sandwich {background-position: -500px 0px}
 .icon-boxes {background-position: -520px 0px}
 .icon-gift {background-position: -540px 0px}
+*/
 
 /*SHADOWS!*/
 .shadow1 {box-shadow: 1px 1px 10px rgba(0,0,0,0.5);}
@@ -216,7 +214,7 @@ but this will require some javascript magic, probably
     bottom: 0px;
 }
 */
-.inner-shadow1 { box-shadow: 0px 1px 15px rgba(0,0,0,0.5) inset; }
+.inner-shadow1 { @include box-shadow(1px 1px 6px rgba(0,0,0,0.4) inset); }
 .inner-shadow2 { box-shadow: 2px 2px 10px rgba(0,0,0,0.5) inset; }
 .inner-shadow3 {}
 .inner-shadow4 {}
@@ -325,6 +323,7 @@ but this will require some javascript magic, probably
     }
 
 /* ICONS and ICON ACCESSORIES */
+/*
 $icon: 18px;
 [class*='icon-'] {
     display: inline-block;
@@ -343,8 +342,13 @@ $icon: 18px;
             }
         }
     };
-
+    @include iconsprite('caret', $icon, 2) {
+        &.active:hover {
+            background-position: (-$icon * 2) (-$icon * 3);
+        }
+    };
 }
+*/
 
 /* Tables! */
 table th.sortable {

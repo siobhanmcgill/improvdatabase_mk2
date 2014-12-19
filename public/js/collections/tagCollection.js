@@ -11,6 +11,7 @@ define(['backbone', 'underscore', 'models/tag'],
                 });
             },
             model: Tag,
-            friendlyName: "Tag"
+            friendlyName: "Tag",
+            comparator: 'Name'
         });
     });

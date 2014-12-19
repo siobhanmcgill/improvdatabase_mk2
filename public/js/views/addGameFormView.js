@@ -6,7 +6,7 @@ define(['jquery',
         'deny',
         'dynamictable',
 
-        'tmpl!templates/addGameForm.html',
+        'text!templates/addGameForm.html',
 
         'views/dropdownView',
         'views/tagInputView',
@@ -14,7 +14,7 @@ define(['jquery',
         'models/game',
         'models/name',
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, AddGameForm, DropdownView, TagInputView, Game, Name) {
+    function($, _, Backbone, moment, deny, DynamicTable, AddGameTemplate, DropdownView, TagInputView, Game, Name) {
         return Backbone.View.extend({
             events: {
                 "click #saveItUp" : "doSave"
@@ -23,7 +23,7 @@ define(['jquery',
                 this.router = options.router;
             },
             render: function() {
-                this.$el.addClass("content").html(AddGameForm()).show();
+                this.$el.addClass("content").html(_.template(AddGameTemplate)).show();
                 this.$el.parent().find("#btnAddGame").addClass("active");
 
                 this.durationDropdown = new DropdownView({

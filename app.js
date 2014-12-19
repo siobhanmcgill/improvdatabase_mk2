@@ -44,6 +44,8 @@ hbs.registerHelper( 'block', function( name ) {
     return val;
 });
 
+app.use( '/bower_components', express.static( __dirname + '/bower_components' ) );
+
 app.all( '/*', function( req, res, next ) {
     // Process preflight if it is OPTIONS request
     if( 'OPTIONS' === req.method ) {

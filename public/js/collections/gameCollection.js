@@ -31,11 +31,15 @@ define(['backbone', 'jquery', 'underscore', 'models/game'],
 
             _data: function (options) {
                 var filter = options.filter,
+                    tagFilter,
                     data,
                     returnObject = {};
                 
                 // first filter the data
-                if (filter) {
+                if (filter && _.keys(filter).length) {
+                    // filter tags later, because it might be more difficult
+                    tagFilter = filter.tags;
+                    filter = _.omit(filter, 'tags');
                     data = this.filter(function (game) {
                         var include = true;
                         _.find(_.pairs(filter), function (pair) {
@@ -59,8 +63,16 @@ define(['backbone', 'jquery', 'underscore', 'models/game'],
                         });
                         return include;
                     });
+                    if (tagFilter) {
+                        data = _.filter(data, function (game) {
+                            var taglist = _.map(window.router.tagGames.where({"GameID": game.id}), function (item) {
+                                return item.get('TagID');
+                            });
+                            return _.intersection(tagFilter, taglist).length === tagFilter.length;
+                        });
+                    }
                 } else {
-                    data = this.toJSON();
+                    data = this.models;
                 }
 
                 // then split it into pages

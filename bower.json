@@ -1,0 +1,19 @@
+{
+    "name": "improv-database",
+    "version": "0.0.1",
+    "description": "Node (and PostgreSQL) web application for listing and organizing Improv Comedy games.",
+    "private": true,
+    "location": "https://github.com/ShauvonM/improvdatabase.git",
+    "authors": [
+        "Shauvon McGill <smcgill@denyconformity.com>"
+    ],
+    "dependencies": {
+        "backbone": "#^1",
+        "jquery": "#^2",
+        "store": "store#2.1.6",
+        "moment": "moment#2.8.4",
+        "requirejs": "requirejs#2.1.9",
+        "underscore": "underscore#1.6.0",
+        "requirejs-text": "requirejs-text#2.0.12"
+    }
+}

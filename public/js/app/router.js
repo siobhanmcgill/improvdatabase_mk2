@@ -1,10 +1,10 @@
-define(['jquery', 'underscore', 'backbone', 'handlebars', 'views/mainView',
+define(['jquery', 'underscore', 'backbone', 'views/mainView',
         
         'collections/durationCollection', 'collections/gameCollection', 'collections/groupCollection', 'collections/nameCollection',
         'collections/noteCollection', 'collections/playerCountCollection', 'collections/suggestionCollection', 'collections/suggestionTypeCollection', 
         'collections/suggestionTypeGameCollection', 'collections/tagCollection', 'collections/tagGameCollection', 'collections/userCollection'
         ],
-    function($,     _,           Backbone,   Handlebars,   MainView,
+    function($,     _,           Backbone,   MainView,
     
         DurationCollection, GameCollection, GroupCollection, NameCollection, NoteCollection, PlayerCountCollection, SuggestionCollection, SuggestionTypeCollection,
         SuggestionTypeGameCollection, TagCollection, TagGameCollection, UserCollection) {

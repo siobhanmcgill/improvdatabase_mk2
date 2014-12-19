@@ -6,14 +6,15 @@ define(['jquery',
         'deny',
         'dynamictable',
 
-        'tmpl!templates/dropdownTemplate.html',
-        'tmpl!templates/turnover.html',
-        'tmpl!templates/turnover-dropdownAdd.html'
+        'text!templates/dropdownTemplate.html',
+        'text!templates/turnover.html',
+        'text!templates/turnover-dropdownAdd.html'
         ],
     function($, _, Backbone, moment, deny, DynamicTable, Dropdown, Turnover, TurnoverContents) {
         return Backbone.View.extend({
             events: {
-                "click .dropdown-option": "selectOption"
+                //"click .dropdown-option": "selectOption"
+                'change .dropdown-button': 'selectOption'
             },
             initialize: function(options) {
                 var self = this;
@@ -44,19 +45,21 @@ define(['jquery',
                 }
             },
             render: function() {
-                this.$el.html(Dropdown({
-                    idattr: this.idattr,
-                    idname: this.idname
-                }));
+                this.$el.html(_.template(Dropdown, {
+                        idattr: this.idattr,
+                        idname: this.idname
+                    })
+                );
                 
                 if (this._add) {
-                    this.$(".dropdown-button").append(Turnover({
-                        id: this.idattr + "_add",
-                        content: TurnoverContents({
-                            attr: this.attr,
-                            id: this.idattr
+                    this.$(".dropdown-button").append(_.template(Turnover, {
+                            id: this.idattr + "_add",
+                            content: _.template(TurnoverContents, {
+                                attr: this.attr,
+                                id: this.idattr
+                            })
                         })
-                    }));
+                    );
                     this.$(".dropdown-button").turnover({
                         trigger: "manual"
                     });
@@ -92,7 +95,7 @@ define(['jquery',
                     });
                 }
 
-                if (!this._new) {
+                if (!this._add) {
                     this.$(".dropdown .dropdown-option").eq(-1).hide();
                 }
 
@@ -107,8 +110,8 @@ define(['jquery',
                     this.$('.dropdown .dropdown-option').eq(this.default).click();
                 }
             },
-            selectOption: function(e) {
-                var oOpt = $(e.currentTarget);
+            selectOption: function(e, oOpt) {
+                oOpt = $(oOpt);
                 if (oOpt.hasClass("new")) {
                     this.$(".dropdown-button").turnover("show");
                 } else {
@@ -122,6 +125,8 @@ define(['jquery',
                         this.trigger('change', oOpt.data());
                     }
                 }
+                e.stopPropagation();
+                return false;
             },
             addNew: function(e) {
                 var form = $(e.currentTarget).closest("form");

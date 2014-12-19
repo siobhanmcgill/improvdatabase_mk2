@@ -1,41 +1,41 @@
-<h5>{{mainName}}</h5>
+<h5><%- mainName %></h5>
 
 <div class="scroll-area">
-    {{#if altNamesShow}}
-    <a class="altNameLink" href="#">{{nameCount}} alternate name{{#if namePlural}}s{{/if}}</a>
-    {{else}}
+    <% if (altNamesShow) { %>
+    <a class="altNameLink" href="#"><%- nameCount %> alternate name<% if (namePlural) { %>s<% } %></a>
+    <% } else { %>
     <a class="altNameLink" href="#">Propose alternate name</a>
-    {{/if}}
+    <% } %>
     <div class="altNames">
         <a href="#" class="close">&times;</a>
-        {{#if altNamesShow}}
+        <% if (altNamesShow) { %>
         <label>Known Aliases:</label>
-        {{#each altNames}}
-        <div data-nameid="{{attributes.NameID}}">
-            {{attributes.Name}} <a class="weight weightUp">(+{{attributes.Weight}})</a>
+        <% _.each(altNames, function (name) { %>
+        <div data-nameid="<%- name.attributes.NameID %>">
+            <%- name.attributes.Name %> <a class="weight weightUp">(+<%- name.attributes.Weight %>)</a>
         </div>
-        {{/each}}
+        <% }) %>
         <a href="#" class="addName">Add alternate name</a>
-        {{else}}
+        <% } else { %>
         <label>What do you call this, then?</label>
-        {{/if}}
-        <input name="alternateName" {{#if altNamesShow}}style="display: none"{{/if}} />
-        <a href="#" {{#if altNamesShow}}style="display: none"{{/if}} class="alternateNameSubmit">Save</a>
+        <% } %>
+        <input name="alternateName" <% if (altNamesShow) { %>style="display: none"<% } %> />
+        <a href="#" <% if (altNamesShow) { %>style="display: none"<% } %> class="alternateNameSubmit">Save</a>
     </div>
 
     <div>
-        <p>{{Description}}</p>
+        <p><%= Description %></p>
     </div>
 
     <div id="duration_dropdown">
-        <label>Duration:</label>
-        <h5 title="{{durationDescription}}" class="has-tooltip">{{durationName}}</h5>
+        <!--<label>Duration:</label>-->
+        <h5 title="<%- durationDescription %>" class="has-tooltip"><i class="fa fa-clock-o"></i> <%- durationName %></h5>
         <a href="#" class="edit">Change...</a>
     </div>
 
     <div id="playerCount_dropdown">
-        <label>Player Count:</label>
-        <h5 title="{{playerCountDescription}}" class="has-tooltip">{{playerCountName}}</h5>
+        <!--<label>Player Count:</label>-->
+        <h5 title="<%- playerCountDescription %>" class="has-tooltip"><i class="fa fa-group"></i> <%- playerCountName %></h5>
         <a href="#" class="edit">Change...</a>
     </div>
 
@@ -45,23 +45,36 @@
     <div class="btn pull-right hide" id="saveItUp">save</div>
     
     <div class="notes">
-        <label>Notes:</label>
-        {{#if hasNotes}}
-        <a href="#" class="showNotes">Show the {{noteCount}} note{{#if notePlural}}s{{/if}} about this game</a>
+        <!-- <label>Notes:</label> -->
+        <i class="fa fa-comments"></i>
+        <% if (hasNotes) { %>
+        <a href="#" class="showNotes">Show the <%- noteCount %> note<% if (notePlural) { %>s<% } %> about this game</a>
         <div class="notelist">
-        {{#each notes}}
+        <% _.each(notes, function (note) { %>
             <div class="note">
-                <p>{{attributes.Description}}</p>
-                <div class="noteSig">Regarding {{regarding}}</div>
-                <div class="noteSig">{{user.attributes.FirstName}} {{user.attributes.LastName}} - {{time}}</div>
+                <p>
+                <% if (note.attributes.TagID) { %>
+                <i class="fa fa-tag"></i>
+                <% } else if (note.attributes.DurationID) { %>
+                <i class="fa fa-clock-o"></i>
+                <% } else if (note.attributes.PlayerCountID) { %>
+                <i class="fa fa-group"></i>
+                <% } else if (note.attributes.GameID) { %>
+                <i class="fa fa-futbol-o"></i>
+                <% } else { %>
+                <i class="fa fa-comment-o"></i>
+                <% } %>
+                <%= note.attributes.Description %></p>
+                <div class="noteSig">Regarding <%- note.regarding %></div>
+                <div class="noteSig"><%- note.user.attributes.FirstName %> <%- note.user.attributes.LastName %> - <%- note.time %></div>
             </div>
-        {{/each}}
+        <% }) %>
         <a href="#" class="addNoteLink">Add Note</a>
         </div>
-        {{else}}
+        <% } else { %>
         <span class="showNotes">Nothing has been said.</span>
         <a href="#" class="addNoteLink">Add Note</a>
-        {{/if}}
+        <% } %>
 
         <div class="addNote">
             <textarea name="Note" rows="5"></textarea>

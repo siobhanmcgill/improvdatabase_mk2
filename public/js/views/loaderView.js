@@ -3,7 +3,7 @@ define(['jquery',
         'underscore',
         'backbone',
         
-        'tmpl!templates/loader.html'
+        'text!templates/loader.html'
         ],
     function($, _, Backbone, LoaderTemplate) {
         return Backbone.View.extend({
@@ -17,7 +17,7 @@ define(['jquery',
                 this.on("addLoad", this.doLoad);
             },
             render: function() {
-                this.$el.append(LoaderTemplate());
+                this.$el.append(_.template(LoaderTemplate));
             },
             doLoad: function(item) {
                 this.loaded++;

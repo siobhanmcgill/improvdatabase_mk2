@@ -272,9 +272,7 @@ define(['jquery', 'backbone', 'underscore'],
             this.$pageindicator.find("div").css({
                 left: (x * 100) + "%",
                 right: (w * 100) + "%"
-            });
-
-            console.log(this._total + ' items');
+            }).html('<span class="page">' + (this._start + 1) + ' - ' + this._end + '</span><span class="total">' + this._total + '</span>');
         },
 
         mouseoverRow: function(e) {
@@ -368,14 +366,16 @@ define(['jquery', 'backbone', 'underscore'],
             this._forEach(this.columns, function(column, i) {
                 if (column.filter) {
                     if (column.filter.view) {
+                        column.filter.view.off('filter');
                         column.filter.view.on('filter', function (prop, sel) {
                             self._filter[prop] = sel;
                             self.reload();
                         });
                         column.filter.view.render();
                     } else {
-                        self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown();
-                        self.$head.find('.dt-header').eq(i).find('.dropdown').on('click', '.dropdown-option', $.proxy(self._clickFilterMenu, self))
+                        self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown()
+                                    .off('change')
+                                    .on('change', $.proxy(self._clickFilterMenu, self))
                                     .find('.has-tooltip').tooltip({ direction: "left" });
                     }
                 }
@@ -390,7 +390,7 @@ define(['jquery', 'backbone', 'underscore'],
 
             html = '<div id="' + column.property + '_filter_toggle" class="filter-button dropdown-button" ';
             html += 'data-menu="' + column.property + '_selection">';
-            html += '<span class="icon-filter ' + iconClass + '"></span></div>';
+            html += '<i class="fa fa-filter ' + iconClass + '"></i></div>';
             
             var $obj;
             
@@ -420,8 +420,8 @@ define(['jquery', 'backbone', 'underscore'],
 
             return $obj;
         },
-        _clickFilterMenu: function (e) {
-            var $option = $(e.currentTarget),
+        _clickFilterMenu: function (e, option) {
+            var $option = $(option), //$(e.currentTarget),
                 checked = $option.find('.icon-checkbox').hasClass('checked'),
                 value = $option.data('value'),
                 $menu = $option.parent(),
@@ -711,8 +711,11 @@ define(['jquery', 'backbone', 'underscore'],
             var r = this.$table.outerHeight();
             this.$table.css("bottom", "-1px");
             return r;
-        }
+        },
 
+        getFilter: function () {
+            return this._filter;
+        }
 
     };
 

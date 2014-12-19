@@ -1,23 +1,18 @@
 require.config({
-	baseUrl: '../js/libs',
+	baseUrl: '/js',
 	paths: {
-		'views': '../views',
-		'models': '../models',
-		'collections': '../collections',
-		'app': '../app',
-		'templates': '../../templates',
-        'dynamictable': '../app/dynamictable',
-        'deny': '../app/deny',
-        'autocomplete': '../app/autoComplete'
+		'templates': '../templates',
+        'dynamictable': 'app/dynamictable',
+        'deny': 'app/deny',
+        'autocomplete': 'app/autoComplete',
+
+        'jquery': '/bower_components/jquery/dist/jquery.min',
+        'backbone': '/bower_components/backbone/backbone',
+        'moment': '/bower_components/moment/min/moment.min',
+        'store': '/bower_components/store/dist/store2.min',
+        'underscore': '/bower_components/underscore/underscore',
+        'text': '/bower_components/requirejs-text/text'
 	},
 	deps: ['app/router'],
-	shim: {
-        'backbone': {
-			deps: ['jquery','underscore'],
-            exports: 'Backbone'
-		},
-        'underscore': {
-            exports: '_'
-        }
-	}
+    stubModules: ['text']
 });

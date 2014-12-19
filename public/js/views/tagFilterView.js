@@ -3,7 +3,7 @@ define(['jquery',
         'backbone',
         'moment',
 
-        'tmpl!templates/tagFilter.html',
+        'text!templates/tagFilter.html',
         'views/tagInputView'
         ],
     function($, _, Backbone, moment, TagFilterTemplate, TagInputView) {
@@ -23,54 +23,74 @@ define(['jquery',
             },
 
             clickTag: function (e) {
-                var tag = $(e.currentTarget).text();
-                this.tagInput.addTag(e, tag, window.router.tags.get($(e.currentTarget).data('id')));
+                console.log('whaaa');
+                var tag = $(e.currentTarget).text(),
+                    id = $(e.currentTarget).data('id');
+                if (this.selected.indexOf(id) === -1) {
+                    this.tagInput.addTag(e, tag, window.router.tags.get(id));
+                }
                 e.stopPropagation();
                 return false;
             },
 
-            addSelected: function (tag) {
-                if (this.selected.indexOf(tag) === -1) {
-                    this.selected.push(tag);
-                    this.$menu.css('height', 'auto').data('height', false);
+            addSelected: function (tag, id) {
+                if (this.selected.indexOf(id) === -1) {
+                    this.selected.push(id);
+                    this.resize();
                 }
-                console.log('add selected', this.selected);
                 this.trigger('filter', 'tags', this.selected);
             },
             removeSelected: function (id) {
-                var model = window.router.tags.get(id),
-                    tag = model.get('Name');
-                if (this.selected.indexOf(tag) > -1) {
-                    this.selected = _.without(this.selected, tag);
+                if (this.selected.indexOf(id) > -1) {
+                    this.selected = _.without(this.selected, id);
                 }
-                this.trigger('filter', this.selected);
+                this.resize();
+                this.trigger('filter', 'tags', this.selected);
+            },
+
+            resize: function () {
+                this.$menu.css('height', 'auto').css('height', this.$menu.outerHeight()).data('height', this.$menu.outerHeight());
             },
 
             render: function() {
                 this.$el.addClass('filter-button');
 
                 if (!this.$menu) {
-                    this.$menu = $(TagFilterTemplate(this));
+                    this.$menu = $(_.template(TagFilterTemplate, this));
 
                     this.$el.append(this.$menu);
+                    
+                    var left = false;
+                    this.$menu.find('.taglist .tag').each(function () {
+                        //var size = Math.sqrt($(this).data('weight') / 3);
+                        var weight = $(this).data('weight'),
+                            size = ((weight / 10) * 0.7) + 0.63;
+                        $(this).css('font-size', size + 'em');
+                        if (size > 2.2) {
+                            $(this).addClass(left ? 'left' : 'right');
+                            left = !left;
+                        }
+                    });
 
                     this.tagInput = new TagInputView({
-                        collection: window.router.tags
+                        collection: window.router.tags,
+                        refuseNew: true
                     });
                     this.$menu.find('.taginput').append(this.tagInput.$el);
                     this.tagInput.render();
 
-                    this.$menu.on('click', $.proxy(this.clickDropdown, this));
                     this.$menu.on('click', '.taglist .tag', $.proxy(this.clickTag, this));
+
                     this.listenTo(this.tagInput, 'tag.add', $.proxy(this.addSelected, this));
                     this.listenTo(this.tagInput, 'tag.remove', $.proxy(this.removeSelected, this));
                 }
                 if (!this.$icon) {
-                    this.$icon = $('<div id="tags_filter_toggle" data-menu="tags_filter" class="dropdown-button"><span class="icon-filter"></span></div>');
+                    this.$icon = $('<div id="tags_filter_toggle" data-menu="tags_filter" class="dropdown-button"><i class="fa fa-filter"></i></div>');
                     this.$el.append(this.$icon);
                 }
                 this.$icon.dropdown({
-                    width: 300
+                    width: 400,
+                    selectable: false
                 });
                 
                 if (this._filter) {

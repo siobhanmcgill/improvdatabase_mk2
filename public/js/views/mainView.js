@@ -15,7 +15,9 @@ define(['jquery',
             el: "#main",
             events: {
                 'click #btnAddGame': 'showAddGame',
-                'click #gameTable .dt-row': 'showGame'
+                'click #gameTable .dt-row': 'showGame',
+                'click #btnRandomGame': 'showRandomGame',
+                'click #gameBox > .close': 'hideGame'
             },
             initialize: function(options) {
                 this.router = options.router;
@@ -35,6 +37,7 @@ define(['jquery',
                         self.reload();
                         //self.$("#gameTable").dynamictable("reload");
                     }, 500);
+                    $('#btnAddGame').removeClass('active');
                 });
 
                 this.listenTo(this.router.tagGames, "add remove", function() {
@@ -82,8 +85,12 @@ define(['jquery',
                         table.find(".has-tooltip").tooltip();
                     },
                     columns: [
-                            "Name",
                             {
+                                header: '<i class="fa fa-futbol-o"></i> Name',
+                                property: "Name",
+                            },
+                            {
+                                header: '<i class="fa fa-tags"></i> Tags',
                                 property: "Tags",
                                 sortable: false,
                                 filter: {
@@ -92,6 +99,7 @@ define(['jquery',
                                 }
                             },
                             {
+                                header: '<i class="fa fa-clock-o"></i> Duration',
                                 property: "Duration",
                                 sortProperty: "DurationSort",
                                 filter: {
@@ -105,7 +113,7 @@ define(['jquery',
                                 }
                             },
                             {
-                                header: "Number of Players",
+                                header: '<i class="fa fa-group"></i> Player Count',
                                 property: "PlayerCount",
                                 sortProperty: "PlayerCountSort",
                                 filter: {
@@ -125,7 +133,18 @@ define(['jquery',
                             }*/
                     ]
                 });
+                
+                setTimeout(function () {
+                    $('#gameTools').addClass('active');
+                }, 100);
+            },
 
+            hideGame: function () {
+                if (this.gameView) {
+                    this.gameView.hide();
+                } else {
+                    this.addGameForm.hide();
+                }
             },
 
             showAddGame: function() {
@@ -136,13 +155,19 @@ define(['jquery',
                         this.addGameForm.hide();
                     }
                 } else {
+                    $('#btnAddGame').addClass('active');
                     this.$('#gameBox').append(this.addGameForm.$el);
                     this.addGameForm.render();
                 }
             },
 
             showGame: function(e) {
-                var data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
+                var data;
+                if (e.currentTarget) {
+                    data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
+                } else {
+                    data = e;
+                }
                 if (data) {
                     if (this.gameView) {
                         this.gameView.destroy();
@@ -157,6 +182,20 @@ define(['jquery',
                     this.$('#gameBox').append(this.gameView.$el);
                     this.gameView.render();
                 }
+            },
+
+            showRandomGame: function () {
+                var filter = this.$('#gameTable').dynamictable('getFilter'),
+                    self = this;
+                
+                this.router.games.getPage({
+                        start: 0,
+                        end: 0,
+                        filter: filter
+                    }, function (data) {
+                        var item = data.data[Math.floor(Math.random() * data.data.length)];
+                        self.showGame(item);
+                    });
             }
 
         });

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <meta name="author" content="ExactTarget">
         <title>{{title}}</title>
-        <script src="/js/libs/require.js"></script>
+        <script src="/bower_components/requirejs/require.js"></script>
         <script>
             require(["/js/app/main.js"], function(main) {
             	
@@ -15,6 +15,7 @@
         
         <link rel="stylesheet" href="/css/style.css"/>
         <link rel="stylesheet" href="/css/lte_ie9.css"/>
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     </head>
     <body>
 
@@ -27,12 +28,23 @@
             <div id="main">
                 <h1>IMPROV DATABASE</h1>
                 <nav id="topnav">
-                    <div id="searchBox" class="pod">
+                    <div id="toolbar" class="pod">
+                        <div id="gameTools" class="section">
+                            <div class="btn">
+                                <i class="fa fa-database"></i>
+                            </div>
+                            <div class="sub inner-shadow1">
+                                <span>Game Database</span>
+                                <div class="btn has-tooltip" title="Pick Random Game" id="btnRandomGame"><i class="fa fa-futbol-o"></i></div>
+                                <div class="btn has-tooltip" title="Add Game" id="btnAddGame"><i class="fa fa-plus-circle"></i></div>
+                            </div>
+                        </div>
                     </div>
                     <div id="paging" class="pod">
-                        <div id="pageindicator"><div></div></div>
+                        <div id="pageindicator"><div class="inner-shadow1"></div></div>
                     </div>
                     <div id="gameBox" class="pod">
+                        <div class="close inner-shadow1"><i class="fa fa-chevron-up"></i></div>
                         <!-- <input name="search" placeholder="The Improv Comedy Database" /> -->
                         <!--
                         <div id="btnAddGame" class="btn has-tooltip" title="Add Game">
@@ -53,8 +65,8 @@
                         <a href="#" class="dropdown-option btn" data-value="auto">Fit Page</a>
                     </div>
                 </nav>
-                <div id="prevpage">&lt;</div>
-                <div id="nextpage">&gt;</div>
+                <div id="prevpage"><i class="fa fa-chevron-left"></i></div>
+                <div id="nextpage"><i class="fa fa-chevron-right"></i></div>
             </div> <!-- end of #main -->
         </div>
 

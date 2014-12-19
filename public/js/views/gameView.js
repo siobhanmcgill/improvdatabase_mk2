@@ -6,7 +6,7 @@ define(['jquery',
         'deny',
         'dynamictable',
 
-        'tmpl!templates/gameView.html',
+        'text!templates/gameView.html',
 
         'views/dropdownView',
         'views/tagInputView',
@@ -15,7 +15,7 @@ define(['jquery',
         'models/name',
         'models/note'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, GameView, DropdownView, TagInputView, Game, Name, Note) {
+    function($, _, Backbone, moment, deny, DynamicTable, GameViewTemplate, DropdownView, TagInputView, Game, Name, Note) {
         return Backbone.View.extend({
             events: {
                 "click #saveItUp" : "doSave",
@@ -88,7 +88,7 @@ define(['jquery',
                         notes: this.notes
                     };
 
-                this.$el.addClass("content").html(GameView(templateData)).show();
+                this.$el.addClass("content").html(_.template(GameViewTemplate, templateData)).show();
 
                 this.$el.parent().find("#btnAddGame").show().addClass("active");
 

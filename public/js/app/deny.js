@@ -229,7 +229,8 @@ $.fn.dropdown = function(settings) {
     settings = jQuery.extend({
         selector: "",
         width: "",
-        activeClass: ""
+        activeClass: "",
+        selectable: true
     }, settings);
     var returnobj;
     if (settings.selector !== "") {
@@ -317,17 +318,27 @@ $.fn.dropdown = function(settings) {
                 $("html").one("click.hidedropdowns", function() {
                     button.click();
                 });
-                dropdown.find("a").unbind("click").click(function(e) {
-                    if (button.find(".value").length > 0) {
-                        button.find(".value").text($(e.currentTarget).text());
-                        button.data("value", $(e.currentTarget).data("value"));
-                        button.trigger("change");
-                        dropdown.trigger("change");
-                    }
-                    button.click();
-                    e.stopPropagation();
-                    return false;
-                });
+                dropdown.off('click.hidedropdowns')
+                    .on('click.hidedropdowns', function (e) {
+                        e.stopPropagation();
+                        return false;
+                    });
+                
+                if (settings.selectable) {
+                    dropdown.children().off("click")
+                        .on('click', function(e) {
+                            if (button.find(".value").length > 0) {
+                                button.find(".value").text($(e.currentTarget).text());
+                                button.data("value", $(e.currentTarget).data("value"));
+                            }
+                            button.trigger('change', e.currentTarget);
+                            dropdown.trigger('change', e.currentTarget);
+
+                            button.click();
+                            e.stopPropagation();
+                            return false;
+                        });
+                }
             }
             e.stopPropagation();
         });

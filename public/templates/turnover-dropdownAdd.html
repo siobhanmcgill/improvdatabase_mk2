@@ -5,11 +5,11 @@
     </div>
     <div>
         <div class="spanhalf">
-            <label>Min {{attr}}:</label>
+            <label>Min <%- attr %>:</label>
             <input type="text" name="Min" />
         </div>
         <div class="spanhalf">
-            <label>Max {{attr}}:</label>
+            <label>Max <%- attr %>:</label>
             <input type="text" name="Max" />
         </div>
         <div class="clear"></div>
@@ -19,6 +19,6 @@
         <textarea name="Description" rows="5"></textarea>
     </div>
 
-    <div class="btn pull-right" id="saveNew_{{id}}">add</div>
+    <div class="btn pull-right" id="saveNew_<%- id %>">add</div>
     <div class="clear"></div>
 </form>

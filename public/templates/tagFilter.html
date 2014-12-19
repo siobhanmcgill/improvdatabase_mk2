@@ -2,11 +2,11 @@
 
     <div class="taginput"></div>
 
-    <label>Available Tags:</label>
+    <!-- <label>Available Tags:</label> -->
     <div class="taglist">
-    {{#each collection.models}}
-        <span class="tag" data-id="{{id}}">{{attributes.Name}}</span>
-    {{/each}}
+    <% _.each(collection.models, function (model) { %>
+        <span class="tag" data-id="<%- model.id %>" data-weight="<%- window.router.tagGames.where({ TagID: model.id }).length %>"><%- model.attributes.Name %></span>
+    <% }) %>
     </div>
 
 </div>
