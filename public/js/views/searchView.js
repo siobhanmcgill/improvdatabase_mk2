@@ -10,7 +10,10 @@ define(['jquery',
     function($, _, Backbone, moment, deny, SearchViewTemplate, ResultsTemplate) {
         return Backbone.View.extend({
             events: {
-                'keyup input': 'typeSearch'
+                'keyup input': 'typeSearch',
+                'click .fa-close': 'clearSearch',
+
+                'click .search-section .game-result': 'openGame'
             },
             initialize: function(options) {
                 this.router = options.router;
@@ -71,6 +74,8 @@ define(['jquery',
                     this.$('.results').append(_.template(ResultsTemplate, { data: data }));
 
                     this.boxHeight();
+
+                    this.$('.fa-search').removeClass('fa-search').addClass('fa-close');
                 } else {
                     if (this.val) {
                         this.$('.results').removeClass('scroll');
@@ -80,9 +85,13 @@ define(['jquery',
                             self.trigger('search-hide');
                         }, 500);
                     }
+                    this.$('.fa-close').addClass('fa-search').removeClass('fa-close');
                 }
 
                 this.val = val;
+            },
+            clearSearch: function () {
+                this.$('input').val('').keyup();
             },
 
             boxHeight: function() { //Bruce Boxheigtner
@@ -111,6 +120,11 @@ define(['jquery',
                         self.$el.addClass('noTransition');
                     }, 500);
                 }, time);
+            },
+
+            openGame: function (e) {
+                var id = $(e.currentTarget).data('gameid');
+                this.trigger('open-game', id);
             }
 
         });

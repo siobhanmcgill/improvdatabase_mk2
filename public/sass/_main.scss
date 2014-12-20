@@ -495,6 +495,7 @@ nav {
         width: 23px;
         float: right;
         margin: 0 5px 0 0;
+        cursor: pointer;
     }
     .search-wrapper {
         overflow: hidden;
@@ -567,7 +568,7 @@ nav {
             display: block;
         }
         &.noTransition {
-            @include transition(none);
+            @include transition(opacity 500ms);
         }
     }
 }

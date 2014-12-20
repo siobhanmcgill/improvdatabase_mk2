@@ -68,6 +68,11 @@ define(['jquery',
                         self.reload();
                     }, 500);
                 });
+
+                this.listenTo(this.searchView, 'open-game', function (id) {
+                    var game = this.router.games.get(id);
+                    this.showGame(game);
+                });
             },
 
             reload: function () {
