@@ -303,8 +303,13 @@ $.fn.dropdown = function(settings) {
                         top: button.offset().top + button.outerHeight()
                     });
                 }
+                var h = dropdown.data('height');
+                if (!dropdown.hasClass('up') && h + button.offset().top > $(window).height()) {
+                    h = $(window).height() - (button.offset().top + 50);
+                    dropdown.css('overflow', 'auto');
+                }
                 setTimeout(function() {
-                    dropdown.addClass("showing arriving").css("height", dropdown.data("height"));
+                    dropdown.addClass("showing arriving").css("height", h);
                     if (dropdown.hasClass("up")) {
                         dropdown.css({
                             "top": button.offset().top - dropdown.data("height")

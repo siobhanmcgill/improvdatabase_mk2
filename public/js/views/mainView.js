@@ -8,9 +8,10 @@ define(['jquery',
 
         'views/addGameFormView',
         'views/gameView',
-        'views/tagFilterView'
+        'views/tagFilterView',
+        'views/searchView'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, AddGameFormView, GameView, TagFilterView) {
+    function($, _, Backbone, moment, deny, DynamicTable, AddGameFormView, GameView, TagFilterView, SearchView) {
         return Backbone.View.extend({
             el: "#main",
             events: {
@@ -50,6 +51,23 @@ define(['jquery',
                 });
 
                 this.addGameForm = new AddGameFormView({router: this.router});
+
+                this.searchView = new SearchView({ router: this.router });
+
+                this.listenTo(this.searchView, 'search-show', function () {
+                    console.log('show search');
+                    this.$el.addClass('showSearch');
+                    setTimeout(function () {
+                        self.reload();
+                    }, 500);
+                });
+                this.listenTo(this.searchView, 'search-hide', function () {
+                    console.log('hide search');
+                    this.$el.removeClass('showSearch');
+                    setTimeout(function () {
+                        self.reload();
+                    }, 500);
+                });
             },
 
             reload: function () {
@@ -73,6 +91,9 @@ define(['jquery',
                 this.tagFilter = new TagFilterView({
                     collection: window.router.tags
                 });
+
+                this.$('#gameBox').before(this.searchView.el);
+                this.searchView.render();
 
                 this.$("#gameTable").dynamictable({
                     data: this.router.games,

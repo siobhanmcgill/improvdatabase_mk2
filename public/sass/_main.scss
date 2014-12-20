@@ -455,6 +455,7 @@ nav {
         @include border-box;
         padding: 3px;
         font-size: 1.2em;
+        width: 100%;
     }
     .tag {
         cursor: pointer;
@@ -478,18 +479,119 @@ nav {
     }
 }
 
+#gameSearch {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 1;
+    @include transition(opacity 500ms);
+    z-index: 2;
+    overflow: hidden;
+
+    & > i {
+        height: 38px;
+        line-height: 38px;
+        font-size: 25px;
+        width: 23px;
+        float: right;
+        margin: 0 5px 0 0;
+    }
+    .search-wrapper {
+        overflow: hidden;
+        height: 38px;
+        padding: 0;
+
+        input {
+            height: 100%;
+            width: 100%;
+            border: 0;
+            padding: 0 5px;
+            @include border-box;
+            background: none;
+            font-size: 19px;
+            color: #555;
+        }
+    }
+    .showGame & {
+        opacity: 0;
+        z-index: 1;
+    }
+
+    .results {
+        display: none;
+        padding: 10px 5px;
+
+        .search-section {
+            margin-top: 20px;
+
+            &:first-child {
+                margin: 0px;
+            }
+        }
+
+        .search-result {
+            padding: 5px;
+            margin: 5px 0;
+            font-size: 1.3em;
+            cursor: pointer;
+            @include border-radius(3px);
+
+            strong {
+                color: #6699FF;
+                @include text-shadow(-1px 1px 0px #555);
+            }
+            
+            &:hover {
+                background: rgba(0,0,0,0.1);
+                @include box-shadow(0 0 5px rgba(0,0,0,0.3));
+                color: #333;
+
+                & > i {
+                    color: #6699FF;
+                    @include text-shadow(-1px 1px 0px #555);
+                }
+            }
+        }
+        &.scroll {
+            position: absolute;
+            top: 38px;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            overflow: auto;
+        }
+    }
+    &.open {
+        @include transition(height 500ms, opacity 500ms);
+        .results {
+            display: block;
+        }
+        &.noTransition {
+            @include transition(none);
+        }
+    }
+}
+
 #gameBox {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
     overflow: hidden;
     font-size: 16px;
-    position: relative;
+    cursor: text;
+    z-index: 1;
 
-    -webkit-transition: height 500ms 500ms;
-    transition: height 500ms 500ms;
-
+    @include transition(height 500ms 500ms, opacity 500ms);
+    
+    .showGame & {
+        opacity: 1;
+        z-index: 2;
+    }
     .showGame &.open {
         overflow: auto;
-        -webkit-transition: height 500ms 0ms;
-        transition: height 500ms 0ms;
+        @include transition(height 500ms 0ms, opacity 500ms);
+        cursor: default;
     }
 
     .content {
@@ -720,8 +822,12 @@ nav {
         opacity: 0;
         @include transition(opacity 200ms);
         z-index: 5;
+        display: none;
     }
     &.open > .close {
+        display: block;
+    }
+    &.scrollContent > .close {
         opacity: 1;
     }
 } /* end of #gameBox */
@@ -764,7 +870,8 @@ nav {
     -webkit-transition: right 500ms;
     transition: right 500ms;
 
-    .showGame & {
+    .showGame &,
+    .showSearch & {
         right: 33.3333%;
     }
 

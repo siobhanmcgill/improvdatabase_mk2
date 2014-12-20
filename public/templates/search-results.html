@@ -1,0 +1,14 @@
+<div class="search-section">
+<% _.each(data, function (item) { %>
+    <% if (item.type === 'name') { %>
+    <div class="search-result" data-gameid="<%- item.id %>">
+        <i class="fa fa-futbol-o"></i> <%= item.name %></a>
+    </div>
+    <% } %>
+    <% if (item.type === 'tag') { %>
+    <div class="search-result" data-gameid="<%- item.id %>">
+        <i class="fa fa-tag"></i> <%= item.name %></a>
+    </div>
+    <% } %>
+<% }) %>
+</div>

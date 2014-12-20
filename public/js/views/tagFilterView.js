@@ -89,7 +89,7 @@ define(['jquery',
                     this.$el.append(this.$icon);
                 }
                 this.$icon.dropdown({
-                    width: 400,
+                    width: 440,
                     selectable: false
                 });
                 
