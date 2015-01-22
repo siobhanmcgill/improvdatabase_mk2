@@ -462,6 +462,7 @@ nav {
     }
     .taglist {
         margin-top: 5px;
+        -ms-user-select: none;
 
         .tag {
             float: none;
