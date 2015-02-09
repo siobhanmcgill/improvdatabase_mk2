@@ -22,7 +22,8 @@ exports.create = function(req,res) {
     });
 };
 exports.getAll = function(req,res) {
-    connection.query('SELECT * FROM duration;', function(err, response) {
+    var q = connection.getSelectQuery('duration');
+    connection.query(q, function(err, response) {
         if (err) {
             if (!res) {
                 return err;

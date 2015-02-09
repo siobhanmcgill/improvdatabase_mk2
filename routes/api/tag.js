@@ -1,39 +1,47 @@
 var connection = require('../connection'),
+    auth        = require('../../auth'),
     
     formProperties = ['Name', 'Description'];
 
 exports.create = function(req,res) {
-    var data = connection.getPostData(req.body, formProperties),
-        UserID = 1;
-    data.AddedUserID = UserID;
-    data.DateAdded = 'NOW';
+    if (req.user && auth.hasPermission(req.user, 'meta_create')) {
+        var data = connection.getPostData(req.body, formProperties),
+            UserID = req.user.UserID;
 
-    var q = connection.getInsertQuery('tag', data, 'TagID');
+        data.AddedUserID = UserID;
+        data.ModifiedUserID = UserID;
 
-    connection.query(q.query, q.values, function(err, response) {
-        if (err) {
-            res.json('500', err);
-        } else {
-            if (req.body.GameID) {
-                var tagGameObj = {
-                    GameID: req.body.GameID,
-                    AddedUserID: UserID,
-                    TagID: response.rows[0].TagID,
-                    DateAdded: 'NOW'
-                };
-                var tq = connection.getInsertQuery('taggame', tagGameObj, 'TagGameID');
-                connection.query(tq.query, tq.values, function(err, tr) {
-                    if (err) {
-                        res.json('500', err);
-                    } else {
-                        res.json('200', {TagID: tagGameObj.TagID, TagGameID: tr.rows[0].TagGameID});
-                    }
-                });
+        data.DateAdded = 'NOW';
+
+        var q = connection.getInsertQuery('tag', data, 'TagID');
+
+        connection.query(q.query, q.values, function(err, response) {
+            if (err) {
+                res.json('500', err);
             } else {
-                res.json('200', {TagID: response.rows[0].TagID});
+                if (req.body.GameID) {
+                    var tagGameObj = {
+                        GameID: req.body.GameID,
+                        AddedUserID: UserID,
+                        TagID: response.rows[0].TagID,
+                        DateAdded: 'NOW'
+                    };
+                    var tq = connection.getInsertQuery('taggame', tagGameObj, 'TagGameID');
+                    connection.query(tq.query, tq.values, function(err, tr) {
+                        if (err) {
+                            res.json('500', err);
+                        } else {
+                            res.json('200', {TagID: tagGameObj.TagID, TagGameID: tr.rows[0].TagGameID});
+                        }
+                    });
+                } else {
+                    res.json('200', {TagID: response.rows[0].TagID});
+                }
             }
-        }
-    });
+        });
+    } else {
+        auth.unauthorized(req,res);
+    }
 };
 
 exports.getAll = function(req,res) {
@@ -56,36 +64,45 @@ exports.get = function(req,res) {
     });
 };
 exports.update = function(req,res) {
-    var data = connection.getPostData(req.body, formProperties);
-    data.ModifiedUserID = 1; // TODO: current user, whatever
-    data.DateModified = 'NOW';
+    if (req.user && auth.hasPermission(req.user, 'meta_update')) {
+        var data = connection.getPostData(req.body, formProperties);
+        data.ModifiedUserID = req.user.UserID; 
+        data.DateModified = 'NOW';
 
-    var q = connection.getUpdateQuery('tag', data, {TagID: req.params.id});
+        var q = connection.getUpdateQuery('tag', data, {TagID: req.params.id});
 
-    connection.query(q.query, q.values, function(err, response) {
-        if (err) {
-            res.json('500', err);
-        } else {
-            res.json('200', response.rows[0]);
-        }
-    });
+        connection.query(q.query, q.values, function(err, response) {
+            if (err) {
+                res.json('500', err);
+            } else {
+                res.json('200', response.rows[0]);
+            }
+        });
+    } else {
+        auth.unauthorized(req,res);
+    }
 };
 
 exports.delete = function(req,res) {
-    connection.query('DELETE FROM tag WHERE "TagID"=$1;', [req.params.id], function(err) {
-        if (err) {
-            res.json('500', err);
-        } else {
-            res.json('200', 'Tag Deleted');
-        }
-    });
+    if (req.user && auth.hasPermission(req.user, 'meta_delete')) {
+        connection.query('DELETE FROM tag WHERE "TagID"=$1;', [req.params.id], function(err) {
+            if (err) {
+                res.json('500', err);
+            } else {
+                res.json('200', 'Tag Deleted');
+            }
+        });
+    } else {
+        auth.unauthorized(req,res);
+    }
 };
 
-exports.tagGame = function(GameID, TagID) {
+exports.tagGame = function(GameID, TagID, UserID) {
     var tagGameObj = {
         GameID: GameID,
         TagID: TagID,
-        AddedUserID: 1,
+        AddedUserID: UserID,
+        ModifiedUserID: UserID,
         DateAdded: 'NOW'
     };
 

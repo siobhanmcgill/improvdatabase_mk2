@@ -4,224 +4,148 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
-        'views/addGameFormView',
-        'views/gameView',
-        'views/tagFilterView',
-        'views/searchView'
+        'text!templates/mainView.html',
+        'text!templates/mainView-toolbar.html',
+
+        'views/gameDatabaseView',
+        'views/aboutView',
+        'views/userView'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, AddGameFormView, GameView, TagFilterView, SearchView) {
+    function($, _, Backbone, moment, deny, Template, toolbarTemplate, gameDatabaseView, aboutView, userView) {
         return Backbone.View.extend({
-            el: "#main",
+            el: "body",
             events: {
-                'click #btnAddGame': 'showAddGame',
-                'click #gameTable .dt-row': 'showGame',
-                'click #btnRandomGame': 'showRandomGame',
-                'click #gameBox > .close': 'hideGame'
             },
             initialize: function(options) {
                 this.router = options.router;
-                var self = this;
-
-                this.listenTo(Backbone, "show-game", function() {
-                    this.$el.addClass("showGame");
-                    setTimeout(function() {
-                        self.reload();
-                        //self.$("#gameTable").dynamictable("reload");
-                    }, 500);
-                });
-                this.listenTo(Backbone, "hide-game", function() {
-                    this.$el.removeClass("showGame");
-                    this.gameView = false;
-                    setTimeout(function() {
-                        self.reload();
-                        //self.$("#gameTable").dynamictable("reload");
-                    }, 500);
-                    $('#btnAddGame').removeClass('active');
-                });
-
-                this.listenTo(this.router.tagGames, "add remove", function() {
-                    self.reload();
-                    //this.$("#gameTable").dynamictable("reload");
-                });
-                this.listenTo(this.router.games, "sync add", function() {
-                    self.reload();
-                    //this.$("#gameTable").dynamictable("reload");
-                });
-
-                this.addGameForm = new AddGameFormView({router: this.router});
-
-                this.searchView = new SearchView({ router: this.router });
-
-                this.listenTo(this.searchView, 'search-show', function () {
-                    console.log('show search');
-                    this.$el.addClass('showSearch');
-                    setTimeout(function () {
-                        self.reload();
-                    }, 500);
-                });
-                this.listenTo(this.searchView, 'search-hide', function () {
-                    console.log('hide search');
-                    this.$el.removeClass('showSearch');
-                    setTimeout(function () {
-                        self.reload();
-                    }, 500);
-                });
-
-                this.listenTo(this.searchView, 'open-game', function (id) {
-                    var game = this.router.games.get(id);
-                    this.showGame(game);
-                });
+                
+                this.views = {};
+                this.views.gamedb = new gameDatabaseView({ router: this.router });
+                this.views.about = new aboutView({ router: this.router });
+                this.views.user = new userView({ router: this.router });
+                
+                this.currentView = '';
+                this.isRendered = {};
             },
-
-            reload: function () {
-                clearTimeout(this._reloadTimer);
-                var self = this;
-                this._reloadTimer = setTimeout(function () {
-                    self.$('#gameTable').dynamictable('reload');
-                }, 100);
-            },
-
-            render: function() {
-                var headerscale = this.$el.outerWidth() / (this.$el.children("h1").outerWidth() - 4);
-                this.$el.children('h1').css({
-                    "-webkit-transform": "scale(" + headerscale + ")"
-                });
-
-                this.$(".has-tooltip").tooltip();
-
-                this.$("#pagesize").dropdown({width: "auto"});
-
-                this.tagFilter = new TagFilterView({
-                    collection: window.router.tags
-                });
-
-                this.$('#gameBox').before(this.searchView.el);
-                this.searchView.render();
-
-                this.$("#gameTable").dynamictable({
-                    data: this.router.games,
-                    pageindicator: this.$("#pageindicator"),
-                    prevpagebutton: this.$("#prevpage"),
-                    nextpagebutton: this.$("#nextpage"),
-                    pagesizemenu: this.$("#pagesize"),
-                    pageSize: 'auto',
-                    onRender: function(table) {
-                        table.find(".has-tooltip").tooltip();
+            
+            renderToolbar: function (view) {
+                var key = view.key,
+                    data = {
+                        key: key === 'gamedb' ? '' : key,
+                        id: key + 'Tools',
+                        icon: view.icon,
+                        title: view.title,
+                        tools: view.registerTools()
                     },
-                    columns: [
-                            {
-                                header: '<i class="fa fa-futbol-o"></i> Name',
-                                property: "Name",
-                            },
-                            {
-                                header: '<i class="fa fa-tags"></i> Tags',
-                                property: "Tags",
-                                sortable: false,
-                                filter: {
-                                    view: this.tagFilter,
-                                    property: 'tag'
-                                }
-                            },
-                            {
-                                header: '<i class="fa fa-clock-o"></i> Duration',
-                                property: "Duration",
-                                sortProperty: "DurationSort",
-                                filter: {
-                                    collection: window.router.durations,
-                                    property: 'DurationID',
-                                    attributes: {
-                                        value: 'DurationID',
-                                        title: 'Description',
-                                        text: 'Name'
-                                    }
-                                }
-                            },
-                            {
-                                header: '<i class="fa fa-group"></i> Player Count',
-                                property: "PlayerCount",
-                                sortProperty: "PlayerCountSort",
-                                filter: {
-                                    collection: window.router.playerCounts,
-                                    property: 'PlayerCountID',
-                                    attributes: {
-                                        value: 'PlayerCountID',
-                                        title: 'Description',
-                                        text: 'Name'
-                                    }
-                                }
-                            }/*,
-                            {
-                                header: "Last Modified",
-                                property: "ModifiedDisplay",
-                                sortProperty: "DateModified"
-                            }*/
-                    ]
+                    $existing = this.$('#toolbar').find('#' + data.id),
+                    active = $existing.hasClass('active'),
+                    $toolbar = $(_.template(toolbarTemplate, data));
+                view.$toolbar = $toolbar;
+                $toolbar.find('.sub .btn').each(function (i) {
+                    $(this).on('click', $.proxy(data.tools[i].action, view));
                 });
+                if ($existing.length) {
+                    $existing.after($toolbar);
+                    // remove any existing instance of this toolbar
+                    $existing.remove();
+                } else {
+                    this.$('#toolbar').append($toolbar);
+                }
+
+                $toolbar.addClass('active');
+                $toolbar.data('width', $toolbar.find('.sub').width() + 5);
+                $toolbar.removeClass('active');
                 
+                $toolbar.find(".has-tooltip").tooltip();
+                
+                if (active) {
+                    var self = this;
+                    setTimeout(function () {
+                        self.$('#' + key + 'Tools').addClass('active').find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                    }, 100);
+                }
+            },
+
+            render: function(key) {
+                if (!this.isRendered.main) {
+                    this.$el.append(_.template(Template));
+                    this.$views = this.$el.children('#views');
+                    this.$nav = this.$el.children('nav');
+                    
+                    _.each(_.keys(this.views), $.proxy(function (thiskey) {
+                        var view = this.views[thiskey];
+                        view.key = thiskey;
+                        this.renderToolbar(view);
+                        this.listenTo(view, 'render-toolbar', $.proxy(this.renderToolbar, this));
+                    }, this));
+                    this.$('#toolbar').addClass('ready');
+
+
+                    this.isRendered.main = true;
+                }
+
+                key = key || 'gamedb';
+                
+                // if a view is currently showing, get rid of it
+                if (this.views[this.currentView]) {
+                    var oldView = this.views[this.currentView];
+                    oldView.hide();
+                    setTimeout(function () {
+                        oldView.$el.hide();
+                    }, 600);
+                    // float away all the topnav pods for the old view
+                    oldView.$el.find('#topnav > .pod').each(function (i) {
+                        var $obj = $(this);
+                        setTimeout(function () {
+                            $obj.removeClass('show');
+                        }, 500 - (i * 250));
+                    });
+                }
+                this.currentView = key;
+                
+                if (!this.isRendered[key]) {
+                    this.$views.append(this.views[key].$el.addClass('view'));
+                    this.views[key].render();
+                    this.isRendered[key] = true;
+                } else {
+                    this.views[key].$el.show();
+                }
+                this.views[key].show();
+                
+                var self = this,
+                    title = this.views[key] ? this.views[key].title : '',
+                    delay = 200,
+                    $oldHeader = this.$el.children('h1'),
+                    $newHeader = $('<h1>' + title.toUpperCase() + '</h1>').removeAttr('style').appendTo(this.$el),
+                    headerscale = this.$el.outerWidth() / ($newHeader.outerWidth() - 4);
+                
+                // float in all the topnav pods for the new view
+                if (this.views[key]) {
+                    this.views[key].$el.find('#topnav > .pod').each(function () {
+                        var $obj = $(this);
+                        setTimeout(function () {
+                            $obj.addClass('show');
+                        }, delay);
+                        delay += 250;
+                    });
+                }
+                
+                // close the old toolbar, and open the new one
                 setTimeout(function () {
-                    $('#gameTools').addClass('active');
+                    self.$('#toolbar .section').removeClass('active').find('.sub').css('width', 0);
+                    self.$('#' + key + 'Tools').addClass('active').find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
                 }, 100);
-            },
 
-            hideGame: function () {
-                if (this.gameView) {
-                    this.gameView.hide();
-                } else {
-                    this.addGameForm.hide();
-                }
-            },
-
-            showAddGame: function() {
-                if (this.$el.hasClass("showGame")) {
-                    if (this.gameView) {
-                        this.gameView.hide();
-                    } else {
-                        this.addGameForm.hide();
-                    }
-                } else {
-                    $('#btnAddGame').addClass('active');
-                    this.$('#gameBox').append(this.addGameForm.$el);
-                    this.addGameForm.render();
-                }
-            },
-
-            showGame: function(e) {
-                var data;
-                if (e.currentTarget) {
-                    data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
-                } else {
-                    data = e;
-                }
-                if (data) {
-                    if (this.gameView) {
-                        this.gameView.destroy();
-                    }
-                    this.addGameForm.destroy();
-
-                    this.gameView = new GameView({
-                        GameID: data.id,
-                        router: this.router,
-                        model: data
-                    });
-                    this.$('#gameBox').append(this.gameView.$el);
-                    this.gameView.render();
-                }
-            },
-
-            showRandomGame: function () {
-                var filter = this.$('#gameTable').dynamictable('getFilter'),
-                    self = this;
-                
-                this.router.games.getPage({
-                        start: 0,
-                        end: 0,
-                        filter: filter
-                    }, function (data) {
-                        var item = data.data[Math.floor(Math.random() * data.data.length)];
-                        self.showGame(item);
-                    });
+                $oldHeader.css('top', -(20 * $oldHeader.data('scale')));
+                $newHeader.data('scale', headerscale).css({
+                    'transform': 'scale(' + headerscale + ')',
+                    'top': -(20 * headerscale)
+                }).addClass('ready');
+                setTimeout(function () {
+                    $oldHeader.remove();
+                    $newHeader.css('top', '4px');
+                }, $oldHeader.length ? 500 : 100);
             }
 
         });

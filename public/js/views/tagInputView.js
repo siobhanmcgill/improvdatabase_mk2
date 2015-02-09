@@ -22,11 +22,12 @@ define(['jquery',
                 this.GameID = options.GameID;
                 this.TagGameCollection = options.TagGameCollection;
                 this.refuseNew = options.refuseNew;
+                this.refuseAdd = options.refuseAdd;
             },
             render: function() {
                 var self = this;
 
-                this.$el.html(_.template(tagInputTemplate));
+                this.$el.html(_.template(tagInputTemplate, { refuseAdd: this.refuseAdd }));
 
                 if (this.GameID) {
                     _.each(this.TagGameCollection.where({GameID: this.GameID}), function(tagGame) {
@@ -76,13 +77,14 @@ define(['jquery',
             },
             addTag: function(e, name, model) {
                 if (this.refuseNew && !model) {
+                    $.toast('You do not have permission to create tags.');
                     return false;
                 }
                 var $tag = this.$("#tagTemplate").clone();
 
                 if (name) {
                     $tag.html(name).attr("id", "").removeClass("hide");
-                    this.$(".tags a").before($tag);
+                    this.$(".tags .tag").eq(-1).after($tag);
                     this.$("input").val("");
 
                     if (!model) {

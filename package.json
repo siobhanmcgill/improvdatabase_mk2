@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "connect": ">=2.7.2",
-    "config": ">=0.4.20",
+    "config": "~1.10.0",
     "express": ">=3.0.6",
     "request": ">=2.12.0",
     "requirejs": ">=2.1.2",
@@ -22,7 +22,10 @@
     "mime": ">=1.2.9",
     "handlebars": ">=1.0.12",
     "form-data": ">=0.1.0",
-    "pg": "~4.0.0"
+    "pg": "~4.0.0",
+    "jwt-simple": "~0.2.0",
+    "bcrypt-nodejs": "0.0.3",
+    "redis": "~0.12.1"
   },
   "amd": true,
   "devDependencies": {

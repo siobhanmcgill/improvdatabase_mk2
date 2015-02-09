@@ -3,7 +3,9 @@
     <i class="fa fa-tags"></i>
     <div class="tag hide" id="tagTemplate"></div>
     
+    <% if (!refuseAdd) { %>
     <a href="#" id="addTagLink" class="hide edit">Add...</a>
+    <% } %>
     <div class="clear"></div>
 </div>
 <input type="text" name="Tags" />

@@ -9,21 +9,17 @@ exports.renderIndex = function(req, res){
     var tables = [
         "duration",
         "game",
-        "comedygroup",
         "name",
         "note",
         "playercount",
-        "suggestion",
-        "suggestiontype",
-        "suggestiontypegame",
         "tag",
-        "taggame",
-        "users"
+        "taggame"
     ];
     var cnt = 0;
     _.each(tables, function(table) {
-        connection.query("SELECT * FROM " + table, function(err, result) {
-            data[table] = err || result.rows;
+        var q = connection.getSelectQuery(table);
+        connection.query(q, function(err, result) {
+            data[table.toLowerCase()] = err || result.rows;
             cnt++;
             if (cnt === tables.length) {
                 res.render('layout', { 

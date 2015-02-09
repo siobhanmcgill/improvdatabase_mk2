@@ -1,0 +1,36 @@
+<div class="text-content-page-wrapper user-main">
+    <div class="text-content-page pod">
+        
+        <h2>Your Account</h2>
+
+        <form name="editAccount">
+
+            <p>Email:<br /><input type="text" name="email" value="<%- Email %>" /></p>
+            
+            <div class="spanhalf">
+                <p>First Name:<br /><input type="text" name="firstname" value="<%- FirstName %>" /></p>
+            </div>
+            
+            <div class="spanhalf">
+                <p>Last Name:<br /><input type="text" name="lastname" value="<%- LastName %>" /></p>
+            </div>
+
+            <p>
+                Gender:<br />
+                <div class="genderoptions">
+                    <div class="onecolumn pull-left">
+                        <i class="fa <% if (Gender === 'M') { %>fa-dot-circle-o<% } else { %>fa-circle-o<% } %>"></i> <span>Male</span>
+                    </div>
+                    <div class="onecolumn pull-left">
+                        <i class="fa <% if (Gender === 'F') { %>fa-dot-circle-o<% } else { %>fa-circle-o<% } %>"></i> <span>Female</span>
+                    </div>
+                    <div class="onecolumn pull-left">
+                        <i class="fa <% if (Gender === 'O') { %>fa-dot-circle-o<% } else { %>fa-circle-o<% } %>"></i> <span>None of your business</span>
+                    </div>
+                </div>
+            </p>
+
+        </form>
+
+    </div>
+</div>

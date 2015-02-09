@@ -26,7 +26,6 @@ define(['jquery',
                 'click .altNameLink': 'showAltNames',
                 'click .altNames .close': 'hideAltNames',
                 
-                'click .altNames .altName': 'toggleNameVoting',
                 'click .altNames .weightUp': 'addNameWeight',
                 'click .altNames .weightDown': 'removeNameWeight',
 
@@ -58,7 +57,6 @@ define(['jquery',
                 }, this));
 
                 _.each(this.notes, $.proxy(function (note) {
-                    note.user = this.router.users.get(note.get('AddedUserID'));
                     note.time = moment(note.get('DateModified')).fromNow();
                     if (note.get('GameID')) {
                         note.regarding = 'this particular game.';
@@ -69,6 +67,7 @@ define(['jquery',
                     } else if (note.get('DurationID')) {
                         note.regarding = 'the duration of this game.';
                     }
+                    console.log(note);
                 }, this));
                 var templateData = {
                         altNamesShow: this.names.length > 1,
@@ -85,7 +84,12 @@ define(['jquery',
                         hasNotes: this.notes.length > 0,
                         noteCount: this.notes.length,
                         notePlural: this.notes.length > 1,
-                        notes: this.notes
+                        notes: this.notes,
+
+                        canAddNotes: this.router.hasPermission('note_public'),
+                        canAddName: this.router.hasPermission('name_submit'),
+                        canVoteName: this.router.hasPermission('name_vote'),
+                        canEdit: this.router.hasPermission('game_edit')
                     };
 
                 this.$el.addClass("content").html(_.template(GameViewTemplate, templateData)).show();
@@ -96,7 +100,9 @@ define(['jquery',
                     el: "#tags",
                     collection: this.router.tags,
                     GameID: this.GameID,
-                    TagGameCollection: this.router.tagGames
+                    TagGameCollection: this.router.tagGames,
+                    refuseAdd: !this.router.hasPermission('game_edit'),
+                    refuseNew: !this.router.hasPermission('meta_create')
                 });
                 this.tagInput.render();
 
@@ -133,6 +139,10 @@ define(['jquery',
             },
             
             addNameWeight: function (e) {
+                if (!this.router.hasPermission('name_vote')) {
+                    return false;
+                }
+
                 var NameID = $(e.currentTarget).parent().data('nameid'),
                     nameModel = this.router.names.get(NameID),
                     self = this;
@@ -180,15 +190,19 @@ define(['jquery',
                 this.$('input[name="alternateName"]').val('');
                 nameModel.save({}, {
                     success: function () {
-                        console.log('success');
                         self.router.names.add(nameModel);
                         self.render();
                         setTimeout(function () {
                             self.$('.altNameLink').click();
                         }, 100);
                     },
-                    error: function () {
-                        console.log('error');
+                    error: function (model, error) {
+                        if (error.status === 401) {
+                            self.render();
+                            $.toast('You don\'t have permission to add names.');
+                        } else {
+                            console.log('error', error);
+                        }
                     }
                 });
 
@@ -315,7 +329,8 @@ define(['jquery',
                     collection: this.router.durations,
                     idattr: "duration",
                     idname: "Duration",
-                    attr: "(Minutes)"
+                    attr: "(Minutes)",
+                    add: this.router.hasPermission('meta_create')
                 });
                 this.durationDropdown.render();
                 this.boxHeight();
@@ -336,7 +351,8 @@ define(['jquery',
                     collection: this.router.playerCounts,
                     idattr: "playerCount",
                     idname: "Player Count",
-                    attr: "Players"
+                    attr: "Players",
+                    add: this.router.hasPermission('meta_create')
                 });
                 this.playerCountDropdown.render();
                 this.boxHeight();
