@@ -2,6 +2,9 @@ var express = require('express'),
     http    = require('http'),
     hbs     = require('hbs'),
     path    = require('path'),
+    morgan  = require('morgan'),
+    bodyParser = require('body-parser'),
+    errorHandler = require('errorhandler'),
 
     routes  = require('./routes'),
     api    = require('./routes/api'),
@@ -11,24 +14,16 @@ var express = require('express'),
 
 var app = express();
 
-app.configure(function() {
-    app.set('port', 1919);
-    app.set('views', __dirname + "/views");
-    app.set('view engine', 'hbs');
+app.set('port', 1919);
+app.set('views', __dirname + "/views");
+app.set('view engine', 'hbs');
 
-    app.use(express.favicon());
-    app.use(express.logger('dev'));
-    app.use(express.bodyParser());
-    app.use(express.json()).use(express.urlencoded());
+app.use(morgan('dev'));
+app.use(bodyParser.json()).use(bodyParser.urlencoded({ extended: false }));
 
-    app.use(express.cookieParser());
-    app.use(express.session({ secret: 'Improv is quite good for 2015' }));
-
-    app.use(app.router);
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.use(express.static(path.join(__dirname, 'public')));
-    app.use( '/bower_components', express.static( __dirname + '/bower_components' ) );
-});
+app.use(errorHandler({ dumpExceptions: true, showStack: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use( '/bower_components', express.static( __dirname + '/bower_components' ) );
 
 // Handlebars helpers
 hbs.registerHelper( 'extend', function( name, context ) {
