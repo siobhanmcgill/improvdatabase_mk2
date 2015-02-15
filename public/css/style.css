@@ -1358,19 +1358,19 @@ nav .pod:last-child {
   box-sizing: border-box;
   color: #555;
 }
-/* line 61, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
+/* line 61, ../../../../../../Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input:-moz-placeholder {
   color: #555;
 }
-/* line 64, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
+/* line 64, ../../../../../../Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input::-moz-placeholder {
   color: #555;
 }
-/* line 67, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
+/* line 67, ../../../../../../Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input:-ms-input-placeholder {
   color: #555;
 }
-/* line 56, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
+/* line 56, ../../../../../../Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input::-webkit-input-placeholder {
   color: #555;
 }
@@ -2084,38 +2084,46 @@ nav .pod:last-child {
 
 /* end of content-page-wrapper */
 /* line 1095, ../sass/_main.scss */
+.user-main .text-content-page textarea {
+  background: rgba(255, 255, 255, 0.75);
+  height: 64px;
+  padding: 1px 4px;
+  font-size: 1.5em;
+}
+
+/* line 1104, ../sass/_main.scss */
 .user-login .text-content-page {
   max-width: 400px;
 }
-/* line 1098, ../sass/_main.scss */
+/* line 1107, ../sass/_main.scss */
 .user-login .text-content-page h2 {
   margin-bottom: 0.5em;
 }
-/* line 1101, ../sass/_main.scss */
+/* line 1110, ../sass/_main.scss */
 .user-login .text-content-page .error {
   color: darkred;
   display: none;
 }
-/* line 1106, ../sass/_main.scss */
+/* line 1115, ../sass/_main.scss */
 .user-login .text-content-page.shake {
   -moz-animation: shake 300ms both;
   -webkit-animation: shake 300ms both;
   animation: shake 300ms both;
 }
-/* line 1109, ../sass/_main.scss */
+/* line 1118, ../sass/_main.scss */
 .user-login .text-content-page.runaway {
   position: relative;
   -moz-animation: runaway 3000ms 2s both, runaway-motion 3000ms 2s both linear;
   -webkit-animation: runaway 3000ms 2s both, runaway-motion 3000ms 2s both linear;
   animation: runaway 3000ms 2s both, runaway-motion 3000ms 2s both linear;
 }
-/* line 1113, ../sass/_main.scss */
+/* line 1122, ../sass/_main.scss */
 .user-login .text-content-page .fa-spin {
   font-size: 2em;
   float: right;
   line-height: 40px;
 }
-/* line 1119, ../sass/_main.scss */
+/* line 1128, ../sass/_main.scss */
 .user-login .fa-star {
   position: absolute;
   color: white;
@@ -2133,7 +2141,7 @@ nav .pod:last-child {
   -webkit-transform-origin: 50% 50% 50%;
   transform-origin: 50% 50% 50%;
 }
-/* line 1130, ../sass/_main.scss */
+/* line 1139, ../sass/_main.scss */
 .user-login .fa-star.starburst {
   -moz-animation: starburst 1500ms 6000ms both linear;
   -webkit-animation: starburst 1500ms 6000ms both linear;
@@ -2524,12 +2532,12 @@ nav .pod:last-child {
     top: -112px;
   }
 }
-/* line 1217, ../sass/_main.scss */
+/* line 1226, ../sass/_main.scss */
 .createdby {
   width: 320px;
   margin: 50px auto 20px;
 }
-/* line 1221, ../sass/_main.scss */
+/* line 1230, ../sass/_main.scss */
 .createdby > a {
   display: block;
   height: 35px;
@@ -2537,12 +2545,12 @@ nav .pod:last-child {
   text-indent: -9999em;
   float: left;
 }
-/* line 1228, ../sass/_main.scss */
+/* line 1237, ../sass/_main.scss */
 .createdby .denyconformity {
   width: 35px;
   margin-right: 20px;
 }
-/* line 1232, ../sass/_main.scss */
+/* line 1241, ../sass/_main.scss */
 .createdby .placeholder {
   width: 265px;
   background-position: -35px 0;

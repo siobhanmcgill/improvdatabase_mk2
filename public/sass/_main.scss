@@ -1091,6 +1091,15 @@ nav {
     }
 } /* end of content-page-wrapper */
 
+.user-main .text-content-page {
+    textarea {
+        background: rgba(255,255,255,0.75);
+        height: 64px;
+        padding: 1px 4px;
+        font-size: 1.5em;
+    }
+}
+
 .user-login {
     .text-content-page {
         max-width: 400px;

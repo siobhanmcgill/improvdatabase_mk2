@@ -101,7 +101,7 @@ function findUser (UserID, Email, callback) {
     var q,
         p = [];
     
-    q  = 'SELECT "UserID", "FirstName", "LastName", "Gender", "Email", "URL", "DateAdded", "DateModified", "Password", ';
+    q  = 'SELECT "UserID", "FirstName", "LastName", "Gender", "Email", "URL", "DateAdded", "DateModified", "Password", "Description", ';
     q += 'ARRAY(SELECT permissionkey."Name" FROM userlevel, permissionkey, permissionkeyuserlevel WHERE ';
     q += 'userlevel."UserLevelID"= ANY(users."UserLevel") AND permissionkeyuserlevel."UserLevelID"=userlevel."UserLevelID" ';
     q += 'AND permissionkey."PermissionKeyID" = permissionkeyuserlevel."PermissionKeyID") AS "Permissions" FROM users WHERE ';

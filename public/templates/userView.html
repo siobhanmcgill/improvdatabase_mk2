@@ -3,5 +3,50 @@
         
         <h2>Your Account</h2>
 
+        <form name="editAccount">
+
+            <p>Email:<br /><input type="text" name="email" value="<%- Email %>" /></p>
+            
+            <div class="spanhalf">
+                <p>First Name:<br /><input type="text" name="firstname" value="<%- FirstName %>" /></p>
+            </div>
+            
+            <div class="spanhalf">
+                <p>Last Name:<br /><input type="text" name="lastname" value="<%- LastName %>" /></p>
+            </div>
+
+            <p>
+                Gender:<br />
+                <div class="genderoptions">
+                    <div class="onecolumn pull-left">
+                        <i class="fa <% if (Gender === 'M') { %>fa-dot-circle-o<% } else { %>fa-circle-o<% } %>"></i> <span>Male</span>
+                    </div>
+                    <div class="onecolumn pull-left">
+                        <i class="fa <% if (Gender === 'F') { %>fa-dot-circle-o<% } else { %>fa-circle-o<% } %>"></i> <span>Female</span>
+                    </div>
+                    <div class="onecolumn pull-left">
+                        <i class="fa <% if (Gender === 'O') { %>fa-dot-circle-o<% } else { %>fa-circle-o<% } %>"></i> <span>None of your business</span>
+                    </div>
+                </div>
+            </p>
+
+            <p>URL: <br /><input type="text" name="url" value="<%- URL %>" /></p>
+
+            <p>Description: <br /><textarea name="description"><%- Description %></textarea></p>
+            
+            <div class="spanhalf">
+                <p>New Password:<br /><input type="password" name="password" /></p>
+            </div>
+            
+            <div class="spanhalf">
+                <p>Confirm Password:<br /><input type="password" name="confirmpassword" /></p>
+            </div>
+
+            <p>
+                <div class="btn pull-right save-user">Save</div>
+            </p>
+
+        </form>
+
     </div>
 </div>

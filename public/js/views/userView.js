@@ -13,7 +13,10 @@ define(['jquery',
         return Backbone.View.extend({
             events: {
                 'click #btnLogin': 'login',
-                'keypress input[name=email], input[name=password]': 'keypressLogin'
+                'keypress input[name=email], input[name=password]': 'keypressLogin',
+
+                'click .genderoptions .onecolumn': 'selectGender',
+                'click .save-user': 'saveUser'
             },
             title: 'Account',
             icon: 'fa-lock',
@@ -63,6 +66,16 @@ define(['jquery',
                 this.$el.html(template);
 
                 return this;
+            },
+
+            selectGender: function (e) {
+                this.$('.genderoptions .onecolumn .fa-dot-circle-o').removeClass('fa-dot-circle-o').addClass('fa-circle-o');
+
+                $(e.currentTarget).find('.fa-circle-o').removeClass('fa-circle-o').addClass('fa-dot-circle-o');
+            },
+
+            saveUser: function (e) {
+
             },
             
             keypressLogin: function (e) {
