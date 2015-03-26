@@ -2,8 +2,10 @@ var jwt = require('jwt-simple'),
     userApi = require('./routes/api/user'),
     config  = require('./config')(),
     redis   = require('redis'),
-    client  = redis.createClient(config.redis.port, config.redis.hostname, {auth_pass: config.redis.auth});
- 
+    client  = redis.createClient(9480, 'cobia.redistogo.com'); //redis.createClient(config.redis.port, config.redis.hostname, {auth_pass: config.redis.auth});
+
+client.auth('2ec84705d3394f8cdd93f8e85b177070');
+
 exports.login = function(req, res) {
     var username = req.body.username || '';
     var password = req.body.password || '';

@@ -11,7 +11,7 @@ module.exports = function () {
             port: 1919
         };
     } else if (process.env.NODE_ENV === 'production') {
-        var rtg = require('url').parse(process.env.REDISCLOUD_URL);
+        var rtg = require('url').parse(process.env.REDISTOGO_URL);
         return {
             token: process.env.SECRET,
             postgres: process.env.DATABASE_URL,
