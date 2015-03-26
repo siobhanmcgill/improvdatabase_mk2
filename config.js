@@ -14,7 +14,7 @@ module.exports = function () {
         var rtg = require('url').parse(process.env.REDISTOGO_URL);
         return {
             token: process.env.SECRET,
-            postgres: process.env.DATABASE_URL,
+            postgresql: process.env.DATABASE_URL,
             redis: {
                 port: rtg.port,
                 host: rtg.hostname,
