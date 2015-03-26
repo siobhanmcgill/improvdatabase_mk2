@@ -4,7 +4,8 @@
   "description": "Improv Comedy Database for the 21st century.",
   "version": "0.1.0",
   "scripts": {
-    "start": "node app"
+    "start": "node app",
+    "postinstall": "./node_modules/bower/bin/bower install"
   },
   "author": "Shauvon McGill <smcgill@denyconformity.com>",
   "engines": {
@@ -30,10 +31,10 @@
     "request": ">=2.12.0",
     "requirejs": ">=2.1.2",
     "underscore": ">=1.4.4",
-    "nodemailer": "~1.3.2"
+    "nodemailer": "~1.3.2",
+    "bower": "~1.3.12"
   },
   "amd": true,
   "devDependencies": {
-    "bower": "~1.3.12"
   }
 }
