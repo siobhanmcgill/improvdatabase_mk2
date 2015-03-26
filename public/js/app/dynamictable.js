@@ -94,7 +94,6 @@ define(['jquery', 'backbone', 'underscore'],
             this.next();
         },
         reload: function() {
-            console.log("Reloading Table", this.options.pageSize, this.data, this._filter);
             var scroll = this.$table.scrollTop();
 
             //this._sizes = [];
@@ -225,7 +224,6 @@ define(['jquery', 'backbone', 'underscore'],
             var prop = this._sortBy,
                 dir = this._sortDir,
                 self = this;
-            console.log("Table sortBy:", prop);
 
             this.$head.find(".dt-cell").removeClass("sorted asc desc");
             this._forEach(this.columns, function(column, index) {
@@ -498,7 +496,7 @@ define(['jquery', 'backbone', 'underscore'],
                         } else if (row.get) { //it's a backbone model and we're getting an attribute
                             text = row.get(colObj.property);
                         } else { //umm . . .
-                            console.log("Couldn't find " + colObj.property + " on row " + ri);
+                            console.warn("Couldn't find " + colObj.property + " on row " + ri);
                         }
                         className = colObj.property.toLowerCase();
                     }
@@ -536,7 +534,7 @@ define(['jquery', 'backbone', 'underscore'],
                     tr.append(td);
                 });
                 if (row.id) {
-                    tr.attr("id", row.id);
+                    tr.attr("id", self.options.idPrefix + row.id);
                 }
                 tr.data("data", row);
                 if (reverse) {
@@ -668,7 +666,7 @@ define(['jquery', 'backbone', 'underscore'],
             });
             
             var diff = this.getContainerHeight() - this.getHeight(),
-                pad;
+                pad, mod;
             if (diff < 0 && this.options.paginate && this.options.pageSize === "auto") {
                 while (diff < 0) {
                     if (this._reverse) {
@@ -680,11 +678,13 @@ define(['jquery', 'backbone', 'underscore'],
                     diff = this.getContainerHeight() - this.getHeight();
                 }
             }
-            
+
             if (diff > 0 && diff / this.$rows.length < this.$rows[0].outerHeight()) { //we'll pad each row, as long as it doesn't double their height
-                pad = diff / this.$rows.length;
+                pad = Math.floor(diff / this.$rows.length);
+                mod = diff % this.$rows.length;
             } else {
                 pad = 0;
+                mod = 0;
             }
 
             this.$head.find(".dt-row").css("height", "auto");
@@ -693,6 +693,11 @@ define(['jquery', 'backbone', 'underscore'],
             this._forEach(this.$rows, function(row) {
                 row.css("height", row.height() + pad);
             });
+
+            //give any remainder to the last row
+            if (mod > 1) {
+                this.$rows[this.$rows.length - 1].css('height', this.$rows[this.$rows.length - 1].height() + (diff % this.$rows.length));
+            }
             
             this._fixhead();
         },
@@ -704,13 +709,20 @@ define(['jquery', 'backbone', 'underscore'],
         },
 
         getContainerHeight: function() {
-            return this.$container.outerHeight() - this.$head.outerHeight();
+            return this.$container.height() - this.$head.outerHeight();
         },
         getHeight: function() {
+            /*
             this.$table.css("bottom", "auto");
             var r = this.$table.outerHeight();
             this.$table.css("bottom", "-1px");
-            return r;
+            */
+            var h = 0;
+            this.$table.find('.dt-row').each(function () {
+                $(this).css('height', 'auto');
+                h += $(this).outerHeight();
+            });
+            return h;
         },
 
         getFilter: function () {
@@ -748,7 +760,8 @@ define(['jquery', 'backbone', 'underscore'],
         pageSize: "auto",
         dataType: "array",
         paginate: true,
-        maxWidth: 50
+        maxWidth: 50,
+        idPrefix: 'row'
     };
 
     $.fn.dynamictable.Constructor = DynamicTable;

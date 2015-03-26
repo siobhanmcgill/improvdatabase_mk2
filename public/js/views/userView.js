@@ -12,8 +12,7 @@ define(['jquery',
     function($, _, Backbone, moment, deny, dynamictable, Template, LoginTemplate) {
         return Backbone.View.extend({
             events: {
-                'click #btnLogin': 'login',
-                'keypress input[name=email], input[name=password]': 'keypressLogin',
+                'submit #loginform': 'login',
 
                 'click .genderoptions .onecolumn': 'selectGender',
                 'click .save-user': 'saveUser'
@@ -58,7 +57,6 @@ define(['jquery',
             render: function() {
                 var template;
                 if (this.router.token) {
-                    console.log(this.router.token.user);
                     template = _.template(Template, this.router.token.user);
                 } else {
                     template = _.template(LoginTemplate);
@@ -72,18 +70,55 @@ define(['jquery',
                 this.$('.genderoptions .onecolumn .fa-dot-circle-o').removeClass('fa-dot-circle-o').addClass('fa-circle-o');
 
                 $(e.currentTarget).find('.fa-circle-o').removeClass('fa-circle-o').addClass('fa-dot-circle-o');
+                this.$('[name=Gender]').val($(e.currentTarget).data('gender'));
             },
 
             saveUser: function (e) {
+                var data = _.object(this.$('#editAccount').serializeArray().map(function (d) { return [d.name, d.value]; })),
+                    empties = this.$('.user-main .required').filter(function () { return $.trim(this.value) === ''; });
+                this.$('input, textarea').removeClass('notice');
 
-            },
-            
-            keypressLogin: function (e) {
-                if (e.keyCode === 13) {
-                    this.login();
+                this.$('.success, .error').hide();
+
+                if (data.Password !== data.confirmpassword) {
+                    this.shakeUserEdit('Those passwords don\'t match.', this.$('.user-main [name=Password], .user-main [name=confirmpassword]'));
+                } else if (empties.length) {
+                    this.shakeUserEdit('These things are required, I\'m afraid.', empties);
+                } else {
+                    if (!data.Password) {
+                        delete data.Password;
+                    }
+                    delete data.confirmpassword;
+                    this.$('.btn').addClass('disabled').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+
+                    var self = this;
+                    this.router.currentUser.save(data, {
+                        success: function () {
+                            self.$('.btn').removeClass('disabled').text('Save');
+                            self.$('.success').show().text('Information saved!');
+                        }, error: function (error) {
+                            self.$('.btn').removeClass('disabled').text('Save');
+                            self.$('.error').show().text(error);
+                        }
+                    });
                 }
+
+                e.stopPropagation();
+                return false;
             },
-            login: function () {
+            shakeUserEdit: function (error, $notice) {
+                if (error) {
+                    this.$('.user-main .error').html(error).show();
+                }
+                var $form = this.$('.user-main .text-content-page').removeClass('shake');
+                setTimeout(function () {
+                    $form.addClass('shake');
+                }, 10);
+                $notice.addClass('notice');
+            },
+
+
+            login: function (e) {
                 var email = this.$('input[name=email]').val(),
                     pass  = this.$('input[name=password]').val();
 
@@ -144,6 +179,9 @@ define(['jquery',
                         }, 500);
                     }, this));
                 }
+
+                e.stopPropagation();
+                return false;
             },
             shakeLogin: function (error) {
                 if (error) {

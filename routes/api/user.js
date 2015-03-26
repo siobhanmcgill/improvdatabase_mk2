@@ -2,7 +2,7 @@ var connection  = require("../connection"),
     bcrypt      = require('bcrypt-nodejs'),
     auth        = require('../../auth'),
     
-    formProperties = ["FirstName", "LastName", "Gender", "Email", "URL", "Password"];
+    formProperties = ["FirstName", "LastName", "Gender", "Email", "URL", "Password", "Description"];
 
 exports.create = function(req,res) {
     var data = connection.getPostData(req.body, formProperties),
@@ -62,18 +62,20 @@ exports.update = function(req, res) {
                     data.Password = hash;
                 }
                 data.DateModified = 'NOW';
-
+            
                 var q = connection.getUpdateQuery('users', data, { UserID: req.params.id });
 
                 connection.query(q.query, q.values, function(err, response) {
                     if (err) {
                         res.json('500', err);
                     } else {
-                        res.json('200', response.rows[0]);
+                        var user = response.rows[0];
+                        delete user.Password;
+                        res.json('200', user);
                     }
                 });
             };
-
+        
         if (password) {
             bcrypt.hash(password, null, null, callback);
         } else {

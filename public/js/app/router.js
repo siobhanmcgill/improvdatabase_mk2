@@ -2,12 +2,14 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
         
         'collections/durationCollection', 'collections/gameCollection', 'collections/groupCollection', 'collections/nameCollection',
         'collections/noteCollection', 'collections/playerCountCollection', 'collections/suggestionCollection', 'collections/suggestionTypeCollection', 
-        'collections/suggestionTypeGameCollection', 'collections/tagCollection', 'collections/tagGameCollection'
+        'collections/suggestionTypeGameCollection', 'collections/tagCollection', 'collections/tagGameCollection',
+
+        'models/user'
         ],
     function($,     _,           Backbone, store,   MainView,
     
         DurationCollection, GameCollection, GroupCollection, NameCollection, NoteCollection, PlayerCountCollection, SuggestionCollection, SuggestionTypeCollection,
-        SuggestionTypeGameCollection, TagCollection, TagGameCollection) {
+        SuggestionTypeGameCollection, TagCollection, TagGameCollection, User) {
 
         var Router = Backbone.Router.extend({
             routes: {
@@ -17,15 +19,9 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
             initialize: function() {
                 this.token = store.get('token');
                 if (this.token) {
-                    var exp = this.token.expires;
-                    if (exp > Date.now()) {
-                        $.ajaxSetup({
-                            headers: { 'x-access-token': this.token.token }
-                        });
-                    } else {
-                        this.token = false;
-                        store.remove('token');
-                    }
+                    // store the current token, and refresh it in the background to update the expiration date
+                    this._handleToken();
+                    this.refreshToken();
                 }
 
                 this.durations = new DurationCollection(window.database.duration);
@@ -51,6 +47,28 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                 });
             },
 
+            _handleToken: function () {
+                store.set('token', this.token);
+                this.currentUser = new User(this.token.user);
+                var exp = this.token.expires;
+                if (exp > Date.now()) {
+                    $.ajaxSetup({
+                        headers: { 'x-access-token': this.token.token }
+                    });
+                } else {
+                    this.token = false;
+                    store.remove('token');
+                }
+
+                this.listenTo(this.currentUser, 'change', $.proxy(function () {
+                    this.token.user = this.currentUser.toJSON();
+                    store.set('token', this.token);
+                }, this));
+
+                // pledge to refresh the token every hour, as per Auth0's suggestions
+                setTimeout($.proxy(this.refreshToken, this), 3600000);
+            },
+
             login: function (email, pass, callback) {
                 var self = this;
                 Backbone.ajax({
@@ -62,10 +80,7 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                     },
                     success: function (response) {
                         self.token = response;
-                        store.set('token', response);
-                        $.ajaxSetup({
-                            headers: { 'x-access-token': response.token }
-                        });
+                        self._handleToken();
                         
                         if (callback) {
                             callback(response);
@@ -76,13 +91,13 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
             },
             logout: function (callback) {
                 var self = this;
-                console.log('logout');
                 Backbone.ajax({
                     url: '/logout',
                     method: 'POST',
                     success: function (response) {
                         store.clear();
                         self.token = null;
+                        self.currentUser = null;
                         $.ajaxSetup({
                             headers: { 'x-access-token': false }
                         });
@@ -93,6 +108,20 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                         self.trigger('logout');
                     }
                 });
+            },
+            refreshToken: function () {
+                var exp = this.token ? this.token.expires : null;
+                if (exp && exp > Date.now()) {
+                    var self = this;
+                    Backbone.ajax({
+                        url: '/refreshToken',
+                        method: 'POST',
+                        success: function (response) {
+                            self.token = response;
+                            self._handleToken();
+                        }
+                    });
+                }
             },
 
             hasPermission: function (key) {

@@ -8,6 +8,7 @@ var express = require('express'),
 
     routes  = require('./routes'),
     api    = require('./routes/api'),
+    contact = require('./routes/contact'),
     
     //for handlebars
     blocks  = {};
@@ -62,7 +63,11 @@ app.get('/', routes.renderIndex);
 var auth = require('./auth');
 app.post('/login', auth.login);
 app.post('/logout', auth.logout);
+app.post('/refreshToken', auth.checkToken, auth.refresh);
 app.all('/api/*', auth.checkToken);
+
+// CONTACT
+app.post('/contact', contact.send);
 
 //CRUD
 app.post('/api/:op', api.create);

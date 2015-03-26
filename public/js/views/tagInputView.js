@@ -99,7 +99,9 @@ define(['jquery',
                             success: function(model, response) {
                                 Backbone.trigger("tag-add", model);
                                 $tag.data("tagid", model.get("TagID"));
-                                self.TagGameCollection.addTagToGame(model.get("TagID"), self.GameID, response.TagGameID);
+                                if (self.TagGameCollection) {
+                                    self.TagGameCollection.addTagToGame(model.get("TagID"), self.GameID, response.TagGameID);
+                                }
                             }, 
                             error: function() {
 

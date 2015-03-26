@@ -1,14 +1,20 @@
 <div class="search-section">
-<% _.each(data, function (item) { %>
-    <% if (item.type === 'name') { %>
-    <div class="search-result game-result" data-gameid="<%- item.id %>">
-        <i class="fa fa-futbol-o"></i> <%= item.name %></a>
+<% if (data.length === 0) { %>
+    <div class="search-result">
+       <i class="fa <%- icon %>"></i> No <%- type %> found matching '<%- term %>'
     </div>
-    <% } %>
-    <% if (item.type === 'tag') { %>
-    <div class="search-result tag-result" data-gameid="<%- item.id %>">
-        <i class="fa fa-tag"></i> <%= item.name %></a>
-    </div>
-    <% } %>
-<% }) %>
+<% } else { %>
+    <% _.each(data, function (item) { %>
+        <% if (item.type === 'name') { %>
+        <div class="search-result game-result" data-gameid="<%- item.id %>">
+            <i class="fa fa-futbol-o"></i> <%= item.name %>
+        </div>
+        <% } %>
+        <% if (item.type === 'tag') { %>
+        <div class="search-result tag-result" data-gameid="<%- item.id %>">
+            <i class="fa fa-tag"></i> <%= item.name %>
+        </div>
+        <% } %>
+    <% }) %>
+<% } %>
 </div>

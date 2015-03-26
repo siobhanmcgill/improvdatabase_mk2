@@ -55,8 +55,14 @@ define(['jquery',
                         }
                     });
                     
-                    this.$('.results').append(_.template(ResultsTemplate, { data: data }));
+                    this.$('.results').append(_.template(ResultsTemplate, {
+                        data: data,
+                        type: 'games',
+                        term: this.$('input').val(),
+                        icon: 'fa-futbol-o'
+                    }));
                     
+                    /*
                     data = [];
                     this.router.tags.each(function (tag) {
                         if (tag.get('Name').toLowerCase().indexOf(val) > -1) {
@@ -72,6 +78,7 @@ define(['jquery',
                     });
                     
                     this.$('.results').append(_.template(ResultsTemplate, { data: data }));
+                    */
 
                     this.boxHeight();
 

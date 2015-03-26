@@ -39,7 +39,7 @@ exports.login = function(req, res) {
 exports.logout = function (req, res) {
     var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
     if (token) {
-        // instantly expire the token
+        // instantly expire the token from redis
         client.expire(token, 0, function (err, response) {
             if (err) {
                 res.json('500', { message: 'Server Error', error: err });
@@ -49,9 +49,36 @@ exports.logout = function (req, res) {
         });
     }
 };
+
+exports.refresh = function (req, res) {
+    var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
+    
+    if (!token || !req.user) {
+        res.status(401);
+        res.json({
+            'status': 401,
+            'message': 'Invalid Token'
+        });
+        return;
+    }
+
+    // instantly expire the old token from redis
+    client.expire(token, 0, function (err, response) {
+        if (err) {
+            res.json('500', { message: 'Server Error', error: err });
+        } else if (response) {
+            genToken(req.user, function (err, token) {
+                if (err) {
+                    console.error('REDIS ERROR', err);
+                }
+                res.json('200', token);
+            });
+        }
+    });
+};
  
 function genToken(user, callback) {
-    var expires = expiresIn(60), // one hour
+    var expires = expiresIn(7), // one week, as recommended by Auth0
         token = jwt.encode({
             exp: expires,
             iss: user.UserID
@@ -59,7 +86,7 @@ function genToken(user, callback) {
         multi = client.multi();
 
     multi.set(token, user.UserID);
-    multi.expire(token, 60 * 60); // one hour in seconds
+    multi.expire(token, 60 * 60 * 24 * 7); // one week in seconds
 
     multi.exec(function (err) {
         callback(err, {
@@ -70,9 +97,9 @@ function genToken(user, callback) {
     });
 }
  
-function expiresIn(numMinutes) {
+function expiresIn(days) {
     var dateObj = new Date();
-    return dateObj.setMinutes(dateObj.getMinutes() + numMinutes);
+    return dateObj.setDate(dateObj.getDate() + days);
 }
 
 exports.checkToken = function (req, res, next) {
@@ -83,7 +110,7 @@ exports.checkToken = function (req, res, next) {
     if (token) {
         try {
             var decoded = jwt.decode(token, config.secret);
-            
+
             // first make sure the token hasn't expired
             if (decoded.exp > Date.now()) {
                 // now make sure the user exists

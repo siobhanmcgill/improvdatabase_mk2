@@ -19,7 +19,8 @@ define(['jquery',
         return Backbone.View.extend({
             events: {
                 "click #saveItUp" : "doSave",
-
+                
+                "click .description .edit": "showEditDescription",
                 "click #duration_dropdown .edit": "showDurationDropdown",
                 "click #playerCount_dropdown .edit": "showPlayerCountDropdown",
 
@@ -67,7 +68,6 @@ define(['jquery',
                     } else if (note.get('DurationID')) {
                         note.regarding = 'the duration of this game.';
                     }
-                    console.log(note);
                 }, this));
                 var templateData = {
                         altNamesShow: this.names.length > 1,
@@ -148,7 +148,6 @@ define(['jquery',
                     self = this;
                 $(e.currentTarget).text('Wait...');
                 this.listenToOnce(nameModel, 'sync', function (model, response) {
-                    console.log("SYNC", response);
                     self.render();
                     setTimeout(function () {
                         self.$('.altNameLink').click();
@@ -302,7 +301,6 @@ define(['jquery',
             },
             noteDropdownChange: function (data) {
                 this.noteData = data;
-                console.log(this.noteData);
             },
             saveNote: function (e) {
                 var note = new Note(),
@@ -319,6 +317,29 @@ define(['jquery',
                         self.$('.showNotes').click();
                     }
                 });
+                e.stopPropagation();
+                return false;
+            },
+
+            showEditDescription: function (e) {
+                if ($(e.currentTarget).text() === 'Save') {
+                    var desc = this.$('.description textarea').val();
+                    this.$('.description textarea').hide();
+                    this.$('.description p').html(desc).show();
+                    this.model.set({"Description": desc});
+                    this.model.save();
+                } else {
+                    var $p = this.$('.description p').hide(),
+                        $box = this.$('.description textarea').show(),
+                        h = $p.height(),
+                        lh = $p.css('line-height').replace('px', ''),
+                        rows = h / lh;
+                    $box.attr('rows', Math.ceil(rows));
+
+                    $(e.currentTarget).text('Save');
+                }
+
+                this.boxHeight();
                 e.stopPropagation();
                 return false;
             },
@@ -416,8 +437,6 @@ define(['jquery',
             boxHeight: function() { //Bruce Boxheigtner
                 // fit the title into the space
                 this.titleSize();
-
-                console.log('GAME BOXHEIGHT');
 
                 var self = this;
                 this.$el.parent().removeClass('scrollContent');

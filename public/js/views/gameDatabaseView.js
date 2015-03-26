@@ -53,14 +53,12 @@ define(['jquery',
                 this.searchView = new SearchView({ router: this.router });
 
                 this.listenTo(this.searchView, 'search-show', function () {
-                    console.log('show search');
                     this.$el.addClass('showSearch');
                     setTimeout(function () {
                         self.reload();
                     }, 500);
                 });
                 this.listenTo(this.searchView, 'search-hide', function () {
-                    console.log('hide search');
                     this.$el.removeClass('showSearch');
                     setTimeout(function () {
                         self.reload();
@@ -73,7 +71,6 @@ define(['jquery',
                 });
 
                 this.listenTo(this.router, 'login logout', function () {
-                    console.log('hello');
                     this.trigger('render-toolbar', this);
                 });
             },
@@ -131,6 +128,7 @@ define(['jquery',
                 this.$('#gameBox').before(this.searchView.el);
                 this.searchView.render();
 
+                var self = this;
                 this.$("#gameTable").dynamictable({
                     data: this.router.games,
                     pageindicator: this.$("#pageindicator"),
@@ -140,6 +138,9 @@ define(['jquery',
                     pageSize: 'auto',
                     onRender: function(table) {
                         table.find(".has-tooltip").tooltip();
+                        if (self.selectedGame) {
+                            table.find('#row' + self.selectedGame.id).addClass('active');
+                        }
                     },
                     columns: [
                             {
@@ -213,10 +214,12 @@ define(['jquery',
                     this.$('#gameBox').append(this.addGameForm.$el);
                     this.addGameForm.render();
                 }
+                this.selectedGame = false;
             },
 
             showGame: function(e) {
                 var data;
+                this.$('#gameTable .dt-row').removeClass('active');
                 if (e.currentTarget) {
                     data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
                 } else {
@@ -235,6 +238,9 @@ define(['jquery',
                     });
                     this.$('#gameBox').append(this.gameView.$el);
                     this.gameView.render();
+                    this.selectedGame = data;
+                } else {
+                    this.selectedGame = false;
                 }
             },
 

@@ -32,8 +32,12 @@
         <% } %>
     </div>
 
-    <div>
+    <div class="description">
         <p><%= Description %></p>
+        <% if (canEdit) { %>
+        <textarea name="Description" rows="5"><%= Description %></textarea>
+        <a href="#" class="edit">Change...</a>
+        <% } %>
     </div>
 
     <div id="duration_dropdown">
