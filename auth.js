@@ -4,6 +4,7 @@ var jwt = require('jwt-simple'),
     redis   = require('redis'),
     client  = redis.createClient(config.redis.port, config.redis.hostname);
  
+console.log('redis', config.redis);
 client.auth(config.redis.auth);
 
 exports.login = function(req, res) {
