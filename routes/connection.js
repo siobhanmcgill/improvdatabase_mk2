@@ -1,9 +1,8 @@
-var config  = require("config"),
-    url     = require("url"),
+var config  = require("../config")(),
     _       = require("underscore"),
     pg      = require("pg"),
 
-    conString = 'postgres://improv:alyson_19@localhost/improv_2014';
+    conString = config.postgresql;
 
 exports.query = function(query, values, callback) {
     /*
