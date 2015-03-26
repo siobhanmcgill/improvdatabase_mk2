@@ -20,7 +20,7 @@ module.exports = function () {
                 host: rtg.hostname,
                 auth: rtg.auth.split(':')[1]
             },
-            port: 80
+            port: process.env.PORT || 5000
         };
     }
 };
