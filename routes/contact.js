@@ -10,7 +10,7 @@ exports.send = function(req, res) {
         }),
         mailOptions = {
             from: req.body.email || 'none@denyconformity.com',
-            to: 'shauvon.mcgill@gmail.com',
+            to: 'contact@improvdatabase.com',
             subject: 'Improv Database Contact Submission'
         },
         html;
