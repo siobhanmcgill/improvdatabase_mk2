@@ -2,11 +2,8 @@ var jwt = require('jwt-simple'),
     userApi = require('./routes/api/user'),
     config  = require('./config')(),
     redis   = require('redis'),
-    client  = redis.createClient(config.redis.port, config.redis.hostname);
+    client  = redis.createClient(config.redis.port, config.redis.hostname, {auth_pass: config.redis.auth});
  
-console.log('redis', config.redis);
-client.auth(config.redis.auth);
-
 exports.login = function(req, res) {
     var username = req.body.username || '';
     var password = req.body.password || '';
