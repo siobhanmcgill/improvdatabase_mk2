@@ -9,13 +9,17 @@ var express = require('express'),
     routes  = require('./routes'),
     api    = require('./routes/api'),
     contact = require('./routes/contact'),
+
+    config = require('./config')(),
     
     //for handlebars
     blocks  = {};
 
 var app = express();
 
-app.set('port', 1919);
+console.log('STUFF', process.env.NODE_ENV, process.env.REDISTOGO_URL);
+
+app.set('port', config.port);
 app.set('views', __dirname + "/views");
 app.set('view engine', 'hbs');
 

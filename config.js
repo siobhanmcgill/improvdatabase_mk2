@@ -7,7 +7,8 @@ module.exports = function () {
                 port: 6379,
                 host: '127.0.0.1',
                 auth: ''
-            }
+            },
+            port: 1919
         };
     } else if (process.env.NODE_ENV === 'production') {
         var rtg = require('url').parse(process.env.REDISTOGO_URL);
@@ -18,7 +19,8 @@ module.exports = function () {
                 port: rtg.port,
                 host: rtg.hostname,
                 auth: rtg.auth.split(':')[1]
-            }
+            },
+            port: 80
         };
     }
 };
