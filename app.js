@@ -17,7 +17,7 @@ var express = require('express'),
 
 var app = express();
 
-console.log('STUFF', process.env.NODE_ENV, process.env.REDISTOGO_URL);
+console.log('STUFF', config.redis);
 
 app.set('port', config.port);
 app.set('views', __dirname + "/views");
