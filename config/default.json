@@ -1,5 +1,13 @@
 {
     "token": {
         "secret": "fe73_yspk3g2i+6$nba6_p2zm$v0rz4ihdme*!z@++ej@^463p"
+    },
+    "postgresql": {
+        "user": "improv",
+        "pass": "alyson_19",
+        "url": "localhost",
+        "database": "improv_2014",
+        "port": "5432",
+        "url": "postgres://improv:alyson_19@localhost:5432/improv_2014"
     }
 }

@@ -1,8 +1,10 @@
 var jwt = require('jwt-simple'),
     userApi = require('./routes/api/user'),
-    config  = require('config').get('token'),
+    config  = require('./config')(),
     redis   = require('redis'),
-    client  = redis.createClient(6379);
+    client  = redis.createClient(config.redis.port, config.redis.hostname);
+ 
+client.auth(config.redis.auth);
 
 exports.login = function(req, res) {
     var username = req.body.username || '';
@@ -82,7 +84,7 @@ function genToken(user, callback) {
         token = jwt.encode({
             exp: expires,
             iss: user.UserID
-        }, config.secret),
+        }, config.token),
         multi = client.multi();
 
     multi.set(token, user.UserID);
@@ -109,7 +111,7 @@ exports.checkToken = function (req, res, next) {
     req.user = false;
     if (token) {
         try {
-            var decoded = jwt.decode(token, config.secret);
+            var decoded = jwt.decode(token, config.token);
 
             // first make sure the token hasn't expired
             if (decoded.exp > Date.now()) {
