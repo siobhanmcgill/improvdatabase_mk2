@@ -2,29 +2,29 @@ var express = require('express'),
     http    = require('http'),
     hbs     = require('hbs'),
     path    = require('path'),
-    
+    morgan  = require('morgan'),
+    bodyParser = require('body-parser'),
+    errorHandler = require('errorhandler'),
+
     routes  = require('./routes'),
     api    = require('./routes/api'),
+    contact = require('./routes/contact'),
     
     //for handlebars
     blocks  = {};
 
 var app = express();
 
-app.configure(function() {
-    app.set('port', 1919);
-    app.set('views', __dirname + "/views");
-    app.set('view engine', 'hbs');
+app.set('port', 1919);
+app.set('views', __dirname + "/views");
+app.set('view engine', 'hbs');
 
-    app.use(express.favicon());
-    app.use(express.logger('dev'));
-    app.use(express.bodyParser());
-    app.use(express.json()).use(express.urlencoded());
+app.use(morgan('dev'));
+app.use(bodyParser.json()).use(bodyParser.urlencoded({ extended: false }));
 
-    app.use(app.router);
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.use(express.static(path.join(__dirname, 'public')));
-});
+app.use(errorHandler({ dumpExceptions: true, showStack: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use( '/bower_components', express.static( __dirname + '/bower_components' ) );
 
 // Handlebars helpers
 hbs.registerHelper( 'extend', function( name, context ) {
@@ -44,22 +44,30 @@ hbs.registerHelper( 'block', function( name ) {
     return val;
 });
 
-app.use( '/bower_components', express.static( __dirname + '/bower_components' ) );
-
 app.all( '/*', function( req, res, next ) {
+    res.header( 'Access-Control-Allow-Origin', '*' );
+    res.header( 'Access-Control-Allow-Method', 'POST, GET, PUT, DELETE, OPTIONS' );
+    res.header( 'Access-Control-Allow-Headers', 'origin, x-requested-with, x-file-name, content-type, cache-control' );
     // Process preflight if it is OPTIONS request
     if( 'OPTIONS' === req.method ) {
-        res.header( 'Access-Control-Allow-Origin', '*' );
-        res.header( 'Access-Control-Allow-Method', 'POST, GET, PUT, DELETE, OPTIONS' );
-        res.header( 'Access-Control-Allow-Headers', 'origin, x-requested-with, x-file-name, content-type, cache-control' );
         res.send( 203, 'No Content' );
+    } else {
+        next();
     }
-
-    next();
 });
 
 // ROUTES
 app.get('/', routes.renderIndex);
+
+// AUTH
+var auth = require('./auth');
+app.post('/login', auth.login);
+app.post('/logout', auth.logout);
+app.post('/refreshToken', auth.checkToken, auth.refresh);
+app.all('/api/*', auth.checkToken);
+
+// CONTACT
+app.post('/contact', contact.send);
 
 //CRUD
 app.post('/api/:op', api.create);

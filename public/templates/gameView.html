@@ -4,39 +4,56 @@
     <% if (altNamesShow) { %>
     <a class="altNameLink" href="#"><%- nameCount %> alternate name<% if (namePlural) { %>s<% } %></a>
     <% } else { %>
-    <a class="altNameLink" href="#">Propose alternate name</a>
+        <% if (canAddName) { %>
+        <a class="altNameLink" href="#">Propose alternate name</a>
+        <% } %>
     <% } %>
-    <div class="altNames">
+    <div class="altNames <% if (!canVoteName) { %>noVoting<% } %>">
         <a href="#" class="close">&times;</a>
         <% if (altNamesShow) { %>
-        <label>Known Aliases:</label>
-        <% _.each(altNames, function (name) { %>
-        <div data-nameid="<%- name.attributes.NameID %>">
-            <%- name.attributes.Name %> <a class="weight weightUp">(+<%- name.attributes.Weight %>)</a>
-        </div>
-        <% }) %>
-        <a href="#" class="addName">Add alternate name</a>
+            <label>Known Aliases:</label>
+            <% _.each(altNames, function (name) { %>
+            <div data-nameid="<%- name.attributes.NameID %>">
+                <%- name.attributes.Name %> <% if (canVoteName) { %><a class="weight weightUp">(+<%- name.attributes.Weight %>)</a><% } %>
+            </div>
+            <% }) %>
+            <% if (canAddName) { %>
+            <a href="#" class="addName">Add alternate name</a>
+            <% } %>
         <% } else { %>
-        <label>What do you call this, then?</label>
+            <% if (canAddName) { %>
+            <label>What do you call this, then?</label>
+            <% } %>
         <% } %>
+        
+        <% if (canAddName) { %>
         <input name="alternateName" <% if (altNamesShow) { %>style="display: none"<% } %> />
         <a href="#" <% if (altNamesShow) { %>style="display: none"<% } %> class="alternateNameSubmit">Save</a>
+        <% } %>
     </div>
 
-    <div>
+    <div class="description">
         <p><%= Description %></p>
+        <% if (canEdit) { %>
+        <textarea name="Description" rows="5"><%= Description %></textarea>
+        <a href="#" class="edit">Change...</a>
+        <% } %>
     </div>
 
     <div id="duration_dropdown">
         <!--<label>Duration:</label>-->
         <h5 title="<%- durationDescription %>" class="has-tooltip"><i class="fa fa-clock-o"></i> <%- durationName %></h5>
+        <% if (canEdit) { %>
         <a href="#" class="edit">Change...</a>
+        <% } %>
     </div>
 
     <div id="playerCount_dropdown">
         <!--<label>Player Count:</label>-->
         <h5 title="<%- playerCountDescription %>" class="has-tooltip"><i class="fa fa-group"></i> <%- playerCountName %></h5>
+        <% if (canEdit) { %>
         <a href="#" class="edit">Change...</a>
+        <% } %>
     </div>
 
     <div id="tags">
@@ -66,20 +83,26 @@
                 <% } %>
                 <%= note.attributes.Description %></p>
                 <div class="noteSig">Regarding <%- note.regarding %></div>
-                <div class="noteSig"><%- note.user.attributes.FirstName %> <%- note.user.attributes.LastName %> - <%- note.time %></div>
+                <div class="noteSig"><%- note.attributes.AddedFirstName %> <%- note.attributes.AddedLastName %> - <%- note.time %></div>
             </div>
         <% }) %>
+        <% if (canAddNotes) { %>
         <a href="#" class="addNoteLink">Add Note</a>
+        <% } %>
         </div>
         <% } else { %>
         <span class="showNotes">Nothing has been said.</span>
+        <% if (canAddNotes) { %>
         <a href="#" class="addNoteLink">Add Note</a>
         <% } %>
+        <% } %>
 
+        <% if (canAddNotes) { %>
         <div class="addNote">
             <textarea name="Note" rows="5"></textarea>
             <a href="#" class="saveNote">Save</a>
         </div>
+        <% } %>
     </div>
     
     <div class="clear"></div>

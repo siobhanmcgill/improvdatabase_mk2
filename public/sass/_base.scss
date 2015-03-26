@@ -1,23 +1,5 @@
 @import "compass/css3";
 
-@mixin animation($name, $duration, $iteration, $timing) {
-    animation-duration: $duration;
-    -moz-animation-duration: $duration;
-    -webkit-animation-duration: $duration;
-    
-    animation-iteration-count: $iteration;
-    -moz-animation-iteration-count: $iteration;
-    -webkit-animation-iteration-count: $iteration;
-
-    animation-name: $name;
-    -moz-animation-name: $name;
-    -webkit-animation-name: $name;
-
-    animation-timing-function: $timing;
-    -moz-animation-timing-function: $timing;
-    -webkit-animation-timing-function: $timing;
-}
-
 @mixin keyframes($name) {
   @-webkit-keyframes #{$name} {
     @content; 

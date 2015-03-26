@@ -75,8 +75,6 @@ define(['jquery',
             boxHeight: function() { //Bruce Boxheigtner
                 var self = this;
 
-                console.log('ADD GAME BOXHEIGHT');
-
                 var h = this.$el.outerHeight() + 20;
                 if (h > $(window).height() * 0.6) {
                     h = $(window).height() * 0.6;

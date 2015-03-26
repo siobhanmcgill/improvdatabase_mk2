@@ -31,7 +31,7 @@ exports.query = function(query, values, callback) {
             queryobj = {
                 text: query,
                 values: values
-            }
+            };
         }
         client.query(queryobj, function (err, result) {
             done();
@@ -65,6 +65,16 @@ exports.getPostData = function(postData, names) {
         }
     });
     return obj;
+};
+
+exports.getSelectQuery = function (table) {
+    var q = 'SELECT ' + table + '.*, ';
+        q += 'addeduser."FirstName" AS "AddedFirstName", addeduser."LastName" AS "AddedLastName", ';
+        q += 'moduser."FirstName" AS "ModifiedFirstName", moduser."LastName" AS "ModifiedLastName" ';
+        q += 'FROM ' + table + ' INNER JOIN users addeduser ON addeduser."UserID" = ' + table + '."AddedUserID" ';
+        q += 'INNER JOIN users moduser ON moduser."UserID" = ' + table + '."ModifiedUserID"';
+
+    return q;
 };
 
 exports.getInsertQuery = function (table, data, id) {

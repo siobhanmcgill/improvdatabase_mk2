@@ -78,8 +78,8 @@ $.fn.tooltip = function(settings) {
                     ay = (oTt.outerHeight() / 2);
                 } else if (objTop > $(window).outerHeight() * 0.66) { //in the lower third of the screen
                     dir = "above";
-                    y = objTop - (oTt.outerHeight() - 6);
-                    ay = oTt.outerHeight();
+                    y = objTop - (oTt.outerHeight() + 6);
+                    ay = oTt.outerHeight() - 6;
                 } else { //default action puts the tooltip below the object
                     dir = "below";
                     y = objTop + objHeight + 6;

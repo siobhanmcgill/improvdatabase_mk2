@@ -23,6 +23,7 @@ strong {font-weight: bold}
     float: left;
 }
 .onecolumn:last-of-type, .twocolumn:last-of-type, .spanhalf:last-of-type {margin-right: 0;}
+.spanhalf:last-of-type { width: 50% }
 .callout {
     line-height: 1.8;
 }
