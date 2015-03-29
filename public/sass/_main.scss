@@ -3,16 +3,16 @@
 
 body {
     font-family: 'Arial', 'Helvetica';
-    background: #6699FF;
+    background: $color-secondary;
     overflow: hidden;
-    color: #555;
+    color: $color-text;
 }
 
 a {
-    color: #6699FF;
+    color: $color-primary;
 }
 a:visited {
-    color: #6699ff;
+    color: $color-primary;
 }
 
 .modal {
@@ -20,7 +20,7 @@ a:visited {
     top: 33%;
     left: 50%;
     padding: 20px;
-    border: 5px solid #666;
+    border: 5px solid $color-text;
     box-sizing: border-box;
 }
 
@@ -30,16 +30,16 @@ a:visited {
     padding: 10px 20px;
     margin-left: -250px;
     margin-top: -75px;
-    color: #666;
+    color: $color-text;
 
     .loader-bar {
         width: 100%;
         height: 20px;
         margin: 0px auto 5px;
-        border: 1px solid #666;
+        border: 1px solid $color-text;
         
         .bar {
-            background: #6699FF;
+            background: $color-primary;
             height: 100%;
             width: 0%;
 
@@ -73,12 +73,12 @@ a:visited {
 .tag {
     float: left;
     padding: 3px 5px;
-    background: #6699FF;
+    background: $color-primary;
     color: #FFF;
     margin: 3px 3px 3px 0;
     border-radius: 4px;
     font-size: 14px;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+    text-shadow: -1px -1px 0px rgba(0,0,0,0.3);
     box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
 }
 
@@ -93,7 +93,7 @@ a:visited {
 }
 .dropdown {
     background: rgba(255,255,255,0.9);
-    //border: 1px solid #555;
+    //border: 1px solid $color-text;
     //border-top: 0px;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -117,7 +117,7 @@ a:visited {
 }
 
 #views {
-    /*background: #6699FF;*/
+    /*background: $color-primary;*/
     position: absolute;
     top: 0;
     left: 0;
@@ -149,7 +149,7 @@ a:visited {
 }
     
 body > h1 {
-    color: #FFF;
+    color: rgba(0,0,0,0.4);
     font-size: 20px;
     font-weight: bold;
     position: relative;
@@ -168,7 +168,10 @@ body > h1 {
 
 .pod {
     background: rgba(255,255,255,0.6);
-    /*box-shadow: 2px 2px 2px rgba(0,0,0,0.2);*/
+
+    @media #{$media-mobile} {
+        background: rgba(255,255,255,0.85);
+    }
 }
 
 nav {
@@ -176,6 +179,11 @@ nav {
     position: absolute;
     top: 0px;
     z-index: 10;
+
+    @media #{$media-mobile} {
+        width: 80%;
+        bottom: 0px;
+    }
     
     .pod {
         height: 40px;
@@ -211,8 +219,18 @@ nav {
 }
 
 #toolbar {
+    @media #{$media-mobile} {
+        height: 100%;
+        overflow: auto;
+    }
+
     .section {
         float: left;
+
+        @media #{$media-mobile} {
+            float: none;
+            width: 100%;
+        }
 
         & > .btn {
             min-width: 38px;
@@ -221,13 +239,33 @@ nav {
             border: 0px;
             line-height: normal;
             float: left;
-            color: #444;
+            color: $color-text;
+            text-decoration: none;
 
             background: rgba(0,0,0,0);
             @include transition(background-color 500ms, color 500ms);
 
             &:hover {
                 background: none;
+            }
+
+            span {
+                display: none;
+            }
+
+            @media #{$media-mobile} {
+                text-align: left;
+                float: none;
+                display: block;
+                width: 100%;
+                padding: 0 2%;
+                @include border-box;
+
+                span {
+                    display: inline-block;
+                    font-size: 0.8em;
+                    font-weight: bold;
+                }
             }
         }            
         
@@ -243,9 +281,15 @@ nav {
             white-space: nowrap;
             float: left;
             @include box-sizing;
-            background: rgba(0,0,0,0.3);
+            background: $color-active;
 
-            span {
+            @media #{$media-mobile} {
+                display: none;
+                float: none;
+                height: 0;
+            }
+
+            & > span {
                 font-size: 12px;
                 width: 55px;
                 text-align: left;
@@ -253,7 +297,11 @@ nav {
                 vertical-align: middle;
                 margin: 0 5px;
                 white-space: normal;
-                color: #FFF;
+                color: $color-active-text;
+
+                @media #{$media-mobile} {
+                    display: none;
+                }
             }
             .spacer {
                 height: 38px;
@@ -265,20 +313,42 @@ nav {
                 height: 38px;
                 line-height: 38px;
                 line-height: normal;
-                border-left: 1px solid rgba(0,0,0,0.4);
+                border-left: 1px solid $color-text;
                 display: inline-block;
                 vertical-align: middle;
-                color: #FFF;
+                color: $color-active-text;
                 margin-left: -5px;
                 
                 &:hover {
-                    background: rgba(0,0,0,0.3);
+                    background: $color-hover;
                 }
                 &:last-child {
                     margin-right: 0px;
                 }
                 &.active {
-                    background: rgba(255,255,255,0.4);
+                    background: $color-active;
+                }
+
+                span {
+                    display: none;
+                }
+
+                @media #{$media-mobile} {
+                    padding-left: 2%;
+                    display: block;
+                    text-align: left;
+
+                    span {
+                        display: block;
+                        font-size: 0.5em;
+                        font-weight: bold;
+                        position:absolute;
+                        left: 40px;
+                        margin-left: 2%;
+                        right:0;
+                        top: 0px;
+                        line-height: 40px;
+                    }
                 }
             }
         }
@@ -286,19 +356,29 @@ nav {
         &.active {
 
             & > .btn {
-                color: #FFF;
-                background: rgba(0,0,0,0.3);
+                color: $color-active-text;
+                background: $color-active;
             }
             .sub {
                 width: auto;
-                border-left: 2px solid rgba(0,0,0,0.5);
-                border-right: 2px solid rgba(0,0,0,0.5);
+                border-left: 2px solid $color-text;
+                border-right: 2px solid $color-text;
+
+                @media #{$media-mobile} {
+                    display: block;
+                    border: 0px;
+                    height: auto;
+                }
             }
         }
     }
     &.ready .section {
         .sub {
             @include transition(width 500ms);
+
+            @media #{$media-mobile} {
+                @include transition(height 500ms);
+            }
         }
     }
 }
@@ -385,11 +465,11 @@ nav {
         right: 0px;
 
         div {
-            background: rgba(0,0,0,0.3);
+            background: $color-active;
             position: absolute;
             top: 0px;
             bottom: 0px;
-            color: #FFF;
+            color: $color-active-text;
             text-align: center;
 
             @include transition(left 500ms, right 500ms);
@@ -397,7 +477,7 @@ nav {
             .page {
                 display: block;
                 line-height: 19px;
-                border-bottom: 1px solid #FFF;
+                border-bottom: 1px solid $color-active-text;
                 margin: 0 7%;
             }
             .total {
@@ -413,15 +493,9 @@ nav {
     font-size: 30px;
     line-height: 40px;
     text-align: center;
-    
-    /*
-    border-width: 1px;
-    border-color: #999 #444 #444 #999;
-    border-style: solid;
-    */
 
     position: relative;
-    color: #444;
+    color: $color-text;
     cursor: pointer;
     padding: 0 4px;
 
@@ -441,8 +515,7 @@ nav {
 
     &:hover {
         background: #FFF;
-        color: #666;
-        /*border-color: #999 #444 #444 #999;*/
+        color: $color-text;
         border-color: #444 #999 #999 #444;
     }
 
@@ -468,10 +541,10 @@ nav {
     width: 100%;
     font-style: italic;
     box-sizing: border-box;
-    color: #555;
+    color: $color-text;
 
     @include input-placeholder {
-        color: #555;
+        color: $color-text;
     }
 }
 
@@ -545,7 +618,7 @@ nav {
             @include border-box;
             background: none;
             font-size: 19px;
-            color: #555;
+            color: $color-text;
         }
     }
     .showGame & {
@@ -573,8 +646,8 @@ nav {
             @include border-radius(3px);
 
             strong {
-                color: #6699FF;
-                @include text-shadow(-1px 1px 0px #555);
+                color: $color-primary;
+                @include text-shadow(-1px 1px 0px $color-text);
             }
             
             &:hover {
@@ -583,8 +656,8 @@ nav {
                 color: #333;
 
                 & > i {
-                    color: #6699FF;
-                    @include text-shadow(-1px 1px 0px #555);
+                    color: $color-primary;
+                    @include text-shadow(-1px 1px 0px $color-text);
                 }
             }
         }
@@ -697,7 +770,7 @@ nav {
             display: none;
             margin: -10px 10px 10px;
             padding: 10px;
-            border: 2px solid #666;
+            border: 2px solid $color-text;
             border-radius: 5px;
             position: relative;
 
@@ -707,7 +780,7 @@ nav {
                 text-decoration: none;
                 font-size: 1.75em;
                 right: 5px;
-                color: #666;
+                color: $color-text;
             }
             label {
                 margin: 0;
@@ -735,7 +808,7 @@ nav {
                 cursor: default;
 
                 &:hover {
-                    color: #555;
+                    color: $color-text;
                     text-shadow: none;
                 }
             }
@@ -766,7 +839,7 @@ nav {
         textarea,
         .content .dropdown-button {
             background: transparent;
-            border: 1px solid #555;
+            border: 1px solid $color-text;
             width: 100%;
             font-size: 20px;
             line-height: 24px;
@@ -907,7 +980,7 @@ nav {
     textarea,
     .content .dropdown-button {
         background: transparent;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         width: 100%;
         font-size: 20px;
         line-height: 24px;
@@ -965,13 +1038,16 @@ nav {
         cursor: pointer;
     }
         
-    .dt-table .dt-hover,
-    .dt-table .dt-row.active {
-        background: rgba(255,255,255,0.8);
+    .dt-table .dt-hover {
+        background: $color-hover;
+
+        .dt-cell, .dt-cell a {
+            color: black;
+        }
     }
-    .dt-row:hover .dt-cell,
-    .dt-row:hover .dt-cell a {
-        color: #000;
+
+    .dt-table .dt-row.active {
+        background: $color-active; //rgba(255,255,255,0.8);
     }
 
     .dt-header {
@@ -981,7 +1057,7 @@ nav {
             content: "";
             display: block;
             border-width: 4px;
-            border-color: transparent transparent transparent rgba(0,0,0,0.5);
+            border-color: transparent transparent transparent $color-text;
             border-style: solid;
             position: absolute;
             top: 13px;
@@ -1120,8 +1196,8 @@ nav {
     }
     select {
         background: none;
-        border: 1px solid #555;
-        color: #555;
+        border: 1px solid $color-text;
+        color: $color-text;
         font-family: courier new;
         font-size: 0.9em;
 
@@ -1133,7 +1209,7 @@ nav {
         background: none;
         font-family: Courier new;
         font-size: 0.9em;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         border-width: 0 0 1px 0;
         width: 300px;
         padding: 4px;
@@ -1145,7 +1221,7 @@ nav {
     }
     textarea {
         background: none;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         font-family: Courier new;
         font-size: 0.9em;
         color: #333;
@@ -1169,7 +1245,7 @@ nav {
     .btn {
         margin: 30px auto 0;
         display: block;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         background: none;
     }
     &.shake {

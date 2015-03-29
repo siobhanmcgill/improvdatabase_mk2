@@ -1,5 +1,16 @@
 @import "compass/css3";
 
+// colors!
+$color-primary: #6699FF;
+$color-secondary: #FFED83;
+$color-active: rgba(248, 188, 78, 0.5);
+$color-active-text: #555;
+$color-hover: rgba(255,237,131,0.5);
+$color-text: #555;
+
+// media query names
+$media-mobile: "only screen and (max-width: 700px)";
+
 @mixin keyframes($name) {
   @-webkit-keyframes #{$name} {
     @content; 

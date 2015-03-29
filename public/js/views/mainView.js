@@ -52,9 +52,13 @@ define(['jquery',
                 } else {
                     this.$('#toolbar').append($toolbar);
                 }
-
+                
                 $toolbar.addClass('active');
-                $toolbar.data('width', $toolbar.find('.sub').width() + 5);
+                if (this.router.device === 'mobile') {
+                    $toolbar.data('height', $toolbar.find('.sub').height());
+                } else {
+                    $toolbar.data('width', $toolbar.find('.sub').width() + 5);
+                }
                 $toolbar.removeClass('active');
                 
                 $toolbar.find(".has-tooltip").tooltip();
@@ -62,7 +66,12 @@ define(['jquery',
                 if (active) {
                     var self = this;
                     setTimeout(function () {
-                        self.$('#' + key + 'Tools').addClass('active').find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                        var $tools = self.$('#' + key + 'Tools').addClass('active');
+                        if (self.router.device === 'mobile') {
+                            $tools.find('.sub').css('height', self.$('#' + key + 'Tools').data('height'));
+                        } else {
+                            $tools.find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                        }
                     }, 100);
                 }
             },
@@ -133,8 +142,15 @@ define(['jquery',
                 
                 // close the old toolbar, and open the new one
                 setTimeout(function () {
-                    self.$('#toolbar .section').removeClass('active').find('.sub').css('width', 0);
-                    self.$('#' + key + 'Tools').addClass('active').find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                    var $alltools = self.$('#toolbar .section').removeClass('active'),
+                        $tools = self.$('#' + key + 'Tools').addClass('active');
+                    if (self.router.device === 'mobile') {
+                        $alltools.find('.sub').css('height', 0);
+                        $tools.find('.sub').css('height', self.$('#' + key + 'Tools').data('height'));
+                    } else {
+                        $alltools.find('.sub').css('width', 0);
+                        $tools.find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                    }
                 }, 100);
 
                 $oldHeader.css('top', -(20 * $oldHeader.data('scale')));

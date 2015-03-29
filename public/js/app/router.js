@@ -23,6 +23,8 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                     this._handleToken();
                     this.refreshToken();
                 }
+                
+                this.device = $(window).width() > 700 ? 'full' : 'mobile';
 
                 this.durations = new DurationCollection(window.database.duration);
                 this.games = new GameCollection(window.database.game);
