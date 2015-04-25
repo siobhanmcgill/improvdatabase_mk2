@@ -90,6 +90,11 @@ define(['jquery', 'backbone', 'underscore'],
             this.$container.append(this.$head);
             this.$container.append(this.$table);
 
+            if (!this.options.paginate) {
+                this.$prevbutton.hide();
+                this.$nextbutton.hide();
+            }
+
             this.renderTableHeader();
             this.next();
         },
@@ -326,35 +331,37 @@ define(['jquery', 'backbone', 'underscore'],
             var tr = this._createRow(),
                 self = this;
             this._forEach(this.columns, function(column) {
-                var th = self._createCell();
-                th.addClass("dt-header");
-                if (typeof column === 'string') {
-                    column = {property: column, sortable: true};
-                }
-                
-                if (column.className) {
-                    th.addClass(column.className);
-                } else {
-                    th.addClass(column.property.toLowerCase());
-                }
-                if (column.sortable !== false) {
-                    th.addClass("sortable");
-                }
-                if (column.defaultSort) {
-                    this._sortBy = column.property;
-                }
-                th.html(column.header ? column.header : column.property).data("column", column);
-
-                if (column.filter) {
-                    if (column.filter.view) {
-                        column.filter.view._filter = self._filter[column.filter.property];
-                        th.append(column.filter.view.$el);
-                    } else {
-                        th.append(self._createFilterMenu(column));
+                if (!column.hide) {
+                    var th = self._createCell();
+                    th.addClass("dt-header");
+                    if (typeof column === 'string') {
+                        column = {property: column, sortable: true};
                     }
-                }
+                    
+                    if (column.className) {
+                        th.addClass(column.className);
+                    } else {
+                        th.addClass(column.property.toLowerCase());
+                    }
+                    if (column.sortable !== false) {
+                        th.addClass("sortable");
+                    }
+                    if (column.defaultSort) {
+                        this._sortBy = column.property;
+                    }
+                    th.html(column.header ? column.header : column.property).data("column", column);
 
-                tr.append(th);
+                    if (column.filter) {
+                        if (column.filter.view) {
+                            column.filter.view._filter = self._filter[column.filter.property];
+                            th.append(column.filter.view.$el);
+                        } else {
+                            th.append(self._createFilterMenu(column));
+                        }
+                    }
+
+                    tr.append(th);
+                }
             });
             if (!this._sortBy) {
                 this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
@@ -382,17 +389,51 @@ define(['jquery', 'backbone', 'underscore'],
 
         },
 
-        _createFilterMenu: function (column) {
+        renderFilterMenu: function ($container) {
+            var self = this;
+            $container.empty();
+            this._forEach(this.columns, function(column) {
+                if (column.filter) {
+                    if (column.filter.view) {
+                        column.filter.view._filter = self._filter[column.filter.property];
+                        $container.append(column.filter.view.$el);
+                        column.filter.view.off('filter');
+                        column.filter.view.on('filter', function (prop, sel) {
+                            self._filter[prop] = sel;
+                            self.reload();
+                        });
+                        column.filter.view.renderFull();
+                    } else {
+                        var $menu = self._createFilterMenu(column, true),
+                            $sel = $('<div class="filter-selections"></div>'),
+                            $lab = $('<label>' + column.header + '</label>');
+                        $sel.append($menu);
+                        $container.append($lab, $sel);
+                        $menu.dropdown()
+                            .off('change')
+                            .on('change', $.proxy(self._clickFilterMenu, self))
+                            .find('.has-tooltip').tooltip({ direction: 'left' });
+                    }
+                }
+            });
+        },
+
+        _createFilterMenu: function (column, expand) {
             var iconClass = this._filter[column.filter.property] ? 'active' : '',
                 html;
 
             html = '<div id="' + column.property + '_filter_toggle" class="filter-button dropdown-button" ';
             html += 'data-menu="' + column.property + '_selection">';
-            html += '<i class="fa fa-filter ' + iconClass + '"></i></div>';
+            if (expand) {
+                html += '<em>+ Add filter</em>';
+            } else {
+                html += '<i class="fa fa-filter ' + iconClass + '"></i>';
+            }
+            html += '</div>';
             
             var $obj;
             
-            if ($('#' + column.property + '_selection').length) {
+            if ($('body > #' + column.property + '_selection.showing').length) {
                 $obj = $(html);
                 $obj.addClass('dropdown-active');
             } else {
@@ -477,62 +518,64 @@ define(['jquery', 'backbone', 'underscore'],
                 var tr = self._createRow();
 
                 self._forEach(self.columns, function(column) {
-                    var td = self._createCell(),
-                        text,
-                        className,
-                        colObj;
+                    if (!column.hide) {
+                        var td = self._createCell(),
+                            text,
+                            className,
+                            colObj;
 
-                    if (typeof(column) === "string") {
-                        colObj = {property: column};
-                    } else {
-                        colObj = column;
-                    }
-                    
-                    if (typeof(colObj.property) === "function") {
-                        text = colObj.property(row, data);
-                    } else {
-                        if (row[colObj.property]) {
-                            text = typeof(row[colObj.property]) === "function" ? row[colObj.property](row, data) : row[colObj.property];
-                        } else if (row.get) { //it's a backbone model and we're getting an attribute
-                            text = row.get(colObj.property);
-                        } else { //umm . . .
-                            console.warn("Couldn't find " + colObj.property + " on row " + ri);
+                        if (typeof(column) === "string") {
+                            colObj = {property: column};
+                        } else {
+                            colObj = column;
                         }
-                        className = colObj.property.toLowerCase();
-                    }
-
-                    if (colObj.className) {
-                        className = colObj.className;
-                    }
-
-                    //try to parse some common data types
-                    if (Date.parse(text) && String(text).length > 10) {
-                        var date = new Date(text),
-                            h = date.getHours(),
-                            ampm = "AM",
-                            m = date.getMinutes();
-
-                        text = (date.getMonth() + 1) + "/" + (date.getDate()) + "/" + date.getFullYear();
                         
-                        if (h > 0 || m > 0) {
-                            if (h >= 12) {
-                                ampm = "PM";
+                        if (typeof(colObj.property) === "function") {
+                            text = colObj.property(row, data);
+                        } else {
+                            if (row[colObj.property]) {
+                                text = typeof(row[colObj.property]) === "function" ? row[colObj.property](row, data) : row[colObj.property];
+                            } else if (row.get) { //it's a backbone model and we're getting an attribute
+                                text = row.get(colObj.property);
+                            } else { //umm . . .
+                                console.warn("Couldn't find " + colObj.property + " on row " + ri);
                             }
-                            if (h === 0) {
-                                h = 12;
-                            } else if (h > 12) {
-                                h -= 12;
-                            }
-                            if (m < 10) {
-                                m = "0" + m;
-                            }
-                            text += " at " + h + ":" + m + " " + ampm;
+                            className = colObj.property.toLowerCase();
                         }
-                    }
 
-                    td.append(text).addClass(className);
-                    tr.append(td);
-                });
+                        if (colObj.className) {
+                            className = colObj.className;
+                        }
+
+                        //try to parse some common data types
+                        if (Date.parse(text) && String(text).length > 10) {
+                            var date = new Date(text),
+                                h = date.getHours(),
+                                ampm = "AM",
+                                m = date.getMinutes();
+
+                            text = (date.getMonth() + 1) + "/" + (date.getDate()) + "/" + date.getFullYear();
+                            
+                            if (h > 0 || m > 0) {
+                                if (h >= 12) {
+                                    ampm = "PM";
+                                }
+                                if (h === 0) {
+                                    h = 12;
+                                } else if (h > 12) {
+                                    h -= 12;
+                                }
+                                if (m < 10) {
+                                    m = "0" + m;
+                                }
+                                text += " at " + h + ":" + m + " " + ampm;
+                            }
+                        }
+
+                        td.append(text).addClass(className);
+                        tr.append(td);
+                    } // end of if !column.hide
+                }); //end of foreach column
                 if (row.id) {
                     tr.attr("id", self.options.idPrefix + row.id);
                 }
@@ -731,7 +774,7 @@ define(['jquery', 'backbone', 'underscore'],
 
     };
 
-    $.fn.dynamictable = function(option) {
+    $.fn.dynamictable = function(option, param) {
         var ret;
         this.each(function() {
             var $this = $(this);
@@ -741,8 +784,8 @@ define(['jquery', 'backbone', 'underscore'],
             if (!data) {
                 $this.data('dynamictable', (data= new DynamicTable(this, options)));
             }
-            if (typeof option === 'string') {
-                ret = data[option]();
+            if (typeof option === 'string' && typeof(data[option]) === 'function') {
+                ret = data[option](param);
             } else if (!option) { //just call .dynamictable() on something to expose all of these methods and whatnot
                 ret = data;
             }

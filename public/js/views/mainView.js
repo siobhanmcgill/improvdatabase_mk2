@@ -88,6 +88,32 @@ define(['jquery',
                         this.renderToolbar(view);
                         this.listenTo(view, 'render-toolbar', $.proxy(this.renderToolbar, this));
                     }, this));
+                    
+                    // add the "show menu" button for mobile devices
+                    if (this.router.device === 'mobile') {
+                        var $showBtn = $(_.template(toolbarTemplate, {
+                            id: 'showMenu',
+                            key: '',
+                            title: '',
+                            icon: 'fa-bars'
+                        }));
+                        $showBtn.addClass('showMenu').find('a').on('click', $.proxy(function (e) {
+                            this.$('#topnav').toggleClass('show');
+                            if (this.$('#topnav').hasClass('show')) {
+                                var $shade = $('<div id="topnavShade"></div>');
+                                this.$('#topnav').after($shade);
+                                $shade.on('click.hidemenu', function () {
+                                    $showBtn.find('a').click();
+                                });
+                            } else {
+                                this.$('#topnavShade').remove();
+                            }
+                            e.stopPropagation();
+                            return false;
+                        }, this));
+                        this.$('#toolbar').prepend($showBtn);
+                    }
+
                     this.$('#toolbar').addClass('ready');
 
 

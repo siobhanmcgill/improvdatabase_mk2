@@ -170,7 +170,7 @@ body > h1 {
     background: rgba(255,255,255,0.6);
 
     @media #{$media-mobile} {
-        background: rgba(255,255,255,0.85);
+        background: rgba(255,255,255,0.8);
     }
 }
 
@@ -179,11 +179,6 @@ nav {
     position: absolute;
     top: 0px;
     z-index: 10;
-
-    @media #{$media-mobile} {
-        width: 80%;
-        bottom: 0px;
-    }
     
     .pod {
         height: 40px;
@@ -215,13 +210,47 @@ nav {
                 top: 0px;
             }
         }
+
+        @media #{$media-mobile} {
+            width: 100%;
+            left: 0;
+            height: 40px;
+
+            &.active {
+                height: auto;
+                z-index: 2000;
+            }
+
+            .pod {
+                width: 80%;
+                overflow: visible;
+                bottom: 0;
+                height: auto;
+                left: 100%;
+                @include transition(left 500ms, top 500ms);
+
+                > i {
+                    position: relative;
+                    left: -40px;
+                    margin-left: 2%;
+                    @include transition(left 500ms);
+                }
+
+                &.active {
+                    left: 20%;
+
+                    > i {
+                        left: 0;
+                    }
+                }
+            }
+        }
     }
 }
 
 #toolbar {
     @media #{$media-mobile} {
         height: 100%;
-        overflow: auto;
     }
 
     .section {
@@ -284,9 +313,9 @@ nav {
             background: $color-active;
 
             @media #{$media-mobile} {
-                display: none;
                 float: none;
                 height: 0;
+                width: 100%;
             }
 
             & > span {
@@ -380,6 +409,61 @@ nav {
                 @include transition(height 500ms);
             }
         }
+    }
+}
+
+@media #{$media-mobile} {
+    #topnav {
+        width: 80%;
+        bottom: 0px;
+        right: 100%;
+        @include transition(right 500ms);
+
+        #toolbar {
+            overflow: visible;
+            @include transition(overflow 2s);
+            transition-delay: 2s;
+
+            .showMenu {
+                position: relative;
+                left: 40px;
+                margin-left: 2%;
+                @include transition(left 500ms, margin-left 500ms);
+
+                a {
+                    text-align: right;
+
+                    i {
+                        @include transition(transform 500ms);
+                    }
+                }
+            }
+        }
+
+        &.show {
+            right: 20%;
+
+            #toolbar {
+                overflow: auto;
+
+                .showMenu {
+                    left: 0;
+                    margin-left: 0;
+
+                    i {
+                        transform: rotateZ(90deg);
+                    }
+                }
+            }
+        }
+    }
+    #topnavShade {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9;
     }
 }
 
@@ -485,6 +569,10 @@ nav {
                 line-height: 20px;
             }
         }
+    }
+
+    @media #{$media-mobile} {
+        display: none;
     }
 }
 
@@ -679,7 +767,21 @@ nav {
             @include transition(opacity 500ms);
         }
     }
-}
+
+    @media #{$media-mobile} {
+        & > i {
+            float: left;
+        }
+
+        .results {
+            position: absolute;
+            top: 38px;
+            bottom: 0;
+            overflow: auto;
+            padding-top: 0px;
+        }
+    }
+} // end of gameSearch
 
     #gameBox {
         position: absolute;
@@ -692,6 +794,10 @@ nav {
         z-index: 1;
 
         @include transition(top 500ms, height 500ms 500ms, opacity 500ms);
+
+        @media #{$media-mobile} {
+            opacity: 1;
+        }
         
         .showGame & {
             opacity: 1;
@@ -730,7 +836,11 @@ nav {
 
                 -webkit-transition: opacity 500ms;
                 transition: opacity 500ms;
-
+                
+                @media #{$media-mobile} {
+                    opacity: 1;
+                    margin-bottom: 0;
+                }
                 .showGame & {
                     opacity: 1;
                 }
@@ -757,6 +867,10 @@ nav {
                 bottom: 0;
                 overflow: auto;
                 padding: 20px 10px 10px;
+            }
+
+            @media #{$media-mobile} {
+                padding: 1px 0 0 0;
             }
         }
 
@@ -958,6 +1072,22 @@ nav {
             @include transition(opacity 200ms);
             z-index: 5;
             display: none;
+
+            @media #{$media-mobile} {
+                position: absolute;
+                top: 0;
+                right: 0;
+                display: block;
+                height: 40px;
+                line-height: 40px;
+                box-shadow: none;
+                background: none;
+                width: 40px;
+
+                i {
+                    @include transform(rotateZ(90deg));
+                }
+            }
         }
         &.open > .close {
             display: block;
@@ -1096,6 +1226,25 @@ nav {
     }
 } /* end of #gameTable */
 
+/* Game Filter Screen */
+.game-filters .text-content-page {
+    label {
+        display: block;
+        font-size: 1.5em;
+    }
+    .filter-selections {
+        margin: 5px 0 20px 10px;
+
+        .filter-button {
+            cursor: pointer;
+            display: inline-block;
+        }
+    }
+    #tags_filter {
+        margin-bottom: 20px;
+    }
+}
+
 .text-content-page-wrapper {
     position: absolute;
     top: 40px;
@@ -1111,6 +1260,15 @@ nav {
         border: 2px solid #000;
         padding: 1%;
         overflow: auto;
+        position: relative;
+
+        & > .close {
+            position: absolute;
+            top: 0px;
+            right: 7px;
+            font-size: 35px;
+            cursor: pointer;
+        }
 
         h2 {
             font-size: 2em;

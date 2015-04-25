@@ -442,6 +442,10 @@ table th.sortable {
             height: 100%;
             max-width: 40%;
             overflow: hidden;
+
+            @media #{$media-mobile} {
+                max-width: none;
+            }
         }
             .dt-table-head .dt-row > .dt-cell {
                 border-width: 2px 1px 2px 0;

@@ -7,17 +7,20 @@ define(['jquery',
         'dynamictable',
 
         'text!templates/gameDatabaseView.html',
+        'text!templates/gameDatabase-filters.html',
 
         'views/addGameFormView',
         'views/gameView',
         'views/tagFilterView',
         'views/searchView'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, Template, AddGameFormView, GameView, TagFilterView, SearchView) {
+    function($, _, Backbone, moment, deny, DynamicTable, Template, FiltersTemplate, AddGameFormView, GameView, TagFilterView, SearchView) {
         return Backbone.View.extend({
             events: {
                 'click #gameTable .dt-row': 'showGame',
-                'click #gameBox > .close': 'hideGame'
+                'click #gameBox > .close': 'hideGame',
+
+                'click .game-filters': 'showDatabase'
             },
             title: 'Games',
             icon: 'fa-database',
@@ -26,18 +29,31 @@ define(['jquery',
                 var self = this;
 
                 this.listenTo(Backbone, "show-game", function() {
-                    this.$el.addClass("showGame");
-                    setTimeout(function() {
-                        self.reload();
-                        //self.$("#gameTable").dynamictable("reload");
-                    }, 500);
+                    if (this.router.device === 'mobile') {
+                        this.searchView.hide();
+                        this.$('#gameBox').addClass('active scrollContent').parent().addClass('active');
+                    } else {
+                        this.$el.addClass("showGame");
+                        setTimeout(function() {
+                            self.reload();
+                        }, 500);
+                    }
                 });
                 this.listenTo(Backbone, "hide-game", function() {
-                    this.$el.removeClass("showGame");
-                    this.gameView = false;
-                    setTimeout(function() {
-                        self.reload();
-                    }, 500);
+                    var self = this;
+                    if (this.router.device === 'mobile') {
+                        var $box = this.$('#gameBox').removeClass('active');
+                        setTimeout(function () {
+                            $box.parent().removeClass('active');
+                            self.searchView.show();
+                        }, 500);
+                    } else {
+                        this.$el.removeClass("showGame");
+                        this.gameView = false;
+                        setTimeout(function() {
+                            self.reload();
+                        }, 500);
+                    }
                     $('#btnAddGame').removeClass('active');
                 });
 
@@ -53,16 +69,20 @@ define(['jquery',
                 this.searchView = new SearchView({ router: this.router });
 
                 this.listenTo(this.searchView, 'search-show', function () {
-                    this.$el.addClass('showSearch');
-                    setTimeout(function () {
-                        self.reload();
-                    }, 500);
+                    if (this.router.device !== 'mobile') {
+                        this.$el.addClass('showSearch');
+                        setTimeout(function () {
+                            self.reload();
+                        }, 500);
+                    }
                 });
                 this.listenTo(this.searchView, 'search-hide', function () {
-                    this.$el.removeClass('showSearch');
-                    setTimeout(function () {
-                        self.reload();
-                    }, 500);
+                    if (this.router.device !== 'mobile') {
+                        this.$el.removeClass('showSearch');
+                        setTimeout(function () {
+                            self.reload();
+                        }, 500);
+                    }
                 });
 
                 this.listenTo(this.searchView, 'open-game', function (id) {
@@ -77,6 +97,12 @@ define(['jquery',
 
             registerTools: function () {
                 var r = [
+                    {
+                        title: 'Filter Games',
+                        id: 'btnFilters',
+                        icon: 'fa-filter',
+                        action: this.showFilters
+                    },
                     {
                         title: 'Pick Random Game',
                         id: 'btnRandomGame',
@@ -99,7 +125,7 @@ define(['jquery',
             reload: function () {
                 clearTimeout(this._reloadTimer);
                 var self = this;
-                if (this.$el.is(':visible')) {
+                if (this.$('#gameTable').hasClass('intoggle')) {
                     this._reloadTimer = setTimeout(function () {
                         self.$('#gameTable').dynamictable('reload');
                     }, 100);
@@ -107,11 +133,36 @@ define(['jquery',
             },
 
             show: function () {
-                this.$('#gameTable').removeClass('outtoggle').addClass('anim intoggle');
+                if (!this.page) {
+                    this.page = 'Database';
+                }
+                this['show' + this.page]();
             },
             hide: function () {
                 this.hideGame();
                 this.$('#gameTable').removeClass('intoggle').addClass('anim outtoggle');
+                this.$('.text-content-page-wrapper').removeClass('intoggle').addClass('anim outtoggle');
+                this.$toolbar.find('.sub .btn').removeClass('active');
+            },
+
+            showDatabase: function () {
+                this.hide();
+                this.$('#gameTable').removeClass('outtoggle').addClass('anim intoggle');
+                this.page = 'Database';
+            },
+            showFilters: function () {
+                if (!this.$('.game-filters').length) {
+                    this.$el.append(_.template(FiltersTemplate));
+                    this.$('.game-filters .text-content-page').on('click', function (e) { e.stopPropagation(); });
+                }
+
+                // set up the filters
+                this.$('#gameTable').dynamictable('renderFilterMenu', $('.game-filters .text-content-page .filters-go-here'));
+
+                this.hide();
+                this.$('.game-filters').removeClass('outtoggle').addClass('anim intoggle');
+                this.$toolbar.find('#btnFilters').addClass('active');
+                this.page = 'Filters';
             },
 
             render: function() {
@@ -129,6 +180,59 @@ define(['jquery',
                 this.searchView.render();
 
                 var self = this;
+
+                this.columns = [
+                    {
+                        header: '<i class="fa fa-futbol-o"></i> Name',
+                        property: "Name"
+                    },
+                    {
+                        header: '<i class="fa fa-tags"></i> Tags',
+                        property: "Tags",
+                        sortable: false,
+                        filter: {
+                            view: this.tagFilter,
+                            property: 'tag'
+                        },
+                        hide: this.router.device === 'mobile'
+                    },
+                    {
+                        header: '<i class="fa fa-clock-o"></i> Duration',
+                        property: "Duration",
+                        sortProperty: "DurationSort",
+                        filter: {
+                            collection: this.router.durations,
+                            property: 'DurationID',
+                            attributes: {
+                                value: 'DurationID',
+                                title: 'Description',
+                                text: 'Name'
+                            }
+                        },
+                        hide: this.router.device === 'mobile'
+                    },
+                    {
+                        header: '<i class="fa fa-group"></i> Player Count',
+                        property: "PlayerCount",
+                        sortProperty: "PlayerCountSort",
+                        filter: {
+                            collection: this.router.playerCounts,
+                            property: 'PlayerCountID',
+                            attributes: {
+                                value: 'PlayerCountID',
+                                title: 'Description',
+                                text: 'Name'
+                            }
+                        },
+                        hide: this.router.device === 'mobile'
+                    }/*,
+                    {
+                        header: "Last Modified",
+                        property: "ModifiedDisplay",
+                        sortProperty: "DateModified"
+                    }*/
+                ];
+
                 this.$("#gameTable").dynamictable({
                     data: this.router.games,
                     pageindicator: this.$("#pageindicator"),
@@ -142,54 +246,7 @@ define(['jquery',
                             table.find('#row' + self.selectedGame.id).addClass('active');
                         }
                     },
-                    columns: [
-                            {
-                                header: '<i class="fa fa-futbol-o"></i> Name',
-                                property: "Name",
-                            },
-                            {
-                                header: '<i class="fa fa-tags"></i> Tags',
-                                property: "Tags",
-                                sortable: false,
-                                filter: {
-                                    view: this.tagFilter,
-                                    property: 'tag'
-                                }
-                            },
-                            {
-                                header: '<i class="fa fa-clock-o"></i> Duration',
-                                property: "Duration",
-                                sortProperty: "DurationSort",
-                                filter: {
-                                    collection: this.router.durations,
-                                    property: 'DurationID',
-                                    attributes: {
-                                        value: 'DurationID',
-                                        title: 'Description',
-                                        text: 'Name'
-                                    }
-                                }
-                            },
-                            {
-                                header: '<i class="fa fa-group"></i> Player Count',
-                                property: "PlayerCount",
-                                sortProperty: "PlayerCountSort",
-                                filter: {
-                                    collection: this.router.playerCounts,
-                                    property: 'PlayerCountID',
-                                    attributes: {
-                                        value: 'PlayerCountID',
-                                        title: 'Description',
-                                        text: 'Name'
-                                    }
-                                }
-                            }/*,
-                            {
-                                header: "Last Modified",
-                                property: "ModifiedDisplay",
-                                sortProperty: "DateModified"
-                            }*/
-                    ]
+                    columns: this.columns
                 });
                 return this;
             },
@@ -200,6 +257,7 @@ define(['jquery',
                 } else {
                     this.addGameForm.hide();
                 }
+                this.$('nav').off('click.hidegame');
             },
 
             showAddGame: function() {
@@ -237,6 +295,10 @@ define(['jquery',
                         model: data
                     });
                     this.$('#gameBox').append(this.gameView.$el);
+
+                    this.gameView.$el.on('click', function (e) { e.stopPropagation(); });
+                    this.$('nav').on('click.hidegame', $.proxy(this.hideGame, this));
+
                     this.gameView.render();
                     this.selectedGame = data;
                 } else {

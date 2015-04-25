@@ -12,6 +12,7 @@ define(['jquery',
             events: {
                 'keyup input': 'typeSearch',
                 'click .fa-close': 'clearSearch',
+                'click .fa-search': 'showSearch',
 
                 'click .search-section .game-result': 'openGame'
             },
@@ -22,6 +23,35 @@ define(['jquery',
             },
             render: function() {
                 this.$el.append(_.template(SearchViewTemplate));
+            },
+
+            showSearch: function () {
+                if (this.router.device === 'mobile') {
+                    if (this.$el.hasClass('active')) { // hide it
+                        this.$el.removeClass('active');
+                        var $item = this.$el.parent().off('click.hidesearch');
+                        setTimeout(function () {
+                            $item.removeClass('active');
+                        }, 500);
+                    } else { // show it
+                        this.$el.addClass('active').parent().addClass('active');
+                        var self = this;
+                        setTimeout(function () {
+                            self.$('[name=search]').focus();
+
+                            self.$el.parent().on('click.hidesearch', $.proxy(self.showSearch, self));
+                            self.$el.on('click', function (e) { e.stopPropagation(); });
+                        }, 100);
+
+                    }
+                }
+            },
+
+            hide: function () {
+                this.$el.removeClass('show');
+            },
+            show: function () {
+                this.$el.addClass('show');
             },
 
             typeSearch: function (e) {
@@ -84,13 +114,16 @@ define(['jquery',
 
                     this.$('.fa-search').removeClass('fa-search').addClass('fa-close');
                 } else {
-                    if (this.val) {
+                    if (this.val && this.router.device !== 'mobile') {
                         this.$('.results').removeClass('scroll');
                         this.$el.removeClass('noTransition').css('height', '40px');
                         setTimeout(function () {
                             self.$el.removeClass('open');
                             self.trigger('search-hide');
                         }, 500);
+                    } else {
+                        this.$('.results').empty();
+                        this.$('[name=search]').focus();
                     }
                     this.$('.fa-close').addClass('fa-search').removeClass('fa-close');
                 }
@@ -102,31 +135,33 @@ define(['jquery',
             },
 
             boxHeight: function() { //Bruce Boxheigtner
-                this.$('.results').removeClass('scroll');
+                if (this.router.device !== 'mobile') {
+                    this.$('.results').removeClass('scroll');
 
-                var h = this.$('.results').outerHeight() + 40,
-                    time = 10,
-                    self = this;
+                    var h = this.$('.results').outerHeight() + 40,
+                        time = 10,
+                        self = this;
 
-                if (h > $(window).height()) {
-                    h = $(window).height();
-                }
+                    if (h > $(window).height()) {
+                        h = $(window).height();
+                    }
 
-                clearTimeout(this.heightTimer);
-                if (this.transTimer) {
-                    clearTimeout(this.transTimer);
-                    this.$el.addClass('noTransition');
+                    clearTimeout(this.heightTimer);
+                    if (this.transTimer) {
+                        clearTimeout(this.transTimer);
+                        this.$el.addClass('noTransition');
+                    }
+                    if (!this.$el.hasClass('noTransition')) {
+                        time = 500;
+                    }
+                    this.heightTimer = setTimeout(function () {
+                        self.$el.css('height', h + 'px');
+                        self.$('.results').addClass('scroll');
+                        self.transTimer = setTimeout(function () {
+                            self.$el.addClass('noTransition');
+                        }, 500);
+                    }, time);
                 }
-                if (!this.$el.hasClass('noTransition')) {
-                    time = 500;
-                }
-                this.heightTimer = setTimeout(function () {
-                    self.$el.css('height', h + 'px');
-                    self.$('.results').addClass('scroll');
-                    self.transTimer = setTimeout(function () {
-                        self.$el.addClass('noTransition');
-                    }, 500);
-                }, time);
             },
 
             openGame: function (e) {

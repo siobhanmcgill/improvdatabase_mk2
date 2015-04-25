@@ -17,13 +17,12 @@ define(['jquery',
             },
             
             clickDropdown: function (e) {
-                console.log('click dropdown');
                 e.stopPropagation();
                 return false;
             },
 
             clickTag: function (e) {
-                console.log('whaaa');
+                console.log('clickTag');
                 var tag = $(e.currentTarget).text(),
                     id = $(e.currentTarget).data('id');
                 if (this.selected.indexOf(id) === -1) {
@@ -54,7 +53,24 @@ define(['jquery',
 
             render: function() {
                 this.$el.addClass('filter-button');
+                this._render();
 
+                this.$menu.addClass('dropdown left shadow4');
+                this.$icon.show().dropdown({
+                    width: 440,
+                    selectable: false
+                });
+            },
+
+            renderFull: function () {
+                this.$el.removeClass('filter-button');
+                this._render();
+
+                this.$icon.hide();
+                this.$menu.removeClass('dropdown left shadow4');
+            },
+
+            _render: function () {
                 if (!this.$menu) {
                     this.$menu = $(_.template(TagFilterTemplate, this));
 
@@ -88,17 +104,12 @@ define(['jquery',
                     this.$icon = $('<div id="tags_filter_toggle" data-menu="tags_filter" class="dropdown-button"><i class="fa fa-filter"></i></div>');
                     this.$el.append(this.$icon);
                 }
-                this.$icon.dropdown({
-                    width: 440,
-                    selectable: false
-                });
                 
                 if (this._filter) {
                     this.$icon.addClass('active');
                 } else {
                     this.$icon.removeClass('active');
                 }
-
             }
         });
     });

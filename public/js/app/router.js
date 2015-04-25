@@ -25,7 +25,7 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                 }
                 
                 this.device = $(window).width() > 700 ? 'full' : 'mobile';
-
+                
                 this.durations = new DurationCollection(window.database.duration);
                 this.games = new GameCollection(window.database.game);
                 this.groups = new GroupCollection(window.database.group);
