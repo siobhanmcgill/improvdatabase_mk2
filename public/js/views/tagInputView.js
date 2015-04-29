@@ -87,6 +87,10 @@ define(['jquery',
                     this.$(".tags .tag").eq(-1).after($tag);
                     this.$("input").val("");
 
+                    if (this.TagGameCollection.length > 0) {
+                        this.$('#tagOutput').show();
+                    }
+
                     if (!model) {
                         this.trigger("tag.add", name);
                         var newTag = new Tag();

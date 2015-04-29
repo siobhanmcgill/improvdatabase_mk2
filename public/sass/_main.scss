@@ -639,11 +639,14 @@ nav {
 #tags_filter {
     padding: 10px;
     @include border-radius(10px 0 10px 10px);
-    #tagOutput > .fa {
-        float: left;
-        font-size: 20px;
-        line-height: 30px;
-        margin-right: 5px;
+    #tagOutput {
+        display: none;
+        & > .fa {
+            float: left;
+            font-size: 20px;
+            line-height: 30px;
+            margin-right: 5px;
+        }
     }
     input {
         @include border-box;
@@ -1239,9 +1242,16 @@ nav {
             cursor: pointer;
             display: inline-block;
         }
+        .accordion-toggle {
+            font-size: 18px;
+        }
     }
     #tags_filter {
-        margin-bottom: 20px;
+        padding: 0px;
+
+        #tagOutput > .fa {
+            display: none;
+        }
     }
 }
 

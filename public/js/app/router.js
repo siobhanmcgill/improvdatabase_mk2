@@ -144,7 +144,6 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
         $(document).on('click', 'a[href^="/"]', function (event) {
 			var href = $(this).attr('href');
 			event.preventDefault();
-			console.log('LINK', href);
 			router.navigate(href, {trigger: true});
 		});
 

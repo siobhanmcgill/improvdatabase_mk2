@@ -40,10 +40,22 @@ define(['jquery',
                     },
                     $existing = this.$('#toolbar').find('#' + data.id),
                     active = $existing.hasClass('active'),
-                    $toolbar = $(_.template(toolbarTemplate, data));
+                    $toolbar = $(_.template(toolbarTemplate, data)),
+                    self = this;
                 view.$toolbar = $toolbar;
+                $toolbar.children('a').click(function (e) {
+                    e.stopPropagation();
+                    self.router.navigate($(this).attr('href'), {trigger: false});
+                    self.render(key);
+                    return false;
+                });
                 $toolbar.find('.sub .btn').each(function (i) {
-                    $(this).on('click', $.proxy(data.tools[i].action, view));
+                    $(this).on('click', function(e) {
+                        //return true to close the toolbar on click
+                        if (data.tools[i].action.call(view, e) && self.router.device === 'mobile') {
+                            self.$('.showMenu a').click();
+                        }
+                    });
                 });
                 if ($existing.length) {
                     $existing.after($toolbar);
@@ -64,7 +76,6 @@ define(['jquery',
                 $toolbar.find(".has-tooltip").tooltip();
                 
                 if (active) {
-                    var self = this;
                     setTimeout(function () {
                         var $tools = self.$('#' + key + 'Tools').addClass('active');
                         if (self.router.device === 'mobile') {
@@ -123,7 +134,7 @@ define(['jquery',
                 key = key || 'gamedb';
                 
                 // if a view is currently showing, get rid of it
-                if (this.views[this.currentView]) {
+                if (this.views[this.currentView] && this.currentView !== key) {
                     var oldView = this.views[this.currentView];
                     oldView.hide();
                     setTimeout(function () {

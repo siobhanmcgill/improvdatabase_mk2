@@ -19,8 +19,6 @@ define(['jquery',
             events: {
                 'click #gameTable .dt-row': 'showGame',
                 'click #gameBox > .close': 'hideGame',
-
-                'click .game-filters': 'showDatabase'
             },
             title: 'Games',
             icon: 'fa-database',
@@ -133,10 +131,14 @@ define(['jquery',
             },
 
             show: function () {
+                /*
                 if (!this.page) {
                     this.page = 'Database';
                 }
                 this['show' + this.page]();
+                */
+                console.log('show');
+                this.showDatabase();
             },
             hide: function () {
                 this.hideGame();
@@ -148,6 +150,7 @@ define(['jquery',
             showDatabase: function () {
                 this.hide();
                 this.$('#gameTable').removeClass('outtoggle').addClass('anim intoggle');
+                this.$('#prevpage, #nextpage').show();
                 this.page = 'Database';
             },
             showFilters: function () {
@@ -155,6 +158,7 @@ define(['jquery',
                     this.$el.append(_.template(FiltersTemplate));
                     this.$('.game-filters .text-content-page').on('click', function (e) { e.stopPropagation(); });
                 }
+                this.$('#prevpage, #nextpage').hide();
 
                 // set up the filters
                 this.$('#gameTable').dynamictable('renderFilterMenu', $('.game-filters .text-content-page .filters-go-here'));
@@ -163,6 +167,11 @@ define(['jquery',
                 this.$('.game-filters').removeClass('outtoggle').addClass('anim intoggle');
                 this.$toolbar.find('#btnFilters').addClass('active');
                 this.page = 'Filters';
+                
+                // for some reason this event doesn't work in the Backbone event object
+                this.$('.game-filters .text-content-page .close').click($.proxy(this.showDatabase, this));
+
+                return true;
             },
 
             render: function() {

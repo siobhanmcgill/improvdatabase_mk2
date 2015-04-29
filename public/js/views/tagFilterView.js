@@ -22,7 +22,6 @@ define(['jquery',
             },
 
             clickTag: function (e) {
-                console.log('clickTag');
                 var tag = $(e.currentTarget).text(),
                     id = $(e.currentTarget).data('id');
                 if (this.selected.indexOf(id) === -1) {
@@ -53,63 +52,69 @@ define(['jquery',
 
             render: function() {
                 this.$el.addClass('filter-button');
+                this.full = false;
                 this._render();
 
-                this.$menu.addClass('dropdown left shadow4');
-                this.$icon.show().dropdown({
+                this.$icon = $('<div id="tags_filter_toggle" data-menu="tags_filter" class="dropdown-button"><i class="fa fa-filter"></i></div>');
+                this.$el.append(this.$icon);
+
+                this.$icon.dropdown({
                     width: 440,
                     selectable: false
                 });
-            },
 
-            renderFull: function () {
-                this.$el.removeClass('filter-button');
-                this._render();
-
-                this.$icon.hide();
-                this.$menu.removeClass('dropdown left shadow4');
-            },
-
-            _render: function () {
-                if (!this.$menu) {
-                    this.$menu = $(_.template(TagFilterTemplate, this));
-
-                    this.$el.append(this.$menu);
-                    
-                    var left = false;
-                    this.$menu.find('.taglist .tag').each(function () {
-                        //var size = Math.sqrt($(this).data('weight') / 3);
-                        var weight = $(this).data('weight'),
-                            size = ((weight / 10) * 0.7) + 0.63;
-                        $(this).css('font-size', size + 'em');
-                        if (size > 2.2) {
-                            $(this).addClass(left ? 'left' : 'right');
-                            left = !left;
-                        }
-                    });
-
-                    this.tagInput = new TagInputView({
-                        collection: window.router.tags,
-                        refuseNew: true
-                    });
-                    this.$menu.find('.taginput').append(this.tagInput.$el);
-                    this.tagInput.render();
-
-                    this.$menu.on('click', '.taglist .tag', $.proxy(this.clickTag, this));
-
-                    this.listenTo(this.tagInput, 'tag.add', $.proxy(this.addSelected, this));
-                    this.listenTo(this.tagInput, 'tag.remove', $.proxy(this.removeSelected, this));
-                }
-                if (!this.$icon) {
-                    this.$icon = $('<div id="tags_filter_toggle" data-menu="tags_filter" class="dropdown-button"><i class="fa fa-filter"></i></div>');
-                    this.$el.append(this.$icon);
-                }
-                
                 if (this._filter) {
                     this.$icon.addClass('active');
                 } else {
                     this.$icon.removeClass('active');
                 }
+            },
+
+            renderFull: function () {
+                this.$el.removeClass('filter-button');
+                this.full = true;
+                this._render();
+
+                this.$('.accordion').accordion();
+            },
+
+            _render: function () {
+                if (this.$menu) {
+                    this.$menu.remove();
+                }
+                if (this.$icon) {
+                    this.$icon.remove();
+                }
+
+                this.$menu = $(_.template(TagFilterTemplate, this));
+
+                this.$el.append(this.$menu);
+                
+                var left = false;
+                this.$menu.find('.taglist .tag').each(function () {
+                    //var size = Math.sqrt($(this).data('weight') / 3);
+                    var weight = $(this).data('weight'),
+                        size = ((weight / 10) * 0.7) + 0.63;
+                    $(this).css('font-size', size + 'em');
+                    if (size > 2.2) {
+                        $(this).addClass(left ? 'left' : 'right');
+                        left = !left;
+                    }
+                });
+
+                this.tagInput = new TagInputView({
+                    collection: window.router.tags,
+                    refuseNew: true
+                });
+                this.$menu.find('.taginput').append(this.tagInput.$el);
+                this.tagInput.render();
+
+                this.$menu.on('click', '.taglist .tag', $.proxy(this.clickTag, this));
+
+                this.listenTo(this.tagInput, 'tag.add', $.proxy(this.addSelected, this));
+                this.listenTo(this.tagInput, 'tag.remove', $.proxy(this.removeSelected, this));
+                
             }
+
         });
     });

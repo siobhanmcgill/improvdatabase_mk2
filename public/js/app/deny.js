@@ -598,6 +598,62 @@ $.fn.turnover = function(settings) {
 
 !function ($) {
 
+    var Accordion = function (element, options) {
+        this.$el = $(element);
+        this.$toggle = this.$('.accordion-toggle');
+        this.$body = this.$('.accordion-body');
+
+        if (!this.$toggle.length || !this.$body.length) {
+            console.error('accordion initialized without accordion-toggle and accordion-body elements');
+            return;
+        }
+
+        this.$body.show().css('height', 'auto');
+        this.bodyheight = this.$body.height();
+        this.$body.css('height', '0px');
+        this.$body.addClass('ready');
+
+        this.$toggle.on('click', $.proxy(this.toggle, this));
+    };
+
+    Accordion.prototype = {
+        $: function (selector) {
+            return this.$el.find(selector);
+        },
+
+        toggle: function () {
+            if (this.$el.hasClass('open')) {
+                this.$body.css('height', '0px');
+                this.$el.removeClass('open');
+            } else {
+                this.$body.css('height', this.bodyheight);
+                this.$el.addClass('open');
+            }
+        }
+    };
+
+    $.fn.accordion = function(option) {
+        return this.each(function() {
+            var $this = $(this),
+                data = $this.data('accordion'),
+                options = typeof option === 'object' && option;
+            if (!data) {
+                $this.data('accordion', (data = new Accordion(this, options)));
+            }
+            if (typeof option === "string") {
+                data[option]();
+            }
+        });
+    };
+    $.fn.accordion.Constructor = Accordion;
+    $.fn.accordion.defaults = {
+        trigger: "click"
+    };
+
+}(window.jQuery);
+
+!function ($) {
+
     var Turnover = function (element, options) {
         this.$bearer = $(element);
         this.$turnover = this.$bearer.find(".turnover");

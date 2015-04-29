@@ -406,13 +406,17 @@ define(['jquery', 'backbone', 'underscore'],
                     } else {
                         var $menu = self._createFilterMenu(column, true),
                             $sel = $('<div class="filter-selections"></div>'),
-                            $lab = $('<label>' + column.header + '</label>');
-                        $sel.append($menu);
+                            $lab = $('<label>' + column.header + '</label>'),
+                            $acc = $('<div class="accordion"></div>');
+                        $acc.append($menu);
+                        $sel.append($acc);
                         $container.append($lab, $sel);
-                        $menu.dropdown()
+                        $acc.accordion();
+                        /*
                             .off('change')
                             .on('change', $.proxy(self._clickFilterMenu, self))
                             .find('.has-tooltip').tooltip({ direction: 'left' });
+                            */
                     }
                 }
             });
@@ -420,25 +424,40 @@ define(['jquery', 'backbone', 'underscore'],
 
         _createFilterMenu: function (column, expand) {
             var iconClass = this._filter[column.filter.property] ? 'active' : '',
-                html;
+                btnhtml, objhtml;
 
-            html = '<div id="' + column.property + '_filter_toggle" class="filter-button dropdown-button" ';
-            html += 'data-menu="' + column.property + '_selection">';
             if (expand) {
-                html += '<em>+ Add filter</em>';
+                btnhtml = '<div class="accordion-toggle">';
             } else {
-                html += '<i class="fa fa-filter ' + iconClass + '"></i>';
+                btnhtml = '<div id="' + column.property + '_filter_toggle" class="';
+                btnhtml += 'filter-button dropdown-button" ';
+                btnhtml += 'data-menu="' + column.property + '_selection">';
             }
-            html += '</div>';
+
+            if (expand) {
+                btnhtml += '<em class="closed">+ Add filter</em><em class="open">Done</em>';
+            } else {
+                btnhtml += '<i class="fa fa-filter ' + iconClass + '"></i>';
+            }
+            btnhtml += '</div>';
             
-            var $obj;
+            var $obj, itemclass;
             
             if ($('body > #' + column.property + '_selection.showing').length) {
-                $obj = $(html);
+                $obj = $(btnhtml);
                 $obj.addClass('dropdown-active');
             } else {
-                html += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-button="' + column.property + '_filter_toggle">';
-                html += '<div class="dropdown-option has-tooltip filter-all" data-value="all"><span class="icon-checkbox checked" />Show All</div>';
+                objhtml = '';
+                if (expand) {
+                    objhtml += '<div class="accordion-body">';
+                    itemclass = 'btn has-tooltip';
+                } else {
+                    objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-button="' + column.property + '_filter_toggle">';
+                    itemclass = 'dropdown-option has-tooltip';
+                }
+                
+                objhtml += '<div class="' + itemclass + ' filter-all" data-value="all"><span class="icon-checkbox checked" />Show All</div>';
+                
                 if (column.filter.collection) {
                     var col = column.filter.collection,
                         attrs = column.filter.attributes;
@@ -446,13 +465,13 @@ define(['jquery', 'backbone', 'underscore'],
                         var text = item.get(attrs.text),
                             val = item.get(attrs.value),
                             title = attrs.title ? item.get(attrs.title) : '';
-                        html += '<div class="dropdown-option has-tooltip " title="' + title + '" data-value="' + val + '">';
-                        html += '<span class="icon-checkbox"></span>';
-                        html += text + '</div>';
+                        objhtml += '<div class="' + itemclass + '" title="' + title + '" data-value="' + val + '">';
+                        objhtml += '<span class="icon-checkbox"></span>';
+                        objhtml += text + '</div>';
                     });
                 }
-                html += '</div>';
-                $obj = $(html);
+                objhtml += '</div>';
+                $obj = $(objhtml + btnhtml);
             }
 
             $obj.data('property', column.filter.property);

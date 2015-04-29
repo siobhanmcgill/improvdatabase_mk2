@@ -89,6 +89,35 @@ strong {font-weight: bold}
         overflow: visible;
     }
 
+.accordion {
+    .accordion-toggle {
+        .open {
+            display: none;
+        }
+        .closed {
+            display: inline;
+        }
+    }
+    .accordion-body {
+        display: none;
+        overflow: hidden;
+
+        &.ready {
+            @include transition(height 500ms);
+        }
+    }
+    &.open {
+        .accordion-toggle {
+            .open {
+                display: inline;
+            }
+            .closed {
+                display: none;
+            }
+        }
+    }
+}
+
 .blue {color: #0066FF}
 .drawer {
     position: relative;
