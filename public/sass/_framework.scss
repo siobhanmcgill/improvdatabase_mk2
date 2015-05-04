@@ -91,6 +91,8 @@ strong {font-weight: bold}
 
 .accordion {
     .accordion-toggle {
+        cursor: pointer;
+
         .open {
             display: none;
         }

@@ -137,7 +137,6 @@ define(['jquery',
                 }
                 this['show' + this.page]();
                 */
-                console.log('show');
                 this.showDatabase();
             },
             hide: function () {

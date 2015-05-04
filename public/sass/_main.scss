@@ -1236,7 +1236,7 @@ nav {
         font-size: 1.5em;
     }
     .filter-selections {
-        margin: 5px 0 20px 10px;
+        margin: 5px 10px 20px;
 
         .filter-button {
             cursor: pointer;
@@ -1244,6 +1244,22 @@ nav {
         }
         .accordion-toggle {
             font-size: 18px;
+            margin-top: 5px;
+        }
+        .filter-menu {
+            margin-top: 5px;
+
+            .btn {
+                text-align: left;
+                font-size: 25px;
+                line-height: 35px;
+                height: 35px;
+                padding: 0 2%;
+                margin: 0 2% 2% 0;
+                border: 1px solid $color-primary;
+                border-radius: 3px;
+                display: inline-block;
+            }
         }
     }
     #tags_filter {

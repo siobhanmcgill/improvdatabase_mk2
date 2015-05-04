@@ -380,7 +380,7 @@ define(['jquery', 'backbone', 'underscore'],
                     } else {
                         self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown()
                                     .off('change')
-                                    .on('change', $.proxy(self._clickFilterMenu, self))
+                                    .on('change', $.proxy(self._clickFilterDropdown, self))
                                     .find('.has-tooltip').tooltip({ direction: "left" });
                     }
                 }
@@ -412,11 +412,13 @@ define(['jquery', 'backbone', 'underscore'],
                         $sel.append($acc);
                         $container.append($lab, $sel);
                         $acc.accordion();
+                        $acc.find('.has-tooltip').tooltip();
                         /*
                             .off('change')
                             .on('change', $.proxy(self._clickFilterMenu, self))
                             .find('.has-tooltip').tooltip({ direction: 'left' });
                             */
+                        $acc.find('.accordion-body .btn').on('click', $.proxy(self._clickFilterMenu, self));
                     }
                 }
             });
@@ -449,10 +451,10 @@ define(['jquery', 'backbone', 'underscore'],
             } else {
                 objhtml = '';
                 if (expand) {
-                    objhtml += '<div class="accordion-body">';
+                    objhtml += '<div class="accordion-body"><div class="filter-menu" data-property="' + column.filter.property + '">';
                     itemclass = 'btn has-tooltip';
                 } else {
-                    objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-button="' + column.property + '_filter_toggle">';
+                    objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-property="' + column.filter.property + '" data-button="' + column.property + '_filter_toggle">';
                     itemclass = 'dropdown-option has-tooltip';
                 }
                 
@@ -470,15 +472,13 @@ define(['jquery', 'backbone', 'underscore'],
                         objhtml += text + '</div>';
                     });
                 }
-                objhtml += '</div>';
+                objhtml += '</div></div>';
                 $obj = $(objhtml + btnhtml);
             }
 
-            $obj.data('property', column.filter.property);
-
             return $obj;
         },
-        _clickFilterMenu: function (e, option) {
+        _clickFilterDropdown: function (e, option) {
             var $option = $(option), //$(e.currentTarget),
                 checked = $option.find('.icon-checkbox').hasClass('checked'),
                 value = $option.data('value'),
@@ -513,6 +513,14 @@ define(['jquery', 'backbone', 'underscore'],
 
             e.stopPropagation();
             return false;
+        },
+        _clickFilterMenu: function (e) {
+            var $btn = $(e.currentTarget),
+                active = $btn.hasClass('active'),
+                value = $btn.data('value'),
+                property = $btn.parent().data('property');
+
+            console.log('clicked on', property, value);
         },
 
         _tableBody: function() {
