@@ -595,9 +595,12 @@ nav {
         left: 45px;
         right: 45px;
         width: auto;
+        height: 40px;
         background: none;
         border: 0;
         text-align: center;
+        opacity: 1;
+        transition: opacity 400ms;
         
         span {
             display: inline-block;
@@ -608,6 +611,12 @@ nav {
         .heightener {
             height: 100%;
         }
+    }
+}
+
+@media #{$media-mobile} {
+    #topnav.active #paging {
+        opacity: 0;
     }
 }
 
