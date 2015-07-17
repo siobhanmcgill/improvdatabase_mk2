@@ -4,7 +4,6 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
         'text!templates/addGameForm.html',
 
@@ -14,7 +13,7 @@ define(['jquery',
         'models/game',
         'models/name',
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, AddGameTemplate, DropdownView, TagInputView, Game, Name) {
+    function($, _, Backbone, moment, deny, AddGameTemplate, DropdownView, TagInputView, Game, Name) {
         return Backbone.View.extend({
             events: {
                 "click #saveItUp" : "doSave"

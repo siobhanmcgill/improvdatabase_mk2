@@ -4,12 +4,11 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
         'text!templates/userView.html',
         'text!templates/userView-login.html'
         ],
-    function($, _, Backbone, moment, deny, dynamictable, Template, LoginTemplate) {
+    function($, _, Backbone, moment, deny, Template, LoginTemplate) {
         return Backbone.View.extend({
             events: {
                 'submit #loginform': 'login',

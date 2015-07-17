@@ -80,6 +80,12 @@ a:visited {
     font-size: 14px;
     text-shadow: -1px -1px 0px rgba(0,0,0,0.3);
     box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+
+    &.active {
+        box-shadow: 1px 1px 1px rgba(0,0,0,0.5) inset;
+        text-shadow: none;
+        color: $color-secondary;
+    }
 }
 
 .dropdown-button {
@@ -266,6 +272,7 @@ nav {
             height: 38px;
             padding: 0px;
             border: 0px;
+            border-radius: 0px;
             line-height: normal;
             float: left;
             color: $color-text;
@@ -343,10 +350,13 @@ nav {
                 line-height: 38px;
                 line-height: normal;
                 border-left: 1px solid $color-text;
+                border-width: 0 0 0 1px;
+                border-radius: 0;
                 display: inline-block;
                 vertical-align: middle;
                 color: $color-active-text;
                 margin-left: -5px;
+                padding: 0 4px;
                 
                 &:hover {
                     background: $color-hover;
@@ -437,6 +447,14 @@ nav {
                         @include transition(transform 500ms);
                     }
                 }
+            }
+
+            .fullscreen {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 38px;
+                z-index: 5;
             }
         }
 
@@ -537,7 +555,7 @@ nav {
     line-height: 100px;
 }
 
-#paging {
+#views nav #paging {
     overflow: hidden;
     position: relative;
 
@@ -572,20 +590,39 @@ nav {
     }
 
     @media #{$media-mobile} {
-        display: none;
+        position: absolute;
+        top: 0;
+        left: 45px;
+        right: 45px;
+        width: auto;
+        background: none;
+        border: 0;
+        text-align: center;
+        
+        span {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            z-index: 2;
+        }
+        .heightener {
+            height: 100%;
+        }
     }
 }
 
 .btn {
-    height: 40px;
-    font-size: 30px;
-    line-height: 40px;
+    height: 38px;
+    font-size: 25px;
+    line-height: 38px;
     text-align: center;
+    border: 1px solid $color-primary;
+    border-radius: 20px;
 
     position: relative;
-    color: $color-text;
+    color: $color-primary;
     cursor: pointer;
-    padding: 0 4px;
+    padding: 0 10px;
 
     .on {
         display: none;
@@ -604,7 +641,8 @@ nav {
     &:hover {
         background: #FFF;
         color: $color-text;
-        border-color: #444 #999 #999 #444;
+        border-color: $color-text;
+        box-shadow: 1px 2px 0 $color-primary;
     }
 
     &.wait {
@@ -1136,6 +1174,7 @@ nav {
     right: 0;
     border: solid #000;
     border-width: 0 1px 1px 0;
+    z-index: 0;
 
     -webkit-transition: right 500ms;
     transition: right 500ms;
@@ -1143,6 +1182,10 @@ nav {
     .showGame &,
     .showSearch & {
         right: 33.3333%;
+    }
+
+    &.intoggle {
+        z-index: 2;
     }
 
     .dt-table-head .dt-row > .dt-cell {
@@ -1210,12 +1253,22 @@ nav {
             -webkit-transform: rotateZ(90deg);
             transform: rotateZ(90deg);
         }
+
+        .filter-status {
+            font-size: 0.75em;
+            opacity: 0.75;
+            margin-left: 5px;
+        }
     }
 
     .filter-button {
         width: auto;
         height: auto;
         margin-top: -10px;
+
+        .active {
+            text-shadow: 1px 1px 2px $color-primary;
+        }
     }
     .dropdown-button {
         width: 20px;
@@ -1244,21 +1297,50 @@ nav {
         }
         .accordion-toggle {
             font-size: 18px;
-            margin-top: 5px;
+
+            span {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            @media #{$media-mobile} {
+                font-size: 20px;
+                line-height: 25px;
+            }
+        }
+        .filter-output {
+            display: inline-block;
+            vertical-align: middle;
+
+            .btn {
+                display: inline-block;
+                line-height: normal;
+                height: auto;
+                margin: 0 10px 5px 0;
+                border-radius: 3px;
+                border-color: $color-text;
+                color: $color-text;
+
+                @media #{$media-mobile} {
+                    line-height: 35px;
+                }
+            }
         }
         .filter-menu {
             margin-top: 5px;
 
             .btn {
                 text-align: left;
-                font-size: 25px;
-                line-height: 35px;
-                height: 35px;
-                padding: 0 2%;
                 margin: 0 2% 2% 0;
-                border: 1px solid $color-primary;
                 border-radius: 3px;
                 display: inline-block;
+
+                &.active {
+                    background: $color-primary;
+                    box-shadow: 1px 1px 1px rgba(0,0,0,0.3) inset;
+                    border-color: $color-text;
+                    color: $color-secondary;
+                }
             }
         }
     }
@@ -1267,6 +1349,29 @@ nav {
 
         #tagOutput > .fa {
             display: none;
+        }
+
+        .accordion-toggle {
+            .filter-output {
+                margin: -4px -5px 0 0;
+            }
+
+            @media #{$media-mobile} {
+                .tag {
+                    font-size: 20px;
+                    line-height: 25px;
+                }
+            }
+        }
+    }
+
+    .btn-clear {
+        float: left;
+        display: none;
+
+        @media #{$media-mobile} {
+            float: right;
+            margin: 10px 0 20px 0;
         }
     }
 }
@@ -1277,6 +1382,11 @@ nav {
     bottom: 0;
     left: 0;
     right: 0;
+    z-index: 0;
+
+    &.intoggle {
+        z-index: 2;
+    }
     
     .text-content-page {
         max-width: 700px;
@@ -1299,15 +1409,24 @@ nav {
         h2 {
             font-size: 2em;
             font-weight: bold;
+            margin: 0 0 2% 0;
         }
         h3 {
             font-size: 1.2em;
             margin-bottom: 1em;
             font-weight: bold;
         }
-        p, ul {
+        p, ul, ol {
             margin-bottom: 1em;
             line-height: 1.1;
+        }
+        ol {
+            list-style-type: decimal;
+            padding-left: 30px;
+
+            li {
+                margin-bottom: 7px;
+            }
         }
         .creative-commons {
             margin: 50px auto 20px;
@@ -1429,8 +1548,11 @@ nav {
     .btn {
         margin: 30px auto 0;
         display: block;
-        border: 1px solid $color-text;
         background: none;
+
+        &:hover {
+            background: #FFF;
+        }
     }
     &.shake {
         @include animation(shake 300ms both);

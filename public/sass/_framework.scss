@@ -97,7 +97,8 @@ strong {font-weight: bold}
             display: none;
         }
         .closed {
-            display: inline;
+            display: inline-block;
+            vertical-align: middle;
         }
     }
     .accordion-body {
@@ -106,6 +107,10 @@ strong {font-weight: bold}
 
         &.ready {
             @include transition(height 500ms);
+        }
+        .accordion-toggle {
+            text-align: center;
+            padding: 5px 0;
         }
     }
     &.open {
@@ -448,6 +453,10 @@ table th.sortable {
         height: 18px;
         width: 18px;
         cursor: pointer;
+
+        &.active {
+            background-color: $color-active;
+        }
     }
 
 

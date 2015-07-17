@@ -1,31 +1,34 @@
 <div class="<% if (!full) { %>dropdown left shadow4<% } %>" id="tags_filter" data-button="tags_filter_toggle">
 
+    <% if (full) { %>
     <label><i class="fa fa-tags"></i> Tags</label>
+    <div class="filter-selections">
+        <div class="accordion">
 
-    <% if (full) { %>
-    <div class="accordion filter-selections">
+            <div class="accordion-toggle filter-button">
+                <div class="filter-output"></div>
+                <em class="closed">+ Add filter</em>
+                <em class="open">Done</em>
+            </div>
+            <div class="accordion-body">
+        <% } %>
+            
+            <div class="taginput"></div>
 
-        <div class="accordion-body">
-    <% } %>
-        
-        <div class="taginput"></div>
+            <!-- <label>Available Tags:</label> -->
+            <div class="taglist">
+            <% _.each(collection.models, function (model) { %>
+                <span class="tag" data-id="<%- model.id %>" data-weight="<%- window.router.tagGames.where({ TagID: model.id }).length %>"><%- model.attributes.Name %></span>
+            <% }) %>
+                <span class="clear"></span>
+            </div>
 
-        <!-- <label>Available Tags:</label> -->
-        <div class="taglist">
-        <% _.each(collection.models, function (model) { %>
-            <span class="tag" data-id="<%- model.id %>" data-weight="<%- window.router.tagGames.where({ TagID: model.id }).length %>"><%- model.attributes.Name %></span>
-        <% }) %>
-            <span class="clear"></span>
-        </div>
+        <% if (full) { %>
+                <div class="accordion-toggle"><i class="fa fa-caret-up"></i></div>
+            </div><!-- /accordion-body -->
 
-    <% if (full) { %>
-        </div>
-        <div class="accordion-toggle filter-button">
-            <em class="closed">+ Add filter</em>
-            <em class="open">Done</em>
-        </div>
-
-    </div>
+        </div><!-- /accordion -->
+    </div><!-- /filter-selections -->
     <% } %>
 
 </div>

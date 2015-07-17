@@ -100,7 +100,7 @@ define(['jquery',
                         this.listenTo(view, 'render-toolbar', $.proxy(this.renderToolbar, this));
                     }, this));
                     
-                    // add the "show menu" button for mobile devices
+                    // add the "show menu" and "fullscreen" buttons for mobile devices
                     if (this.router.device === 'mobile') {
                         var $showBtn = $(_.template(toolbarTemplate, {
                             id: 'showMenu',
@@ -123,10 +123,56 @@ define(['jquery',
                             return false;
                         }, this));
                         this.$('#toolbar').prepend($showBtn);
+                        
+                        if (document.fullscreenEnabled || 
+                            document.webkitFullscreenEnabled || 
+                            document.mozFullScreenEnabled ||
+                            document.msFullscreenEnabled) {
+
+                            var $fullscreenBtn = $(_.template(toolbarTemplate, {
+                                id: 'fullscreen',
+                                key: '',
+                                title: '',
+                                icon: 'fa-expand'
+                            }));
+                            $fullscreenBtn.addClass('fullscreen').find('a').on('click', $.proxy(function () {
+                                // are we full-screen?
+                                if (document.fullscreenElement ||
+                                    document.webkitFullscreenElement ||
+                                    document.mozFullScreenElement ||
+                                    document.msFullscreenElement) {
+                                    
+                                    // exit full-screen
+                                    if (document.exitFullscreen) {
+                                        document.exitFullscreen();
+                                    } else if (document.webkitExitFullscreen) {
+                                        document.webkitExitFullscreen();
+                                    } else if (document.mozCancelFullScreen) {
+                                        document.mozCancelFullScreen();
+                                    } else if (document.msExitFullscreen) {
+                                        document.msExitFullscreen();
+                                    }
+
+                                } else {
+                                    var i = $('body')[0];
+                                    // go full-screen
+                                    if (i.requestFullscreen) {
+                                        i.requestFullscreen();
+                                    } else if (i.webkitRequestFullscreen) {
+                                        i.webkitRequestFullscreen();
+                                    } else if (i.mozRequestFullScreen) {
+                                        i.mozRequestFullScreen();
+                                    } else if (i.msRequestFullscreen) {
+                                        i.msRequestFullscreen();
+                                    }
+                               }
+                            }, this));
+                            this.$('#toolbar').prepend($fullscreenBtn);
+
+                        }
                     }
 
                     this.$('#toolbar').addClass('ready');
-
 
                     this.isRendered.main = true;
                 }

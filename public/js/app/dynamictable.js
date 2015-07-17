@@ -11,6 +11,7 @@ define(['jquery', 'backbone', 'underscore'],
             //TODO: create paging stuff if they aren't provided
             this.$pageindicator = $("<div class='dt-pageindicator'></div>");
         }
+        this.$pageindicator.tooltip();
 
         if (this.options.nextpagebutton) {
             this.$nextbutton = this.options.nextpagebutton;
@@ -269,13 +270,40 @@ define(['jquery', 'backbone', 'underscore'],
         },
 
         renderPageIndicator: function() {
-            //this.$pageindicator.text(this._page + "/" + this._pageCount);
-            var x = this._start / this._total;
-            var w = 1 - (this._start + this.$rows.length) / this._total;
-            this.$pageindicator.find("div").css({
+            var x = this._start / this._total,
+                w = 1 - (this._start + this.$rows.length) / this._total,
+                $indicator = this.$pageindicator.find('div');
+
+            if ($indicator.length === 0) {
+                $indicator = $('<div></div>').appendTo(this.$pageindicator);
+            }
+            
+            if (this.$pageindicator.width() < 400) {
+                this.$pageindicator.find('span').remove();
+                this.$pageindicator.append('<span class="heightener"></span><span class="page">Showing ' + (this._start + 1) + ' - ' + this._end + '</span> <span class="total">of ' + this._total + '</span>');
+                if(this.filterCount() > 0) {
+                    this.$pageindicator.append(' <span class="filter-status">(' + this.data.length + ')</span>');
+                }
+                /*
+                this.$pageindicator.find('.page').css({
+                    left: (x * 100) + "%",
+                    right: (w * 100) + "%"
+                });
+                */
+            } else {
+                var tooltip = 'Showing ' + this.options.items + ' ' + (this._start + 1) + ' to ' + this._end + ' of ' + this._total;
+                
+                if(Object.keys(this._filter).length) {
+                    tooltip += ' (Filtered from ' + this.data.length + ')';
+                }
+
+                $indicator.attr('title', tooltip).html('<span class="page">' + (this._start + 1) + ' - ' + this._end + '</span><span class="total">' + this._total + '</span>');
+            }
+            $indicator.css({
                 left: (x * 100) + "%",
                 right: (w * 100) + "%"
-            }).html('<span class="page">' + (this._start + 1) + ' - ' + this._end + '</span><span class="total">' + this._total + '</span>');
+            });
+
         },
 
         mouseoverRow: function(e) {
@@ -329,11 +357,15 @@ define(['jquery', 'backbone', 'underscore'],
 
         renderTableHeader: function() {
             var tr = this._createRow(),
-                self = this;
-            this._forEach(this.columns, function(column) {
+                self = this,
+                visible = 0;
+            
+            // render the column headers
+            this._forEach(this.columns, function(column, i) {
                 if (!column.hide) {
                     var th = self._createCell();
                     th.addClass("dt-header");
+                    // if just a property name was passed, turn it into an object
                     if (typeof column === 'string') {
                         column = {property: column, sortable: true};
                     }
@@ -349,17 +381,21 @@ define(['jquery', 'backbone', 'underscore'],
                     if (column.defaultSort) {
                         this._sortBy = column.property;
                     }
+                    // the actual column header text
                     th.html(column.header ? column.header : column.property).data("column", column);
+                    visible++;
 
+                    // include the filter menu
                     if (column.filter) {
                         if (column.filter.view) {
-                            column.filter.view._filter = self._filter[column.filter.property];
+                            column.filter.view.setFilter(self._filter[column.filter.property]);
                             th.append(column.filter.view.$el);
                         } else {
                             th.append(self._createFilterMenu(column));
                         }
                     }
 
+                    th.attr('data-index', i);
                     tr.append(th);
                 }
             });
@@ -367,8 +403,16 @@ define(['jquery', 'backbone', 'underscore'],
                 this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
             }
             this.$head.append(tr);
-
+            
+            // set up the filter events
             this._forEach(this.columns, function(column, i) {
+                // add a "filtered" indicator to a column that is filtered (or the only column showing if only one is showing)
+                if ((visible === 1 && self.filterCount() > 0) ||
+                    (column.filter && self._filter[column.filter.property] && self._filter[column.property].length > 0)) {
+                    
+                    tr.find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
+                }
+
                 if (column.filter) {
                     if (column.filter.view) {
                         column.filter.view.off('filter');
@@ -388,19 +432,22 @@ define(['jquery', 'backbone', 'underscore'],
 
 
         },
-
+        
+        // this method renders a comprehensive filter screen for all of the filterable columns in the table
         renderFilterMenu: function ($container) {
             var self = this;
+            this.$filterMenuContainer = $container;
             $container.empty();
             this._forEach(this.columns, function(column) {
                 if (column.filter) {
+                    var selection = self._filter[column.filter.property];
                     if (column.filter.view) {
-                        column.filter.view._filter = self._filter[column.filter.property];
+                        column.filter.view.setFilter(selection);
                         $container.append(column.filter.view.$el);
                         column.filter.view.off('filter');
                         column.filter.view.on('filter', function (prop, sel) {
                             self._filter[prop] = sel;
-                            self.reload();
+                            self.$container.trigger('filter.dynamictable', self._filter);
                         });
                         column.filter.view.renderFull();
                     } else {
@@ -418,6 +465,21 @@ define(['jquery', 'backbone', 'underscore'],
                             .on('change', $.proxy(self._clickFilterMenu, self))
                             .find('.has-tooltip').tooltip({ direction: 'left' });
                             */
+                        if (selection && selection.length && column.filter.collection) {
+                            var col = column.filter.collection,
+                                attrs = column.filter.attributes;
+                            self._forEach(selection, function (id) {
+                                var item = col.get(id),
+                                    text = item.get(attrs.text),
+                                    val = item.get(attrs.value),
+                                    title = attrs.title ? item.get(attrs.title) : '',
+                                    $obj;
+
+                                $obj = $('<div class="btn has-tooltip active" title="' + title + '" data-value="' + val + '">' + text + '</div>');
+                                $obj.data('btn', $menu.find('[data-value="' + val + '"]'));
+                                $menu.find('.filter-output').append($obj);
+                            });
+                        }
                         $acc.find('.accordion-body .btn').on('click', $.proxy(self._clickFilterMenu, self));
                     }
                 }
@@ -437,7 +499,7 @@ define(['jquery', 'backbone', 'underscore'],
             }
 
             if (expand) {
-                btnhtml += '<em class="closed">+ Add filter</em><em class="open">Done</em>';
+                btnhtml += '<div class="filter-output"></div><em class="closed">+ Add filter</em><em class="open">Done</em>';
             } else {
                 btnhtml += '<i class="fa fa-filter ' + iconClass + '"></i>';
             }
@@ -446,68 +508,105 @@ define(['jquery', 'backbone', 'underscore'],
             var $obj, itemclass;
             
             if ($('body > #' + column.property + '_selection.showing').length) {
-                $obj = $(btnhtml);
-                $obj.addClass('dropdown-active');
-            } else {
-                objhtml = '';
                 if (expand) {
-                    objhtml += '<div class="accordion-body"><div class="filter-menu" data-property="' + column.filter.property + '">';
-                    itemclass = 'btn has-tooltip';
+                    // the dropdown is showing, but we want to draw the accordion style menu, so we have to MURDER IT
+                    $('body > #' + column.property + '_selection.showing').remove();
                 } else {
-                    objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-property="' + column.filter.property + '" data-button="' + column.property + '_filter_toggle">';
-                    itemclass = 'dropdown-option has-tooltip';
+                    $obj = $(btnhtml);
+                    $obj.addClass('dropdown-active');
+                    return $obj; // the menu is already drawn, so let's get out of here
                 }
-                
-                objhtml += '<div class="' + itemclass + ' filter-all" data-value="all"><span class="icon-checkbox checked" />Show All</div>';
-                
-                if (column.filter.collection) {
-                    var col = column.filter.collection,
-                        attrs = column.filter.attributes;
-                    col.each(function (item) {
-                        var text = item.get(attrs.text),
-                            val = item.get(attrs.value),
-                            title = attrs.title ? item.get(attrs.title) : '';
-                        objhtml += '<div class="' + itemclass + '" title="' + title + '" data-value="' + val + '">';
-                        objhtml += '<span class="icon-checkbox"></span>';
-                        objhtml += text + '</div>';
-                    });
-                }
-                objhtml += '</div></div>';
-                $obj = $(objhtml + btnhtml);
+            } 
+            
+            objhtml = '';
+            if (expand) {
+                objhtml += '<div class="accordion-body"><div class="filter-menu" data-property="' + column.filter.property + '">';
+                itemclass = 'btn has-tooltip';
+            } else {
+                objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-property="' + column.filter.property + '" data-button="' + column.property + '_filter_toggle">';
+                itemclass = 'dropdown-option has-tooltip';
+            }
+            
+            objhtml += '<div class="' + itemclass + ' filter-all checked" data-value="all">';
+            if (expand) {
+                objhtml += 'Clear Filter';
+            } else {
+                objhtml += '<i class="fa fa-check-circle-o"></i> Show All';
+            }
+            objhtml += '</div>';
+            
+            if (column.filter.collection) {
+                var col = column.filter.collection,
+                    attrs = column.filter.attributes;
+                col.each(function (item) {
+                    var text = item.get(attrs.text),
+                        val = item.get(attrs.value),
+                        title = attrs.title ? item.get(attrs.title) : '';
+                    objhtml += '<div class="' + itemclass + '" title="' + title + '" data-value="' + val + '">';
+                    if (!expand) {
+                        objhtml += '<i class="fa fa-circle-o"></i> ';
+                    }
+                    objhtml += text + '</div>';
+                });
+            }
+            if (expand) {
+                objhtml += '<div class="accordion-toggle"><i class="fa fa-caret-up"></i></div>';
+            }
+            objhtml += '</div></div>';
+            $obj = $(btnhtml + objhtml);
+            
+            if (this._filter && this._filter[column.filter.property]) {
+                this._uncheckOption($obj.find('.filter-all'));
+                var self = this;
+                _.each(this._filter[column.filter.property], function (id) {
+                    self._checkOption($obj.find('[data-value="' + id + '"]'));
+                });
+            }
+
+            if (expand) {
+                $obj.on('click', '.filter-output .btn', $.proxy(this._clickFilterOutput, this));
             }
 
             return $obj;
         },
+        _checkOption: function ($option) {
+            $option.addClass('checked').find('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+        },
+        _uncheckOption: function ($option) {
+            $option.removeClass('checked').find('i').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+        },
         _clickFilterDropdown: function (e, option) {
             var $option = $(option), //$(e.currentTarget),
-                checked = $option.find('.icon-checkbox').hasClass('checked'),
+                checked = $option.hasClass('checked'),
                 value = $option.data('value'),
                 $menu = $option.parent(),
                 prop = $menu.data('property'),
                 self = this;
             
             if (checked) {
-                $option.find('.icon-checkbox').removeClass('checked');
-                if ($menu.find('.icon-checkbox.checked').length === 0) {
-                    $menu.find('.filter-all .icon-checkbox').addClass('checked');
+                this._uncheckOption($option);
+                if ($menu.find('.checked').length === 0) {
+                    this._checkOption($menu.find('.filter-all'));
                 }
             } else {
                 if (value === 'all') {
-                    $menu.find('.dropdown-option .icon-checkbox').removeClass('checked');
+                    this._uncheckOption($menu.find('.dropdown-option .icon-checkbox'));
                 } else {
-                    $menu.find('.filter-all .icon-checkbox').removeClass('checked');
+                    this._uncheckOption($menu.find('.filter-all'));
                 }
-                $option.find('.icon-checkbox').addClass('checked');
+                this._checkOption($option);
             }
 
-            if ($menu.find('.filter-all .icon-checkbox').hasClass('checked')) {
+            if ($menu.find('.filter-all').hasClass('checked')) {
                 this._filter[prop] = false;
             } else {
                 this._filter[prop] = [];
-                $menu.find('.icon-checkbox.checked').each(function () {
-                    self._filter[prop].push($(this).parent().data('value'));
+                $menu.find('.checked').each(function () {
+                    self._filter[prop].push($(this).data('value'));
                 });
             }
+
+            this.$container.trigger('filter.dynamictable', self._filter);
 
             this.reload();
 
@@ -516,11 +615,61 @@ define(['jquery', 'backbone', 'underscore'],
         },
         _clickFilterMenu: function (e) {
             var $btn = $(e.currentTarget),
+                $accordion = $btn.closest('.accordion'),
+                $output = $accordion.find('.accordion-toggle .filter-output'),
                 active = $btn.hasClass('active'),
                 value = $btn.data('value'),
-                property = $btn.parent().data('property');
+                prop = $btn.parent().data('property'),
+                self = this;
 
-            console.log('clicked on', property, value);
+            if (value === 'all') {
+                $output.find('.btn').remove();
+                $btn.parent().find('.btn').removeClass('active');
+                this._filter[prop] = [];
+            } else {
+                if (active) {
+                    $output.find('[data-value=' + value + ']').remove();
+                    $btn.removeClass('active');
+                } else {
+                    $btn.addClass('active');
+                    $output.append($btn.clone().data('btn', $btn));
+                }
+                this._filter[prop] = [];
+                $btn.parent().find('.btn.active').each(function () {
+                    self._filter[prop].push($(this).data('value'));
+                });
+            }
+            
+            this.$container.trigger('filter.dynamictable', self._filter);
+        },
+        _clickFilterOutput: function (e) {
+            var $btn = $(e.currentTarget).data('btn');
+            $btn.click();
+            e.stopPropagation();
+        },
+
+        clearFilters: function () {
+            var self = this;
+            this._filter = {};
+            this._forEach(this.columns, function(column) {
+                if (column.filter) {
+                    if (column.filter.view) {
+                        column.filter.view.clearFilter();
+                    } else {
+                        // if there's a filter menu screen somewhere
+                        if (self.$filterMenuContainer) {
+                            // find this column's menu
+                            var $menu = self.$filterMenuContainer.find('[data-property="' + column.filter.property + '"]');
+                            // remove all active buttons
+                            $menu.find('.btn').removeClass('active');
+                            // remove selection from the output
+                            $menu.closest('.accordion').find('.accordion-toggle .filter-output .btn').remove();
+                            // make sure the accordion is closed
+                            $menu.closest('.accordion.open').find('.open').click();
+                        }
+                    }
+                }
+            });
         },
 
         _tableBody: function() {
@@ -797,6 +946,15 @@ define(['jquery', 'backbone', 'underscore'],
 
         getFilter: function () {
             return this._filter;
+        },
+        filterCount: function () {
+            var cnt = 0;
+            for (var key in this._filter) {
+                if (this._filter[key].length !== undefined) {
+                    cnt += this._filter[key].length;
+                }
+            }
+            return cnt;
         }
 
     };
@@ -831,7 +989,9 @@ define(['jquery', 'backbone', 'underscore'],
         dataType: "array",
         paginate: true,
         maxWidth: 50,
-        idPrefix: 'row'
+        idPrefix: 'row',
+        item: 'item',
+        items: 'items'
     };
 
     $.fn.dynamictable.Constructor = DynamicTable;

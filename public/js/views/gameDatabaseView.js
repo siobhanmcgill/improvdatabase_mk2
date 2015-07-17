@@ -4,7 +4,6 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
         'text!templates/gameDatabaseView.html',
         'text!templates/gameDatabase-filters.html',
@@ -14,7 +13,7 @@ define(['jquery',
         'views/tagFilterView',
         'views/searchView'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, Template, FiltersTemplate, AddGameFormView, GameView, TagFilterView, SearchView) {
+    function($, _, Backbone, moment, deny, Template, FiltersTemplate, AddGameFormView, GameView, TagFilterView, SearchView) {
         return Backbone.View.extend({
             events: {
                 'click #gameTable .dt-row': 'showGame',
@@ -150,6 +149,9 @@ define(['jquery',
                 this.hide();
                 this.$('#gameTable').removeClass('outtoggle').addClass('anim intoggle');
                 this.$('#prevpage, #nextpage').show();
+                if (this.page && this.page !== 'Database') {
+                    this.reload();
+                }
                 this.page = 'Database';
             },
             showFilters: function () {
@@ -167,8 +169,13 @@ define(['jquery',
                 this.$toolbar.find('#btnFilters').addClass('active');
                 this.page = 'Filters';
                 
-                // for some reason this event doesn't work in the Backbone event object
-                this.$('.game-filters .text-content-page .close').click($.proxy(this.showDatabase, this));
+                // for some reason these events doesn't work in the Backbone event object
+                this.$('.game-filters .text-content-page .close, .game-filters .text-content-page .btn-return').click($.proxy(this.showDatabase, this));
+                this.$('.game-filters .text-content-page .close, .game-filters .text-content-page .btn-clear').click($.proxy(function () {
+                    this.$('#gameTable').dynamictable('clearFilters');
+                }, this));
+
+                this.onFilter(null, this.$('#gameTable').dynamictable('getFilter'));
 
                 return true;
             },
@@ -200,7 +207,7 @@ define(['jquery',
                         sortable: false,
                         filter: {
                             view: this.tagFilter,
-                            property: 'tag'
+                            property: 'tags'
                         },
                         hide: this.router.device === 'mobile'
                     },
@@ -248,6 +255,8 @@ define(['jquery',
                     nextpagebutton: this.$("#nextpage"),
                     pagesizemenu: this.$("#pagesize"),
                     pageSize: 'auto',
+                    item: 'Game',
+                    items: 'Games',
                     onRender: function(table) {
                         table.find(".has-tooltip").tooltip();
                         if (self.selectedGame) {
@@ -255,8 +264,20 @@ define(['jquery',
                         }
                     },
                     columns: this.columns
-                });
+                }).on('filter.dynamictable', $.proxy(this.onFilter, this));
                 return this;
+            },
+
+            onFilter: function (e, filter) {
+                if (e) {
+                    console.log('filter!', filter);
+                }
+                var cnt = this.$('#gameTable').dynamictable('filterCount');
+                if (cnt > 0) {
+                    this.$('.game-filters .btn-clear').show();
+                } else {
+                    this.$('.game-filters .btn-clear').hide();
+                }
             },
 
             hideGame: function () {

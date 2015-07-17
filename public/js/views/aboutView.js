@@ -4,7 +4,6 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
         'text!templates/aboutView.html',
         'text!templates/aboutView-credits.html',
@@ -12,7 +11,7 @@ define(['jquery',
         'text!templates/aboutView-contact-success.html',
         'text!templates/aboutView-changelog.html'
         ],
-    function($, _, Backbone, moment, deny, dynamictable, Template, CreditsTemplate, ContactTemplate, ContactSuccessTemplate, ChangelogTemplate) {
+    function($, _, Backbone, moment, deny, Template, CreditsTemplate, ContactTemplate, ContactSuccessTemplate, ChangelogTemplate) {
         return Backbone.View.extend({
             events: {
                 'input .about-contact [name=name]': 'contactName',
