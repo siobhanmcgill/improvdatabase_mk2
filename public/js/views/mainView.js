@@ -40,10 +40,22 @@ define(['jquery',
                     },
                     $existing = this.$('#toolbar').find('#' + data.id),
                     active = $existing.hasClass('active'),
-                    $toolbar = $(_.template(toolbarTemplate, data));
+                    $toolbar = $(_.template(toolbarTemplate, data)),
+                    self = this;
                 view.$toolbar = $toolbar;
+                $toolbar.children('a').click(function (e) {
+                    e.stopPropagation();
+                    self.router.navigate($(this).attr('href'), {trigger: false});
+                    self.render(key);
+                    return false;
+                });
                 $toolbar.find('.sub .btn').each(function (i) {
-                    $(this).on('click', $.proxy(data.tools[i].action, view));
+                    $(this).on('click', function(e) {
+                        //return true to close the toolbar on click
+                        if (data.tools[i].action.call(view, e) && self.router.device === 'mobile') {
+                            self.$('.showMenu a').click();
+                        }
+                    });
                 });
                 if ($existing.length) {
                     $existing.after($toolbar);
@@ -52,17 +64,25 @@ define(['jquery',
                 } else {
                     this.$('#toolbar').append($toolbar);
                 }
-
+                
                 $toolbar.addClass('active');
-                $toolbar.data('width', $toolbar.find('.sub').width() + 5);
+                if (this.router.device === 'mobile') {
+                    $toolbar.data('height', $toolbar.find('.sub').height());
+                } else {
+                    $toolbar.data('width', $toolbar.find('.sub').width() + 5);
+                }
                 $toolbar.removeClass('active');
                 
                 $toolbar.find(".has-tooltip").tooltip();
                 
                 if (active) {
-                    var self = this;
                     setTimeout(function () {
-                        self.$('#' + key + 'Tools').addClass('active').find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                        var $tools = self.$('#' + key + 'Tools').addClass('active');
+                        if (self.router.device === 'mobile') {
+                            $tools.find('.sub').css('height', self.$('#' + key + 'Tools').data('height'));
+                        } else {
+                            $tools.find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                        }
                     }, 100);
                 }
             },
@@ -79,8 +99,80 @@ define(['jquery',
                         this.renderToolbar(view);
                         this.listenTo(view, 'render-toolbar', $.proxy(this.renderToolbar, this));
                     }, this));
-                    this.$('#toolbar').addClass('ready');
+                    
+                    // add the "show menu" and "fullscreen" buttons for mobile devices
+                    if (this.router.device === 'mobile') {
+                        var $showBtn = $(_.template(toolbarTemplate, {
+                            id: 'showMenu',
+                            key: '',
+                            title: '',
+                            icon: 'fa-bars'
+                        }));
+                        $showBtn.addClass('showMenu').find('a').on('click', $.proxy(function (e) {
+                            this.$('#topnav').toggleClass('show');
+                            if (this.$('#topnav').hasClass('show')) {
+                                var $shade = $('<div id="topnavShade"></div>');
+                                this.$('#topnav').after($shade);
+                                $shade.on('click.hidemenu', function () {
+                                    $showBtn.find('a').click();
+                                });
+                            } else {
+                                this.$('#topnavShade').remove();
+                            }
+                            e.stopPropagation();
+                            return false;
+                        }, this));
+                        this.$('#toolbar').prepend($showBtn);
+                        
+                        if (document.fullscreenEnabled || 
+                            document.webkitFullscreenEnabled || 
+                            document.mozFullScreenEnabled ||
+                            document.msFullscreenEnabled) {
 
+                            var $fullscreenBtn = $(_.template(toolbarTemplate, {
+                                id: 'fullscreen',
+                                key: '',
+                                title: '',
+                                icon: 'fa-expand'
+                            }));
+                            $fullscreenBtn.addClass('fullscreen').find('a').on('click', $.proxy(function () {
+                                // are we full-screen?
+                                if (document.fullscreenElement ||
+                                    document.webkitFullscreenElement ||
+                                    document.mozFullScreenElement ||
+                                    document.msFullscreenElement) {
+                                    
+                                    // exit full-screen
+                                    if (document.exitFullscreen) {
+                                        document.exitFullscreen();
+                                    } else if (document.webkitExitFullscreen) {
+                                        document.webkitExitFullscreen();
+                                    } else if (document.mozCancelFullScreen) {
+                                        document.mozCancelFullScreen();
+                                    } else if (document.msExitFullscreen) {
+                                        document.msExitFullscreen();
+                                    }
+
+                                } else {
+                                    var i = $('body')[0];
+                                    // go full-screen
+                                    if (i.requestFullscreen) {
+                                        i.requestFullscreen();
+                                    } else if (i.webkitRequestFullscreen) {
+                                        i.webkitRequestFullscreen();
+                                    } else if (i.mozRequestFullScreen) {
+                                        i.mozRequestFullScreen();
+                                    } else if (i.msRequestFullscreen) {
+                                        i.msRequestFullscreen();
+                                    }
+                               }
+                            }, this));
+                            this.$('#toolbar').prepend($fullscreenBtn);
+
+                        }
+                    }
+
+                    this.$('#toolbar').addClass('ready');
 
                     this.isRendered.main = true;
                 }
@@ -88,7 +180,7 @@ define(['jquery',
                 key = key || 'gamedb';
                 
                 // if a view is currently showing, get rid of it
-                if (this.views[this.currentView]) {
+                if (this.views[this.currentView] && this.currentView !== key) {
                     var oldView = this.views[this.currentView];
                     oldView.hide();
                     setTimeout(function () {
@@ -133,8 +225,15 @@ define(['jquery',
                 
                 // close the old toolbar, and open the new one
                 setTimeout(function () {
-                    self.$('#toolbar .section').removeClass('active').find('.sub').css('width', 0);
-                    self.$('#' + key + 'Tools').addClass('active').find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                    var $alltools = self.$('#toolbar .section').removeClass('active'),
+                        $tools = self.$('#' + key + 'Tools').addClass('active');
+                    if (self.router.device === 'mobile') {
+                        $alltools.find('.sub').css('height', 0);
+                        $tools.find('.sub').css('height', self.$('#' + key + 'Tools').data('height'));
+                    } else {
+                        $alltools.find('.sub').css('width', 0);
+                        $tools.find('.sub').css('width', self.$('#' + key + 'Tools').data('width'));
+                    }
                 }, 100);
 
                 $oldHeader.css('top', -(20 * $oldHeader.data('scale')));

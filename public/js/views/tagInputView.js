@@ -4,14 +4,12 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
-        'autocomplete',
 
         'text!templates/tagInput.html',
 
         'models/tag'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, AutoComplete, tagInputTemplate, Tag) {
+    function($, _, Backbone, moment, deny, tagInputTemplate, Tag) {
         return Backbone.View.extend({
             events: {
                 "click .tag": "removeTag",
@@ -19,6 +17,7 @@ define(['jquery',
                 "click #addTagLink": "showAddTag"
             },
             initialize: function(options) {
+                this.options = options;
                 this.GameID = options.GameID;
                 this.TagGameCollection = options.TagGameCollection;
                 this.refuseNew = options.refuseNew;
@@ -84,8 +83,17 @@ define(['jquery',
 
                 if (name) {
                     $tag.html(name).attr("id", "").removeClass("hide");
-                    this.$(".tags .tag").eq(-1).after($tag);
+                    if (this.options.output) {
+                        this.options.output.append($tag);
+                        $tag.on('click', $.proxy(this.removeTag, this));
+                    } else {
+                        this.$(".tags .tag").eq(-1).after($tag);
+                    }
                     this.$("input").val("");
+                    
+                    if (!this.options.output) {
+                        this.$('#tagOutput').show();
+                    }
 
                     if (!model) {
                         this.trigger("tag.add", name);

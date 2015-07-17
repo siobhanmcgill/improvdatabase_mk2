@@ -218,138 +218,6 @@ $.fn.drawer = function(settings) {
     }); 
 }; //end of drawers
 
-//dropdown menus
-/*
-    <div id="button1" class="dropdown-button">THIS IS THE TRIGGER <i class="arrow-down"></i></div>
-    <div class="dropdown" data-button="button1">THIS IS THE DROPDOWN</div>
-
-    $(".dropdown").dropdown();
-*/
-$.fn.dropdown = function(settings) {
-    settings = jQuery.extend({
-        selector: "",
-        width: "",
-        activeClass: "",
-        selectable: true
-    }, settings);
-    var returnobj;
-    if (settings.selector !== "") {
-        returnobj = this.find(settings.selector);
-    } else {
-        returnobj = this;
-    }
-    return returnobj.each(function() {
-        var button, dropdown;
-        if ($(this).data("menu")) {
-            button = $(this);
-            dropdown = $("#" + $(this).data("menu"));
-        } else {
-            button = $("#" + $(this).data("button"));
-            dropdown = $(this);
-        }
-        if (!button.hasClass("dropdown-button")) {
-            button.addClass("dropdown-button");
-        }
-        var $home = dropdown.parent();
-        
-        button.click(function(e) {
-            if (dropdown.hasClass("showing")) { //hide the thing
-                dropdown.removeClass("ready").css({
-                    height: "0px"
-                });
-                if (dropdown.hasClass("up")) {
-                    dropdown.css("top", button.position().top);
-                }
-                setTimeout(function() {
-                    dropdown.appendTo($home).css({
-                        left: "-9999em"
-                    }).removeClass("showing").removeClass(settings.activeClass);
-                }, 400);
-                button.removeClass("dropdown-active");
-                $("html").off("click.hidedropdowns");
-            } else { //show the thing
-                $('body').append(dropdown);
-
-                if (settings.width === "auto") {
-                    dropdown.css("width", button.outerWidth());
-                } else if (settings.width) {
-                    dropdown.css('width', settings.width);
-                }
-
-                var left = button.offset().left;
-                if (left + dropdown.outerWidth() > $(window).width() - 5 || dropdown.hasClass('left')) {
-                    left = left + button.outerWidth() - dropdown.outerWidth();//$(window).width() - (dropdown.outerWidth() + 5);
-                }
-                if (dropdown.data("height") === undefined || dropdown.data("height") === "") {
-                    dropdown.css({
-                        left: "-200%",
-                        height: "auto",
-                        display: "block"
-                    });
-                    if (dropdown.hasClass("up")) {
-                        dropdown.css({
-                            top: button.offset().top
-                        });
-                    }
-                    dropdown.data("height", dropdown.outerHeight());
-                }
-
-                dropdown.css({
-                    left: left,
-                    height: "0px"
-                });
-                if (!dropdown.hasClass("up")) {
-                    dropdown.css({
-                        top: button.offset().top + button.outerHeight()
-                    });
-                }
-                var h = dropdown.data('height');
-                if (!dropdown.hasClass('up') && h + button.offset().top > $(window).height()) {
-                    h = $(window).height() - (button.offset().top + 50);
-                    dropdown.css('overflow', 'auto');
-                }
-                setTimeout(function() {
-                    dropdown.addClass("showing arriving").css("height", h);
-                    if (dropdown.hasClass("up")) {
-                        dropdown.css({
-                            "top": button.offset().top - dropdown.data("height")
-                        });
-                    }
-                    setTimeout(function() {
-                        dropdown.removeClass("arriving").addClass("ready");
-                    }, 400);
-                }, 50);
-                button.addClass("dropdown-active").addClass(settings.activeClass);
-                $("html").one("click.hidedropdowns", function() {
-                    button.click();
-                });
-                dropdown.off('click.hidedropdowns')
-                    .on('click.hidedropdowns', function (e) {
-                        e.stopPropagation();
-                        return false;
-                    });
-                
-                if (settings.selectable) {
-                    dropdown.children().off("click")
-                        .on('click', function(e) {
-                            if (button.find(".value").length > 0) {
-                                button.find(".value").text($(e.currentTarget).text());
-                                button.data("value", $(e.currentTarget).data("value"));
-                            }
-                            button.trigger('change', e.currentTarget);
-                            dropdown.trigger('change', e.currentTarget);
-
-                            button.click();
-                            e.stopPropagation();
-                            return false;
-                        });
-                }
-            }
-            e.stopPropagation();
-        });
-    });
-};
-
 //expandable menus
 /*
     call .expandable() on the button you want to open the menu
@@ -595,6 +463,62 @@ $.fn.turnover = function(settings) {
     });
 };
 */
+
+!function ($) {
+
+    var Accordion = function (element, options) {
+        this.$el = $(element);
+        this.$toggle = this.$('.accordion-toggle');
+        this.$body = this.$('.accordion-body');
+
+        if (!this.$toggle.length || !this.$body.length) {
+            console.error('accordion initialized without accordion-toggle and accordion-body elements');
+            return;
+        }
+
+        this.$body.show().css('height', 'auto');
+        this.bodyheight = this.$body.height();
+        this.$body.css('height', '0px');
+        this.$body.addClass('ready');
+
+        this.$toggle.on('click', $.proxy(this.toggle, this));
+    };
+
+    Accordion.prototype = {
+        $: function (selector) {
+            return this.$el.find(selector);
+        },
+
+        toggle: function () {
+            if (this.$el.hasClass('open')) {
+                this.$body.css('height', '0px');
+                this.$el.removeClass('open');
+            } else {
+                this.$body.css('height', this.bodyheight);
+                this.$el.addClass('open');
+            }
+        }
+    };
+
+    $.fn.accordion = function(option) {
+        return this.each(function() {
+            var $this = $(this),
+                data = $this.data('accordion'),
+                options = typeof option === 'object' && option;
+            if (!data) {
+                $this.data('accordion', (data = new Accordion(this, options)));
+            }
+            if (typeof option === "string") {
+                data[option]();
+            }
+        });
+    };
+    $.fn.accordion.Constructor = Accordion;
+    $.fn.accordion.defaults = {
+        trigger: "click"
+    };
+
+}(window.jQuery);
 
 !function ($) {
 

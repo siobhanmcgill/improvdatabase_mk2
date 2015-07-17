@@ -4,13 +4,12 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
         'text!templates/dropdownTemplate.html',
         'text!templates/turnover.html',
         'text!templates/turnover-dropdownAdd.html'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, Dropdown, Turnover, TurnoverContents) {
+    function($, _, Backbone, moment, deny, Dropdown, Turnover, TurnoverContents) {
         return Backbone.View.extend({
             events: {
                 //"click .dropdown-option": "selectOption"

@@ -11,6 +11,7 @@ define(['jquery', 'backbone', 'underscore'],
             //TODO: create paging stuff if they aren't provided
             this.$pageindicator = $("<div class='dt-pageindicator'></div>");
         }
+        this.$pageindicator.tooltip();
 
         if (this.options.nextpagebutton) {
             this.$nextbutton = this.options.nextpagebutton;
@@ -89,6 +90,11 @@ define(['jquery', 'backbone', 'underscore'],
 
             this.$container.append(this.$head);
             this.$container.append(this.$table);
+
+            if (!this.options.paginate) {
+                this.$prevbutton.hide();
+                this.$nextbutton.hide();
+            }
 
             this.renderTableHeader();
             this.next();
@@ -264,13 +270,40 @@ define(['jquery', 'backbone', 'underscore'],
         },
 
         renderPageIndicator: function() {
-            //this.$pageindicator.text(this._page + "/" + this._pageCount);
-            var x = this._start / this._total;
-            var w = 1 - (this._start + this.$rows.length) / this._total;
-            this.$pageindicator.find("div").css({
+            var x = this._start / this._total,
+                w = 1 - (this._start + this.$rows.length) / this._total,
+                $indicator = this.$pageindicator.find('div');
+
+            if ($indicator.length === 0) {
+                $indicator = $('<div></div>').appendTo(this.$pageindicator);
+            }
+            
+            if (this.$pageindicator.width() < 400) {
+                this.$pageindicator.find('span').remove();
+                this.$pageindicator.append('<span class="heightener"></span><span class="page">Showing ' + (this._start + 1) + ' - ' + this._end + '</span> <span class="total">of ' + this._total + '</span>');
+                if(this.filterCount() > 0) {
+                    this.$pageindicator.append(' <span class="filter-status">(' + this.data.length + ')</span>');
+                }
+                /*
+                this.$pageindicator.find('.page').css({
+                    left: (x * 100) + "%",
+                    right: (w * 100) + "%"
+                });
+                */
+            } else {
+                var tooltip = 'Showing ' + this.options.items + ' ' + (this._start + 1) + ' to ' + this._end + ' of ' + this._total;
+                
+                if(Object.keys(this._filter).length) {
+                    tooltip += ' (Filtered from ' + this.data.length + ')';
+                }
+
+                $indicator.attr('title', tooltip).html('<span class="page">' + (this._start + 1) + ' - ' + this._end + '</span><span class="total">' + this._total + '</span>');
+            }
+            $indicator.css({
                 left: (x * 100) + "%",
                 right: (w * 100) + "%"
-            }).html('<span class="page">' + (this._start + 1) + ' - ' + this._end + '</span><span class="total">' + this._total + '</span>');
+            });
+
         },
 
         mouseoverRow: function(e) {
@@ -324,44 +357,62 @@ define(['jquery', 'backbone', 'underscore'],
 
         renderTableHeader: function() {
             var tr = this._createRow(),
-                self = this;
-            this._forEach(this.columns, function(column) {
-                var th = self._createCell();
-                th.addClass("dt-header");
-                if (typeof column === 'string') {
-                    column = {property: column, sortable: true};
-                }
-                
-                if (column.className) {
-                    th.addClass(column.className);
-                } else {
-                    th.addClass(column.property.toLowerCase());
-                }
-                if (column.sortable !== false) {
-                    th.addClass("sortable");
-                }
-                if (column.defaultSort) {
-                    this._sortBy = column.property;
-                }
-                th.html(column.header ? column.header : column.property).data("column", column);
-
-                if (column.filter) {
-                    if (column.filter.view) {
-                        column.filter.view._filter = self._filter[column.filter.property];
-                        th.append(column.filter.view.$el);
-                    } else {
-                        th.append(self._createFilterMenu(column));
+                self = this,
+                visible = 0;
+            
+            // render the column headers
+            this._forEach(this.columns, function(column, i) {
+                if (!column.hide) {
+                    var th = self._createCell();
+                    th.addClass("dt-header");
+                    // if just a property name was passed, turn it into an object
+                    if (typeof column === 'string') {
+                        column = {property: column, sortable: true};
                     }
-                }
+                    
+                    if (column.className) {
+                        th.addClass(column.className);
+                    } else {
+                        th.addClass(column.property.toLowerCase());
+                    }
+                    if (column.sortable !== false) {
+                        th.addClass("sortable");
+                    }
+                    if (column.defaultSort) {
+                        this._sortBy = column.property;
+                    }
+                    // the actual column header text
+                    th.html(column.header ? column.header : column.property).data("column", column);
+                    visible++;
 
-                tr.append(th);
+                    // include the filter menu
+                    if (column.filter) {
+                        if (column.filter.view) {
+                            column.filter.view.setFilter(self._filter[column.filter.property]);
+                            th.append(column.filter.view.$el);
+                        } else {
+                            th.append(self._createFilterMenu(column));
+                        }
+                    }
+
+                    th.attr('data-index', i);
+                    tr.append(th);
+                }
             });
             if (!this._sortBy) {
                 this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
             }
             this.$head.append(tr);
-
+            
+            // set up the filter events
             this._forEach(this.columns, function(column, i) {
+                // add a "filtered" indicator to a column that is filtered (or the only column showing if only one is showing)
+                if ((visible === 1 && self.filterCount() > 0) ||
+                    (column.filter && self._filter[column.filter.property] && self._filter[column.property].length > 0)) {
+                    
+                    tr.find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
+                }
+
                 if (column.filter) {
                     if (column.filter.view) {
                         column.filter.view.off('filter');
@@ -373,7 +424,7 @@ define(['jquery', 'backbone', 'underscore'],
                     } else {
                         self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown()
                                     .off('change')
-                                    .on('change', $.proxy(self._clickFilterMenu, self))
+                                    .on('change', $.proxy(self._clickFilterDropdown, self))
                                     .find('.has-tooltip').tooltip({ direction: "left" });
                     }
                 }
@@ -381,78 +432,244 @@ define(['jquery', 'backbone', 'underscore'],
 
 
         },
+        
+        // this method renders a comprehensive filter screen for all of the filterable columns in the table
+        renderFilterMenu: function ($container) {
+            var self = this;
+            this.$filterMenuContainer = $container;
+            $container.empty();
+            this._forEach(this.columns, function(column) {
+                if (column.filter) {
+                    var selection = self._filter[column.filter.property];
+                    if (column.filter.view) {
+                        column.filter.view.setFilter(selection);
+                        $container.append(column.filter.view.$el);
+                        column.filter.view.off('filter');
+                        column.filter.view.on('filter', function (prop, sel) {
+                            self._filter[prop] = sel;
+                            self.$container.trigger('filter.dynamictable', self._filter);
+                        });
+                        column.filter.view.renderFull();
+                    } else {
+                        var $menu = self._createFilterMenu(column, true),
+                            $sel = $('<div class="filter-selections"></div>'),
+                            $lab = $('<label>' + column.header + '</label>'),
+                            $acc = $('<div class="accordion"></div>');
+                        $acc.append($menu);
+                        $sel.append($acc);
+                        $container.append($lab, $sel);
+                        $acc.accordion();
+                        $acc.find('.has-tooltip').tooltip();
+                        /*
+                            .off('change')
+                            .on('change', $.proxy(self._clickFilterMenu, self))
+                            .find('.has-tooltip').tooltip({ direction: 'left' });
+                            */
+                        if (selection && selection.length && column.filter.collection) {
+                            var col = column.filter.collection,
+                                attrs = column.filter.attributes;
+                            self._forEach(selection, function (id) {
+                                var item = col.get(id),
+                                    text = item.get(attrs.text),
+                                    val = item.get(attrs.value),
+                                    title = attrs.title ? item.get(attrs.title) : '',
+                                    $obj;
 
-        _createFilterMenu: function (column) {
-            var iconClass = this._filter[column.filter.property] ? 'active' : '',
-                html;
-
-            html = '<div id="' + column.property + '_filter_toggle" class="filter-button dropdown-button" ';
-            html += 'data-menu="' + column.property + '_selection">';
-            html += '<i class="fa fa-filter ' + iconClass + '"></i></div>';
-            
-            var $obj;
-            
-            if ($('#' + column.property + '_selection').length) {
-                $obj = $(html);
-                $obj.addClass('dropdown-active');
-            } else {
-                html += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-button="' + column.property + '_filter_toggle">';
-                html += '<div class="dropdown-option has-tooltip filter-all" data-value="all"><span class="icon-checkbox checked" />Show All</div>';
-                if (column.filter.collection) {
-                    var col = column.filter.collection,
-                        attrs = column.filter.attributes;
-                    col.each(function (item) {
-                        var text = item.get(attrs.text),
-                            val = item.get(attrs.value),
-                            title = attrs.title ? item.get(attrs.title) : '';
-                        html += '<div class="dropdown-option has-tooltip " title="' + title + '" data-value="' + val + '">';
-                        html += '<span class="icon-checkbox"></span>';
-                        html += text + '</div>';
-                    });
+                                $obj = $('<div class="btn has-tooltip active" title="' + title + '" data-value="' + val + '">' + text + '</div>');
+                                $obj.data('btn', $menu.find('[data-value="' + val + '"]'));
+                                $menu.find('.filter-output').append($obj);
+                            });
+                        }
+                        $acc.find('.accordion-body .btn').on('click', $.proxy(self._clickFilterMenu, self));
+                    }
                 }
-                html += '</div>';
-                $obj = $(html);
+            });
+        },
+
+        _createFilterMenu: function (column, expand) {
+            var iconClass = this._filter[column.filter.property] ? 'active' : '',
+                btnhtml, objhtml;
+
+            if (expand) {
+                btnhtml = '<div class="accordion-toggle">';
+            } else {
+                btnhtml = '<div id="' + column.property + '_filter_toggle" class="';
+                btnhtml += 'filter-button dropdown-button" ';
+                btnhtml += 'data-menu="' + column.property + '_selection">';
             }
 
-            $obj.data('property', column.filter.property);
+            if (expand) {
+                btnhtml += '<div class="filter-output"></div><em class="closed">+ Add filter</em><em class="open">Done</em>';
+            } else {
+                btnhtml += '<i class="fa fa-filter ' + iconClass + '"></i>';
+            }
+            btnhtml += '</div>';
+            
+            var $obj, itemclass;
+            
+            if ($('body > #' + column.property + '_selection.showing').length) {
+                if (expand) {
+                    // the dropdown is showing, but we want to draw the accordion style menu, so we have to MURDER IT
+                    $('body > #' + column.property + '_selection.showing').remove();
+                } else {
+                    $obj = $(btnhtml);
+                    $obj.addClass('dropdown-active');
+                    return $obj; // the menu is already drawn, so let's get out of here
+                }
+            } 
+            
+            objhtml = '';
+            if (expand) {
+                objhtml += '<div class="accordion-body"><div class="filter-menu" data-property="' + column.filter.property + '">';
+                itemclass = 'btn has-tooltip';
+            } else {
+                objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-property="' + column.filter.property + '" data-button="' + column.property + '_filter_toggle">';
+                itemclass = 'dropdown-option has-tooltip';
+            }
+            
+            objhtml += '<div class="' + itemclass + ' filter-all checked" data-value="all">';
+            if (expand) {
+                objhtml += 'Clear Filter';
+            } else {
+                objhtml += '<i class="fa fa-check-circle-o"></i> Show All';
+            }
+            objhtml += '</div>';
+            
+            if (column.filter.collection) {
+                var col = column.filter.collection,
+                    attrs = column.filter.attributes;
+                col.each(function (item) {
+                    var text = item.get(attrs.text),
+                        val = item.get(attrs.value),
+                        title = attrs.title ? item.get(attrs.title) : '';
+                    objhtml += '<div class="' + itemclass + '" title="' + title + '" data-value="' + val + '">';
+                    if (!expand) {
+                        objhtml += '<i class="fa fa-circle-o"></i> ';
+                    }
+                    objhtml += text + '</div>';
+                });
+            }
+            if (expand) {
+                objhtml += '<div class="accordion-toggle"><i class="fa fa-caret-up"></i></div>';
+            }
+            objhtml += '</div></div>';
+            $obj = $(btnhtml + objhtml);
+            
+            if (this._filter && this._filter[column.filter.property]) {
+                this._uncheckOption($obj.find('.filter-all'));
+                var self = this;
+                _.each(this._filter[column.filter.property], function (id) {
+                    self._checkOption($obj.find('[data-value="' + id + '"]'));
+                });
+            }
+
+            if (expand) {
+                $obj.on('click', '.filter-output .btn', $.proxy(this._clickFilterOutput, this));
+            }
 
             return $obj;
         },
-        _clickFilterMenu: function (e, option) {
+        _checkOption: function ($option) {
+            $option.addClass('checked').find('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+        },
+        _uncheckOption: function ($option) {
+            $option.removeClass('checked').find('i').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+        },
+        _clickFilterDropdown: function (e, option) {
             var $option = $(option), //$(e.currentTarget),
-                checked = $option.find('.icon-checkbox').hasClass('checked'),
+                checked = $option.hasClass('checked'),
                 value = $option.data('value'),
                 $menu = $option.parent(),
                 prop = $menu.data('property'),
                 self = this;
             
             if (checked) {
-                $option.find('.icon-checkbox').removeClass('checked');
-                if ($menu.find('.icon-checkbox.checked').length === 0) {
-                    $menu.find('.filter-all .icon-checkbox').addClass('checked');
+                this._uncheckOption($option);
+                if ($menu.find('.checked').length === 0) {
+                    this._checkOption($menu.find('.filter-all'));
                 }
             } else {
                 if (value === 'all') {
-                    $menu.find('.dropdown-option .icon-checkbox').removeClass('checked');
+                    this._uncheckOption($menu.find('.dropdown-option .icon-checkbox'));
                 } else {
-                    $menu.find('.filter-all .icon-checkbox').removeClass('checked');
+                    this._uncheckOption($menu.find('.filter-all'));
                 }
-                $option.find('.icon-checkbox').addClass('checked');
+                this._checkOption($option);
             }
 
-            if ($menu.find('.filter-all .icon-checkbox').hasClass('checked')) {
+            if ($menu.find('.filter-all').hasClass('checked')) {
                 this._filter[prop] = false;
             } else {
                 this._filter[prop] = [];
-                $menu.find('.icon-checkbox.checked').each(function () {
-                    self._filter[prop].push($(this).parent().data('value'));
+                $menu.find('.checked').each(function () {
+                    self._filter[prop].push($(this).data('value'));
                 });
             }
+
+            this.$container.trigger('filter.dynamictable', self._filter);
 
             this.reload();
 
             e.stopPropagation();
             return false;
+        },
+        _clickFilterMenu: function (e) {
+            var $btn = $(e.currentTarget),
+                $accordion = $btn.closest('.accordion'),
+                $output = $accordion.find('.accordion-toggle .filter-output'),
+                active = $btn.hasClass('active'),
+                value = $btn.data('value'),
+                prop = $btn.parent().data('property'),
+                self = this;
+
+            if (value === 'all') {
+                $output.find('.btn').remove();
+                $btn.parent().find('.btn').removeClass('active');
+                this._filter[prop] = [];
+            } else {
+                if (active) {
+                    $output.find('[data-value=' + value + ']').remove();
+                    $btn.removeClass('active');
+                } else {
+                    $btn.addClass('active');
+                    $output.append($btn.clone().data('btn', $btn));
+                }
+                this._filter[prop] = [];
+                $btn.parent().find('.btn.active').each(function () {
+                    self._filter[prop].push($(this).data('value'));
+                });
+            }
+            
+            this.$container.trigger('filter.dynamictable', self._filter);
+        },
+        _clickFilterOutput: function (e) {
+            var $btn = $(e.currentTarget).data('btn');
+            $btn.click();
+            e.stopPropagation();
+        },
+
+        clearFilters: function () {
+            var self = this;
+            this._filter = {};
+            this._forEach(this.columns, function(column) {
+                if (column.filter) {
+                    if (column.filter.view) {
+                        column.filter.view.clearFilter();
+                    } else {
+                        // if there's a filter menu screen somewhere
+                        if (self.$filterMenuContainer) {
+                            // find this column's menu
+                            var $menu = self.$filterMenuContainer.find('[data-property="' + column.filter.property + '"]');
+                            // remove all active buttons
+                            $menu.find('.btn').removeClass('active');
+                            // remove selection from the output
+                            $menu.closest('.accordion').find('.accordion-toggle .filter-output .btn').remove();
+                            // make sure the accordion is closed
+                            $menu.closest('.accordion.open').find('.open').click();
+                        }
+                    }
+                }
+            });
         },
 
         _tableBody: function() {
@@ -477,62 +694,64 @@ define(['jquery', 'backbone', 'underscore'],
                 var tr = self._createRow();
 
                 self._forEach(self.columns, function(column) {
-                    var td = self._createCell(),
-                        text,
-                        className,
-                        colObj;
+                    if (!column.hide) {
+                        var td = self._createCell(),
+                            text,
+                            className,
+                            colObj;
 
-                    if (typeof(column) === "string") {
-                        colObj = {property: column};
-                    } else {
-                        colObj = column;
-                    }
-                    
-                    if (typeof(colObj.property) === "function") {
-                        text = colObj.property(row, data);
-                    } else {
-                        if (row[colObj.property]) {
-                            text = typeof(row[colObj.property]) === "function" ? row[colObj.property](row, data) : row[colObj.property];
-                        } else if (row.get) { //it's a backbone model and we're getting an attribute
-                            text = row.get(colObj.property);
-                        } else { //umm . . .
-                            console.warn("Couldn't find " + colObj.property + " on row " + ri);
+                        if (typeof(column) === "string") {
+                            colObj = {property: column};
+                        } else {
+                            colObj = column;
                         }
-                        className = colObj.property.toLowerCase();
-                    }
-
-                    if (colObj.className) {
-                        className = colObj.className;
-                    }
-
-                    //try to parse some common data types
-                    if (Date.parse(text) && String(text).length > 10) {
-                        var date = new Date(text),
-                            h = date.getHours(),
-                            ampm = "AM",
-                            m = date.getMinutes();
-
-                        text = (date.getMonth() + 1) + "/" + (date.getDate()) + "/" + date.getFullYear();
                         
-                        if (h > 0 || m > 0) {
-                            if (h >= 12) {
-                                ampm = "PM";
+                        if (typeof(colObj.property) === "function") {
+                            text = colObj.property(row, data);
+                        } else {
+                            if (row[colObj.property]) {
+                                text = typeof(row[colObj.property]) === "function" ? row[colObj.property](row, data) : row[colObj.property];
+                            } else if (row.get) { //it's a backbone model and we're getting an attribute
+                                text = row.get(colObj.property);
+                            } else { //umm . . .
+                                console.warn("Couldn't find " + colObj.property + " on row " + ri);
                             }
-                            if (h === 0) {
-                                h = 12;
-                            } else if (h > 12) {
-                                h -= 12;
-                            }
-                            if (m < 10) {
-                                m = "0" + m;
-                            }
-                            text += " at " + h + ":" + m + " " + ampm;
+                            className = colObj.property.toLowerCase();
                         }
-                    }
 
-                    td.append(text).addClass(className);
-                    tr.append(td);
-                });
+                        if (colObj.className) {
+                            className = colObj.className;
+                        }
+
+                        //try to parse some common data types
+                        if (Date.parse(text) && String(text).length > 10) {
+                            var date = new Date(text),
+                                h = date.getHours(),
+                                ampm = "AM",
+                                m = date.getMinutes();
+
+                            text = (date.getMonth() + 1) + "/" + (date.getDate()) + "/" + date.getFullYear();
+                            
+                            if (h > 0 || m > 0) {
+                                if (h >= 12) {
+                                    ampm = "PM";
+                                }
+                                if (h === 0) {
+                                    h = 12;
+                                } else if (h > 12) {
+                                    h -= 12;
+                                }
+                                if (m < 10) {
+                                    m = "0" + m;
+                                }
+                                text += " at " + h + ":" + m + " " + ampm;
+                            }
+                        }
+
+                        td.append(text).addClass(className);
+                        tr.append(td);
+                    } // end of if !column.hide
+                }); //end of foreach column
                 if (row.id) {
                     tr.attr("id", self.options.idPrefix + row.id);
                 }
@@ -727,11 +946,20 @@ define(['jquery', 'backbone', 'underscore'],
 
         getFilter: function () {
             return this._filter;
+        },
+        filterCount: function () {
+            var cnt = 0;
+            for (var key in this._filter) {
+                if (this._filter[key].length !== undefined) {
+                    cnt += this._filter[key].length;
+                }
+            }
+            return cnt;
         }
 
     };
 
-    $.fn.dynamictable = function(option) {
+    $.fn.dynamictable = function(option, param) {
         var ret;
         this.each(function() {
             var $this = $(this);
@@ -741,8 +969,8 @@ define(['jquery', 'backbone', 'underscore'],
             if (!data) {
                 $this.data('dynamictable', (data= new DynamicTable(this, options)));
             }
-            if (typeof option === 'string') {
-                ret = data[option]();
+            if (typeof option === 'string' && typeof(data[option]) === 'function') {
+                ret = data[option](param);
             } else if (!option) { //just call .dynamictable() on something to expose all of these methods and whatnot
                 ret = data;
             }
@@ -761,7 +989,9 @@ define(['jquery', 'backbone', 'underscore'],
         dataType: "array",
         paginate: true,
         maxWidth: 50,
-        idPrefix: 'row'
+        idPrefix: 'row',
+        item: 'item',
+        items: 'items'
     };
 
     $.fn.dynamictable.Constructor = DynamicTable;

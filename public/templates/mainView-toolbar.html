@@ -1,14 +1,23 @@
 <div id="<%= id %>" class="section">
     <a href="/<%= key %>" title="<%= title %>" class="btn has-tooltip">
         <i class="fa <%= icon %>"></i>
+        <% if (title) { %>
+        <span><%= title %></span>
+        <% } %>
     </a>
+    <% if (title) { %>
     <div class="sub inner-shadow1">
         <span><%= title %></span>
-        <% if (tools.length === 0) { %>
+        <% if (!tools || tools.length === 0) { %>
             <span class="spacer"></span>
-        <% } %>
+        <% } else { %>
         <% _.each(tools, function (tool) { %>
-            <div class="btn has-tooltip" title="<%= tool.title %>" id="<%= tool.id %>"><i class="fa <%= tool.icon %>"></i></div>
+            <div class="btn has-tooltip" title="<%= tool.title %>" id="<%= tool.id %>">
+                <i class="fa <%= tool.icon %>"></i>
+                <span><%= tool.title %></span>
+            </div>
         <% }) %>
+        <% } %>
     </div>
+    <% } %>
 </div>

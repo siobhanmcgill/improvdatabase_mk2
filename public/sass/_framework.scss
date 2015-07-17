@@ -89,6 +89,42 @@ strong {font-weight: bold}
         overflow: visible;
     }
 
+.accordion {
+    .accordion-toggle {
+        cursor: pointer;
+
+        .open {
+            display: none;
+        }
+        .closed {
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+    .accordion-body {
+        display: none;
+        overflow: hidden;
+
+        &.ready {
+            @include transition(height 500ms);
+        }
+        .accordion-toggle {
+            text-align: center;
+            padding: 5px 0;
+        }
+    }
+    &.open {
+        .accordion-toggle {
+            .open {
+                display: inline;
+            }
+            .closed {
+                display: none;
+            }
+        }
+    }
+}
+
 .blue {color: #0066FF}
 .drawer {
     position: relative;
@@ -417,6 +453,10 @@ table th.sortable {
         height: 18px;
         width: 18px;
         cursor: pointer;
+
+        &.active {
+            background-color: $color-active;
+        }
     }
 
 
@@ -442,6 +482,10 @@ table th.sortable {
             height: 100%;
             max-width: 40%;
             overflow: hidden;
+
+            @media #{$media-mobile} {
+                max-width: none;
+            }
         }
             .dt-table-head .dt-row > .dt-cell {
                 border-width: 2px 1px 2px 0;

@@ -3,16 +3,16 @@
 
 body {
     font-family: 'Arial', 'Helvetica';
-    background: #6699FF;
+    background: $color-secondary;
     overflow: hidden;
-    color: #555;
+    color: $color-text;
 }
 
 a {
-    color: #6699FF;
+    color: $color-primary;
 }
 a:visited {
-    color: #6699ff;
+    color: $color-primary;
 }
 
 .modal {
@@ -20,7 +20,7 @@ a:visited {
     top: 33%;
     left: 50%;
     padding: 20px;
-    border: 5px solid #666;
+    border: 5px solid $color-text;
     box-sizing: border-box;
 }
 
@@ -30,16 +30,16 @@ a:visited {
     padding: 10px 20px;
     margin-left: -250px;
     margin-top: -75px;
-    color: #666;
+    color: $color-text;
 
     .loader-bar {
         width: 100%;
         height: 20px;
         margin: 0px auto 5px;
-        border: 1px solid #666;
+        border: 1px solid $color-text;
         
         .bar {
-            background: #6699FF;
+            background: $color-primary;
             height: 100%;
             width: 0%;
 
@@ -73,13 +73,19 @@ a:visited {
 .tag {
     float: left;
     padding: 3px 5px;
-    background: #6699FF;
+    background: $color-primary;
     color: #FFF;
     margin: 3px 3px 3px 0;
     border-radius: 4px;
     font-size: 14px;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+    text-shadow: -1px -1px 0px rgba(0,0,0,0.3);
     box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+
+    &.active {
+        box-shadow: 1px 1px 1px rgba(0,0,0,0.5) inset;
+        text-shadow: none;
+        color: $color-secondary;
+    }
 }
 
 .dropdown-button {
@@ -93,7 +99,7 @@ a:visited {
 }
 .dropdown {
     background: rgba(255,255,255,0.9);
-    //border: 1px solid #555;
+    //border: 1px solid $color-text;
     //border-top: 0px;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -117,7 +123,7 @@ a:visited {
 }
 
 #views {
-    /*background: #6699FF;*/
+    /*background: $color-primary;*/
     position: absolute;
     top: 0;
     left: 0;
@@ -149,7 +155,7 @@ a:visited {
 }
     
 body > h1 {
-    color: #FFF;
+    color: rgba(0,0,0,0.4);
     font-size: 20px;
     font-weight: bold;
     position: relative;
@@ -168,7 +174,10 @@ body > h1 {
 
 .pod {
     background: rgba(255,255,255,0.6);
-    /*box-shadow: 2px 2px 2px rgba(0,0,0,0.2);*/
+
+    @media #{$media-mobile} {
+        background: rgba(255,255,255,0.8);
+    }
 }
 
 nav {
@@ -207,27 +216,92 @@ nav {
                 top: 0px;
             }
         }
+
+        @media #{$media-mobile} {
+            width: 100%;
+            left: 0;
+            height: 40px;
+
+            &.active {
+                height: auto;
+                z-index: 2000;
+            }
+
+            .pod {
+                width: 80%;
+                overflow: visible;
+                bottom: 0;
+                height: auto;
+                left: 100%;
+                @include transition(left 500ms, top 500ms);
+
+                > i {
+                    position: relative;
+                    left: -40px;
+                    margin-left: 2%;
+                    @include transition(left 500ms);
+                }
+
+                &.active {
+                    left: 20%;
+
+                    > i {
+                        left: 0;
+                    }
+                }
+            }
+        }
     }
 }
 
 #toolbar {
+    @media #{$media-mobile} {
+        height: 100%;
+    }
+
     .section {
         float: left;
+
+        @media #{$media-mobile} {
+            float: none;
+            width: 100%;
+        }
 
         & > .btn {
             min-width: 38px;
             height: 38px;
             padding: 0px;
             border: 0px;
+            border-radius: 0px;
             line-height: normal;
             float: left;
-            color: #444;
+            color: $color-text;
+            text-decoration: none;
 
             background: rgba(0,0,0,0);
             @include transition(background-color 500ms, color 500ms);
 
             &:hover {
                 background: none;
+            }
+
+            span {
+                display: none;
+            }
+
+            @media #{$media-mobile} {
+                text-align: left;
+                float: none;
+                display: block;
+                width: 100%;
+                padding: 0 2%;
+                @include border-box;
+
+                span {
+                    display: inline-block;
+                    font-size: 0.8em;
+                    font-weight: bold;
+                }
             }
         }            
         
@@ -243,9 +317,15 @@ nav {
             white-space: nowrap;
             float: left;
             @include box-sizing;
-            background: rgba(0,0,0,0.3);
+            background: $color-active;
 
-            span {
+            @media #{$media-mobile} {
+                float: none;
+                height: 0;
+                width: 100%;
+            }
+
+            & > span {
                 font-size: 12px;
                 width: 55px;
                 text-align: left;
@@ -253,7 +333,11 @@ nav {
                 vertical-align: middle;
                 margin: 0 5px;
                 white-space: normal;
-                color: #FFF;
+                color: $color-active-text;
+
+                @media #{$media-mobile} {
+                    display: none;
+                }
             }
             .spacer {
                 height: 38px;
@@ -265,20 +349,45 @@ nav {
                 height: 38px;
                 line-height: 38px;
                 line-height: normal;
-                border-left: 1px solid rgba(0,0,0,0.4);
+                border-left: 1px solid $color-text;
+                border-width: 0 0 0 1px;
+                border-radius: 0;
                 display: inline-block;
                 vertical-align: middle;
-                color: #FFF;
+                color: $color-active-text;
                 margin-left: -5px;
+                padding: 0 4px;
                 
                 &:hover {
-                    background: rgba(0,0,0,0.3);
+                    background: $color-hover;
                 }
                 &:last-child {
                     margin-right: 0px;
                 }
                 &.active {
-                    background: rgba(255,255,255,0.4);
+                    background: $color-active;
+                }
+
+                span {
+                    display: none;
+                }
+
+                @media #{$media-mobile} {
+                    padding-left: 2%;
+                    display: block;
+                    text-align: left;
+
+                    span {
+                        display: block;
+                        font-size: 0.5em;
+                        font-weight: bold;
+                        position:absolute;
+                        left: 40px;
+                        margin-left: 2%;
+                        right:0;
+                        top: 0px;
+                        line-height: 40px;
+                    }
                 }
             }
         }
@@ -286,20 +395,93 @@ nav {
         &.active {
 
             & > .btn {
-                color: #FFF;
-                background: rgba(0,0,0,0.3);
+                color: $color-active-text;
+                background: $color-active;
             }
             .sub {
                 width: auto;
-                border-left: 2px solid rgba(0,0,0,0.5);
-                border-right: 2px solid rgba(0,0,0,0.5);
+                border-left: 2px solid $color-text;
+                border-right: 2px solid $color-text;
+
+                @media #{$media-mobile} {
+                    display: block;
+                    border: 0px;
+                    height: auto;
+                }
             }
         }
     }
     &.ready .section {
         .sub {
             @include transition(width 500ms);
+
+            @media #{$media-mobile} {
+                @include transition(height 500ms);
+            }
         }
+    }
+}
+
+@media #{$media-mobile} {
+    #topnav {
+        width: 80%;
+        bottom: 0px;
+        right: 100%;
+        @include transition(right 500ms);
+
+        #toolbar {
+            overflow: visible;
+            @include transition(overflow 2s);
+            transition-delay: 2s;
+
+            .showMenu {
+                position: relative;
+                left: 40px;
+                margin-left: 2%;
+                @include transition(left 500ms, margin-left 500ms);
+
+                a {
+                    text-align: right;
+
+                    i {
+                        @include transition(transform 500ms);
+                    }
+                }
+            }
+
+            .fullscreen {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 38px;
+                z-index: 5;
+            }
+        }
+
+        &.show {
+            right: 20%;
+
+            #toolbar {
+                overflow: auto;
+
+                .showMenu {
+                    left: 0;
+                    margin-left: 0;
+
+                    i {
+                        transform: rotateZ(90deg);
+                    }
+                }
+            }
+        }
+    }
+    #topnavShade {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9;
     }
 }
 
@@ -373,7 +555,7 @@ nav {
     line-height: 100px;
 }
 
-#paging {
+#views nav #paging {
     overflow: hidden;
     position: relative;
 
@@ -385,11 +567,11 @@ nav {
         right: 0px;
 
         div {
-            background: rgba(0,0,0,0.3);
+            background: $color-active;
             position: absolute;
             top: 0px;
             bottom: 0px;
-            color: #FFF;
+            color: $color-active-text;
             text-align: center;
 
             @include transition(left 500ms, right 500ms);
@@ -397,7 +579,7 @@ nav {
             .page {
                 display: block;
                 line-height: 19px;
-                border-bottom: 1px solid #FFF;
+                border-bottom: 1px solid $color-active-text;
                 margin: 0 7%;
             }
             .total {
@@ -406,24 +588,41 @@ nav {
             }
         }
     }
+
+    @media #{$media-mobile} {
+        position: absolute;
+        top: 0;
+        left: 45px;
+        right: 45px;
+        width: auto;
+        background: none;
+        border: 0;
+        text-align: center;
+        
+        span {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            z-index: 2;
+        }
+        .heightener {
+            height: 100%;
+        }
+    }
 }
 
 .btn {
-    height: 40px;
-    font-size: 30px;
-    line-height: 40px;
+    height: 38px;
+    font-size: 25px;
+    line-height: 38px;
     text-align: center;
-    
-    /*
-    border-width: 1px;
-    border-color: #999 #444 #444 #999;
-    border-style: solid;
-    */
+    border: 1px solid $color-primary;
+    border-radius: 20px;
 
     position: relative;
-    color: #444;
+    color: $color-primary;
     cursor: pointer;
-    padding: 0 4px;
+    padding: 0 10px;
 
     .on {
         display: none;
@@ -441,9 +640,9 @@ nav {
 
     &:hover {
         background: #FFF;
-        color: #666;
-        /*border-color: #999 #444 #444 #999;*/
-        border-color: #444 #999 #999 #444;
+        color: $color-text;
+        border-color: $color-text;
+        box-shadow: 1px 2px 0 $color-primary;
     }
 
     &.wait {
@@ -468,21 +667,24 @@ nav {
     width: 100%;
     font-style: italic;
     box-sizing: border-box;
-    color: #555;
+    color: $color-text;
 
     @include input-placeholder {
-        color: #555;
+        color: $color-text;
     }
 }
 
 #tags_filter {
     padding: 10px;
     @include border-radius(10px 0 10px 10px);
-    #tagOutput > .fa {
-        float: left;
-        font-size: 20px;
-        line-height: 30px;
-        margin-right: 5px;
+    #tagOutput {
+        display: none;
+        & > .fa {
+            float: left;
+            font-size: 20px;
+            line-height: 30px;
+            margin-right: 5px;
+        }
     }
     input {
         @include border-box;
@@ -545,7 +747,7 @@ nav {
             @include border-box;
             background: none;
             font-size: 19px;
-            color: #555;
+            color: $color-text;
         }
     }
     .showGame & {
@@ -573,8 +775,8 @@ nav {
             @include border-radius(3px);
 
             strong {
-                color: #6699FF;
-                @include text-shadow(-1px 1px 0px #555);
+                color: $color-primary;
+                @include text-shadow(-1px 1px 0px $color-text);
             }
             
             &:hover {
@@ -583,8 +785,8 @@ nav {
                 color: #333;
 
                 & > i {
-                    color: #6699FF;
-                    @include text-shadow(-1px 1px 0px #555);
+                    color: $color-primary;
+                    @include text-shadow(-1px 1px 0px $color-text);
                 }
             }
         }
@@ -606,7 +808,21 @@ nav {
             @include transition(opacity 500ms);
         }
     }
-}
+
+    @media #{$media-mobile} {
+        & > i {
+            float: left;
+        }
+
+        .results {
+            position: absolute;
+            top: 38px;
+            bottom: 0;
+            overflow: auto;
+            padding-top: 0px;
+        }
+    }
+} // end of gameSearch
 
     #gameBox {
         position: absolute;
@@ -619,6 +835,10 @@ nav {
         z-index: 1;
 
         @include transition(top 500ms, height 500ms 500ms, opacity 500ms);
+
+        @media #{$media-mobile} {
+            opacity: 1;
+        }
         
         .showGame & {
             opacity: 1;
@@ -657,7 +877,11 @@ nav {
 
                 -webkit-transition: opacity 500ms;
                 transition: opacity 500ms;
-
+                
+                @media #{$media-mobile} {
+                    opacity: 1;
+                    margin-bottom: 0;
+                }
                 .showGame & {
                     opacity: 1;
                 }
@@ -685,6 +909,10 @@ nav {
                 overflow: auto;
                 padding: 20px 10px 10px;
             }
+
+            @media #{$media-mobile} {
+                padding: 1px 0 0 0;
+            }
         }
 
         .altNameLink {
@@ -697,7 +925,7 @@ nav {
             display: none;
             margin: -10px 10px 10px;
             padding: 10px;
-            border: 2px solid #666;
+            border: 2px solid $color-text;
             border-radius: 5px;
             position: relative;
 
@@ -707,7 +935,7 @@ nav {
                 text-decoration: none;
                 font-size: 1.75em;
                 right: 5px;
-                color: #666;
+                color: $color-text;
             }
             label {
                 margin: 0;
@@ -735,7 +963,7 @@ nav {
                 cursor: default;
 
                 &:hover {
-                    color: #555;
+                    color: $color-text;
                     text-shadow: none;
                 }
             }
@@ -766,7 +994,7 @@ nav {
         textarea,
         .content .dropdown-button {
             background: transparent;
-            border: 1px solid #555;
+            border: 1px solid $color-text;
             width: 100%;
             font-size: 20px;
             line-height: 24px;
@@ -885,6 +1113,22 @@ nav {
             @include transition(opacity 200ms);
             z-index: 5;
             display: none;
+
+            @media #{$media-mobile} {
+                position: absolute;
+                top: 0;
+                right: 0;
+                display: block;
+                height: 40px;
+                line-height: 40px;
+                box-shadow: none;
+                background: none;
+                width: 40px;
+
+                i {
+                    @include transform(rotateZ(90deg));
+                }
+            }
         }
         &.open > .close {
             display: block;
@@ -907,7 +1151,7 @@ nav {
     textarea,
     .content .dropdown-button {
         background: transparent;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         width: 100%;
         font-size: 20px;
         line-height: 24px;
@@ -930,6 +1174,7 @@ nav {
     right: 0;
     border: solid #000;
     border-width: 0 1px 1px 0;
+    z-index: 0;
 
     -webkit-transition: right 500ms;
     transition: right 500ms;
@@ -937,6 +1182,10 @@ nav {
     .showGame &,
     .showSearch & {
         right: 33.3333%;
+    }
+
+    &.intoggle {
+        z-index: 2;
     }
 
     .dt-table-head .dt-row > .dt-cell {
@@ -965,13 +1214,16 @@ nav {
         cursor: pointer;
     }
         
-    .dt-table .dt-hover,
-    .dt-table .dt-row.active {
-        background: rgba(255,255,255,0.8);
+    .dt-table .dt-hover {
+        background: $color-hover;
+
+        .dt-cell, .dt-cell a {
+            color: black;
+        }
     }
-    .dt-row:hover .dt-cell,
-    .dt-row:hover .dt-cell a {
-        color: #000;
+
+    .dt-table .dt-row.active {
+        background: $color-active; //rgba(255,255,255,0.8);
     }
 
     .dt-header {
@@ -981,7 +1233,7 @@ nav {
             content: "";
             display: block;
             border-width: 4px;
-            border-color: transparent transparent transparent rgba(0,0,0,0.5);
+            border-color: transparent transparent transparent $color-text;
             border-style: solid;
             position: absolute;
             top: 13px;
@@ -1001,12 +1253,22 @@ nav {
             -webkit-transform: rotateZ(90deg);
             transform: rotateZ(90deg);
         }
+
+        .filter-status {
+            font-size: 0.75em;
+            opacity: 0.75;
+            margin-left: 5px;
+        }
     }
 
     .filter-button {
         width: auto;
         height: auto;
         margin-top: -10px;
+
+        .active {
+            text-shadow: 1px 1px 2px $color-primary;
+        }
     }
     .dropdown-button {
         width: 20px;
@@ -1020,12 +1282,111 @@ nav {
     }
 } /* end of #gameTable */
 
+/* Game Filter Screen */
+.game-filters .text-content-page {
+    label {
+        display: block;
+        font-size: 1.5em;
+    }
+    .filter-selections {
+        margin: 5px 10px 20px;
+
+        .filter-button {
+            cursor: pointer;
+            display: inline-block;
+        }
+        .accordion-toggle {
+            font-size: 18px;
+
+            span {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            @media #{$media-mobile} {
+                font-size: 20px;
+                line-height: 25px;
+            }
+        }
+        .filter-output {
+            display: inline-block;
+            vertical-align: middle;
+
+            .btn {
+                display: inline-block;
+                line-height: normal;
+                height: auto;
+                margin: 0 10px 5px 0;
+                border-radius: 3px;
+                border-color: $color-text;
+                color: $color-text;
+
+                @media #{$media-mobile} {
+                    line-height: 35px;
+                }
+            }
+        }
+        .filter-menu {
+            margin-top: 5px;
+
+            .btn {
+                text-align: left;
+                margin: 0 2% 2% 0;
+                border-radius: 3px;
+                display: inline-block;
+
+                &.active {
+                    background: $color-primary;
+                    box-shadow: 1px 1px 1px rgba(0,0,0,0.3) inset;
+                    border-color: $color-text;
+                    color: $color-secondary;
+                }
+            }
+        }
+    }
+    #tags_filter {
+        padding: 0px;
+
+        #tagOutput > .fa {
+            display: none;
+        }
+
+        .accordion-toggle {
+            .filter-output {
+                margin: -4px -5px 0 0;
+            }
+
+            @media #{$media-mobile} {
+                .tag {
+                    font-size: 20px;
+                    line-height: 25px;
+                }
+            }
+        }
+    }
+
+    .btn-clear {
+        float: left;
+        display: none;
+
+        @media #{$media-mobile} {
+            float: right;
+            margin: 10px 0 20px 0;
+        }
+    }
+}
+
 .text-content-page-wrapper {
     position: absolute;
     top: 40px;
     bottom: 0;
     left: 0;
     right: 0;
+    z-index: 0;
+
+    &.intoggle {
+        z-index: 2;
+    }
     
     .text-content-page {
         max-width: 700px;
@@ -1035,19 +1396,37 @@ nav {
         border: 2px solid #000;
         padding: 1%;
         overflow: auto;
+        position: relative;
+
+        & > .close {
+            position: absolute;
+            top: 0px;
+            right: 7px;
+            font-size: 35px;
+            cursor: pointer;
+        }
 
         h2 {
             font-size: 2em;
             font-weight: bold;
+            margin: 0 0 2% 0;
         }
         h3 {
             font-size: 1.2em;
             margin-bottom: 1em;
             font-weight: bold;
         }
-        p, ul {
+        p, ul, ol {
             margin-bottom: 1em;
             line-height: 1.1;
+        }
+        ol {
+            list-style-type: decimal;
+            padding-left: 30px;
+
+            li {
+                margin-bottom: 7px;
+            }
         }
         .creative-commons {
             margin: 50px auto 20px;
@@ -1120,8 +1499,8 @@ nav {
     }
     select {
         background: none;
-        border: 1px solid #555;
-        color: #555;
+        border: 1px solid $color-text;
+        color: $color-text;
         font-family: courier new;
         font-size: 0.9em;
 
@@ -1133,7 +1512,7 @@ nav {
         background: none;
         font-family: Courier new;
         font-size: 0.9em;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         border-width: 0 0 1px 0;
         width: 300px;
         padding: 4px;
@@ -1145,7 +1524,7 @@ nav {
     }
     textarea {
         background: none;
-        border: 1px solid #555;
+        border: 1px solid $color-text;
         font-family: Courier new;
         font-size: 0.9em;
         color: #333;
@@ -1169,8 +1548,11 @@ nav {
     .btn {
         margin: 30px auto 0;
         display: block;
-        border: 1px solid #555;
         background: none;
+
+        &:hover {
+            background: #FFF;
+        }
     }
     &.shake {
         @include animation(shake 300ms both);

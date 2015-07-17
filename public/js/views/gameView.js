@@ -4,7 +4,6 @@ define(['jquery',
         'moment',
 
         'deny',
-        'dynamictable',
 
         'text!templates/gameView.html',
 
@@ -15,7 +14,7 @@ define(['jquery',
         'models/name',
         'models/note'
         ],
-    function($, _, Backbone, moment, deny, DynamicTable, GameViewTemplate, DropdownView, TagInputView, Game, Name, Note) {
+    function($, _, Backbone, moment, deny, GameViewTemplate, DropdownView, TagInputView, Game, Name, Note) {
         return Backbone.View.extend({
             events: {
                 "click #saveItUp" : "doSave",
@@ -390,15 +389,23 @@ define(['jquery',
             },
 
             hide: function() {
-                this.$el.parent().removeAttr("style").css("overflow", "hidden").removeClass('scrollContent');
-                this.$el.parent().find("#btnAddGame").removeClass("active");
                 var self = this;
-
-                this.hideTimer = setTimeout(function() {
-                    self.$el.parent().removeClass("open");
-                    self.destroy();
+                if (this.router.device === 'mobile') {
+                    this.$el.parent().removeClass('scrollContent');
                     Backbone.trigger("hide-game");
-                }, 500);
+                    setTimeout(function () {
+                        self.destroy();
+                    }, 500);
+                } else {
+                    this.$el.parent().removeAttr("style").css("overflow", "hidden").removeClass('scrollContent');
+                    this.$el.parent().find("#btnAddGame").removeClass("active");
+
+                    this.hideTimer = setTimeout(function() {
+                        self.$el.parent().removeClass("open");
+                        self.destroy();
+                        Backbone.trigger("hide-game");
+                    }, 500);
+                }
             },
             destroy: function () {
                 this.undelegateEvents();
@@ -411,7 +418,15 @@ define(['jquery',
             titleSize: function (count) {
                 count = count || 1;
 
-                this.$el.children('h5').css('width', (this.$el.parent().width() - this.$el.parent().find('#btnAddGame').outerWidth() - 20) + 'px');
+                var h5width;
+
+                if (this.router.device === 'mobile') {
+                    h5width = this.$el.parent().width() - this.$el.parent().children('.close').outerWidth() - 20;
+                } else {
+                    h5width = this.$el.parent().width() - this.$el.parent().find('#btnAddGame').outerWidth() - 20;
+                }
+
+                this.$el.children('h5').css('width', (h5width) + 'px');
 
                 if (count > 50) {
                     return false;
@@ -438,27 +453,32 @@ define(['jquery',
                 // fit the title into the space
                 this.titleSize();
 
-                var self = this;
-                this.$el.parent().removeClass('scrollContent');
-                var h = this.$el.outerHeight();
-                if (h > $(window).height()) {
-                    h = $(window).height();
-                }
-                this.$el.parent().css("overflow", "hidden");
-                setTimeout(function() {
+                if (this.router.device === 'mobile') {
+                    this.$el.parent().addClass('scrollContent');
                     Backbone.trigger("show-game");
-                    self.$el.parent().css("height", h);
-                }, 10);
-
-                var time;
-                if (this.$el.closest('#main').hasClass('showGame')) {
-                    time = 500;
                 } else {
-                    time = 1000;
+                    var self = this;
+                    this.$el.parent().removeClass('scrollContent');
+                    var h = this.$el.outerHeight();
+                    if (h > $(window).height()) {
+                        h = $(window).height();
+                    }
+                    this.$el.parent().css("overflow", "hidden");
+                    setTimeout(function() {
+                        Backbone.trigger("show-game");
+                        self.$el.parent().css("height", h);
+                    }, 10);
+
+                    var time;
+                    if (this.$el.closest('#main').hasClass('showGame')) {
+                        time = 500;
+                    } else {
+                        time = 1000;
+                    }
+                    this.openTimer = setTimeout(function() {
+                        self.$el.parent().addClass("open").addClass('scrollContent');
+                    }, time);
                 }
-                this.openTimer = setTimeout(function() {
-                    self.$el.parent().addClass("open").addClass('scrollContent');
-                }, time);
             },
 
             clearForm: function() {

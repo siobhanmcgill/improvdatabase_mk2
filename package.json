@@ -2,7 +2,7 @@
   "name": "ImprovDatabase",
   "private": true,
   "description": "Improv Comedy Database for the 21st century.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "start": "node app",
     "postinstall": "./node_modules/bower/bin/bower install"
@@ -36,5 +36,15 @@
   },
   "amd": true,
   "devDependencies": {
+    "grunt": "~0.4.5",
+    "karma": "~0.12.31",
+    "karma-chrome-launcher": "~0.1.7",
+    "karma-mocha": "~0.1.10",
+    "karma-requirejs": "~0.2.2",
+    "karma-firefox-launcher": "~0.1.4",
+    "karma-phantomjs-launcher": "~0.1.4",
+    "mocha": "~2.2.1",
+    "chai": "~2.2.0",
+    "karma-chai": "~0.1.0"
   }
 }

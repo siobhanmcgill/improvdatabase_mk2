@@ -23,7 +23,9 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                     this._handleToken();
                     this.refreshToken();
                 }
-
+                
+                this.device = $(window).width() > 700 ? 'full' : 'mobile';
+                
                 this.durations = new DurationCollection(window.database.duration);
                 this.games = new GameCollection(window.database.game);
                 this.groups = new GroupCollection(window.database.group);
@@ -142,7 +144,6 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
         $(document).on('click', 'a[href^="/"]', function (event) {
 			var href = $(this).attr('href');
 			event.preventDefault();
-			console.log('LINK', href);
 			router.navigate(href, {trigger: true});
 		});
 
