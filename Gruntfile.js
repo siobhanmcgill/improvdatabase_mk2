@@ -15,9 +15,9 @@ module.exports = function (grunt) {
         bump: {
             options: {
                 files: ['package.json', 'bower.json'],
+                commitFiles: ['package.json', 'bower.json'],
                 commit: true,
                 commitMessage: 'A version bump to tag the lastes build. (%VERSION%)',
-                commmitFiles: ['-a']
             }
         }
     });
