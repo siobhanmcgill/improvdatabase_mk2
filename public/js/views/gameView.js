@@ -43,6 +43,10 @@ define(['jquery',
                 this.router = options.router;
                 this.GameID = options.GameID;
             },
+            setGame: function (data) {
+                this.GameID = data.id;
+                this.model = data;
+            },
             render: function() {
                 var gameName = this.model.Name();
                 this.names = this.router.names.where({GameID: this.model.id});
@@ -101,16 +105,17 @@ define(['jquery',
                     GameID: this.GameID,
                     TagGameCollection: this.router.tagGames,
                     refuseAdd: !this.router.hasPermission('game_edit'),
-                    refuseNew: !this.router.hasPermission('meta_create')
+                    refuseNew: !this.router.hasPermission('meta_create'),
+                    refuseRemove: !this.router.hasPermission('game_edit')
                 });
                 this.tagInput.render();
 
-                this.listenTo(Backbone, "resize", this.boxHeight);
+                this.listenTo(this.tagInput, "resize", this.boxHeight);
                 this.listenTo(this.tagInput, "tag.add tag.remove", this.boxHeight);
                 /*
 
                 */
-
+                
                 this.boxHeight();
                 this.$(".has-tooltip").tooltip();
 
@@ -146,7 +151,7 @@ define(['jquery',
                     nameModel = this.router.names.get(NameID),
                     self = this;
                 $(e.currentTarget).text('Wait...');
-                this.listenToOnce(nameModel, 'sync', function (model, response) {
+                this.listenToOnce(nameModel, 'sync', function () {
                     self.render();
                     setTimeout(function () {
                         self.$('.altNameLink').click();
@@ -392,7 +397,7 @@ define(['jquery',
                 var self = this;
                 if (this.router.device === 'mobile') {
                     this.$el.parent().removeClass('scrollContent');
-                    Backbone.trigger("hide-game");
+                    this.trigger("hide-game");
                     setTimeout(function () {
                         self.destroy();
                     }, 500);
@@ -403,7 +408,7 @@ define(['jquery',
                     this.hideTimer = setTimeout(function() {
                         self.$el.parent().removeClass("open");
                         self.destroy();
-                        Backbone.trigger("hide-game");
+                        self.trigger("hide-game");
                     }, 500);
                 }
             },
@@ -455,7 +460,7 @@ define(['jquery',
 
                 if (this.router.device === 'mobile') {
                     this.$el.parent().addClass('scrollContent');
-                    Backbone.trigger("show-game");
+                    this.trigger("show-game");
                 } else {
                     var self = this;
                     this.$el.parent().removeClass('scrollContent');
@@ -465,7 +470,7 @@ define(['jquery',
                     }
                     this.$el.parent().css("overflow", "hidden");
                     setTimeout(function() {
-                        Backbone.trigger("show-game");
+                        self.trigger("show-game");
                         self.$el.parent().css("height", h);
                     }, 10);
 
@@ -477,6 +482,7 @@ define(['jquery',
                     }
                     this.openTimer = setTimeout(function() {
                         self.$el.parent().addClass("open").addClass('scrollContent');
+                        self.trigger('shown-game');
                     }, time);
                 }
             },

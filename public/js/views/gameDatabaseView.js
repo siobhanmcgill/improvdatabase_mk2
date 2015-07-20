@@ -25,43 +25,8 @@ define(['jquery',
                 this.router = options.router;
                 var self = this;
 
-                this.listenTo(Backbone, "show-game", function() {
-                    if (this.router.device === 'mobile') {
-                        this.searchView.hide();
-                        this.$('#gameBox').addClass('active scrollContent').parent().addClass('active');
-                    } else {
-                        this.$el.addClass("showGame");
-                        setTimeout(function() {
-                            self.reload();
-                        }, 500);
-                    }
-                });
-                this.listenTo(Backbone, "hide-game", function() {
-                    var self = this;
-                    if (this.router.device === 'mobile') {
-                        var $box = this.$('#gameBox').removeClass('active');
-                        setTimeout(function () {
-                            $box.parent().removeClass('active');
-                            self.searchView.show();
-                        }, 500);
-                    } else {
-                        this.$el.removeClass("showGame");
-                        this.gameView = false;
-                        setTimeout(function() {
-                            self.reload();
-                        }, 500);
-                    }
-                    $('#btnAddGame').removeClass('active');
-                });
-
-                this.listenTo(this.router.tagGames, "add remove", function() {
-                    self.reload();
-                });
-                this.listenTo(this.router.games, "sync add", function() {
-                    self.reload();
-                });
-
-                this.addGameForm = new AddGameFormView({router: this.router});
+                this.listenTo(this.router.tagGames, "add remove", $.proxy(this.reload, this));
+                this.listenTo(this.router.games, "sync add", $.proxy(this.reload, this));
 
                 this.searchView = new SearchView({ router: this.router });
 
@@ -90,6 +55,8 @@ define(['jquery',
                 this.listenTo(this.router, 'login logout', function () {
                     this.trigger('render-toolbar', this);
                 });
+
+                $(window).on('resize', $.proxy(this.reload, this));
             },
 
             registerTools: function () {
@@ -283,13 +250,19 @@ define(['jquery',
             hideGame: function () {
                 if (this.gameView) {
                     this.gameView.hide();
-                } else {
+                } else if (this.addGameForm) {
                     this.addGameForm.hide();
                 }
                 this.$('nav').off('click.hidegame');
             },
 
             showAddGame: function() {
+                if (!this.addGameForm) {
+                    this.addGameForm = new AddGameFormView({router: this.router});
+                    this.listenTo(this.addGameForm, 'show-game', $.proxy(this.onShowGame, this));
+                    this.listenTo(this.addGameForm, 'shown-game', $.proxy(this.reload, this));
+                    this.listenTo(this.addGameForm, 'hide-game', $.proxy(this.onHideGame, this));
+                }
                 if (this.$el.hasClass("showGame")) {
                     if (this.gameView) {
                         this.gameView.hide();
@@ -313,26 +286,65 @@ define(['jquery',
                     data = e;
                 }
                 if (data) {
-                    if (this.gameView) {
-                        this.gameView.destroy();
+                    if (this.addGameForm) {
+                        this.addGameForm.destroy();
                     }
-                    this.addGameForm.destroy();
-
-                    this.gameView = new GameView({
-                        GameID: data.id,
-                        router: this.router,
-                        model: data
-                    });
+                    if (!this.gameView) {
+                        this.gameView = new GameView({
+                            GameID: data.id,
+                            router: this.router,
+                            model: data
+                        });
+                        this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));
+                        this.listenTo(this.gameView, 'shown-game', $.proxy(this.reload, this));
+                        this.listenTo(this.gameView, 'hide-game', $.proxy(this.onHideGame, this));
+                    } else {
+                        this.gameView.destroy();
+                        this.gameView.setGame(data);
+                    }
+                    
                     this.$('#gameBox').append(this.gameView.$el);
 
                     this.gameView.$el.on('click', function (e) { e.stopPropagation(); });
-                    this.$('nav').on('click.hidegame', $.proxy(this.hideGame, this));
 
                     this.gameView.render();
                     this.selectedGame = data;
+                        
+                    if (this.router.device === 'mobile') {
+                        // closes the game box when you click outside it
+                        this.$('nav').on('click.hidegame', $.proxy(this.hideGame, this));
+                    }
                 } else {
                     this.selectedGame = false;
                 }
+            },
+
+            onShowGame: function() {
+                if (this.router.device === 'mobile') {
+                    this.searchView.hide();
+                    this.$('#gameBox').addClass('active scrollContent').parent().addClass('active');
+                } else {
+                    this.$el.addClass("showGame");
+                }
+            },
+            onHideGame: function() {
+                var self = this;
+                // deselect all games in the row
+                this.$('#gameTable .dt-row').removeClass('active');
+                if (this.router.device === 'mobile') {
+                    var $box = this.$('#gameBox').removeClass('active');
+                    setTimeout(function () {
+                        $box.parent().removeClass('active');
+                        self.searchView.show();
+                    }, 500);
+                } else {
+                    this.$el.removeClass("showGame");
+                    this.gameView = false;
+                    setTimeout(function() {
+                        self.reload();
+                    }, 500);
+                }
+                $('#btnAddGame').removeClass('active');
             },
 
             showRandomGame: function () {

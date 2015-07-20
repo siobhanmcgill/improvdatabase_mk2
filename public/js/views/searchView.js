@@ -37,12 +37,13 @@ define(['jquery',
                         this.$el.addClass('active').parent().addClass('active');
                         var self = this;
                         setTimeout(function () {
-                            self.$('[name=search]').focus();
-
                             self.$el.parent().on('click.hidesearch', $.proxy(self.showSearch, self));
                             self.$el.on('click', function (e) { e.stopPropagation(); });
-                        }, 100);
 
+                            setTimeout(function () {
+                                self.$('[name=search]').focus();
+                            }, 500);
+                        }, 100);
                     }
                 }
             },
