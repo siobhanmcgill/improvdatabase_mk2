@@ -110,12 +110,20 @@ define(['jquery', 'backbone', 'underscore'],
 
             this.$table.scrollTop(scroll);
         },
+
         _disablePrev: function() {
-            this.options.prevpagebutton.addClass("disabled");
+            this.$prevbutton.addClass("disabled");
         },
         _enablePrev: function() {
-            this.options.prevpagebutton.removeClass("disabled");
+            this.$prevbutton.removeClass("disabled");
         },
+        _disableNext: function() {
+            this.$nextbutton.addClass("disabled");
+        },
+        _enableNext: function() {
+            this.$nextbutton.removeClass("disabled");
+        },
+
         pageSize: function(e) {
             if ($(e.currentTarget).data("value") !== undefined) {
                 this.options.pageSize = $(e.currentTarget).data("value");
@@ -173,6 +181,13 @@ define(['jquery', 'backbone', 'underscore'],
             }
         },
         next: function(e) {
+            // ignore the "next" button if there isn't a next page
+            if (this.$nextbutton.hasClass('disabled') && !this.refresh) {
+                return false;
+            }
+
+            window.datatimerstart = (new Date()).getTime();
+
             this._page++;
             this._reverse = false;
 
@@ -206,6 +221,9 @@ define(['jquery', 'backbone', 'underscore'],
                     this._pageCount = Math.ceil(data.total / this.options.pageSize);
                 }
 
+                console.log('data time:', (new Date()).getTime() - window.datatimerstart);
+                window.rendertimerstart = (new Date()).getTime();
+
                 this.renderTableBody(data.data);
                 this.resize();
 
@@ -214,11 +232,19 @@ define(['jquery', 'backbone', 'underscore'],
                 } else {
                     this._disablePrev();
                 }
+
+                if (this._total === this.$rows.length) {
+                    this._disableNext();
+                } else {
+                    this._enableNext();
+                }
                 this.renderPageIndicator();
 
                 if (typeof this.options.onRender === "function") {
                     this.options.onRender(this.$table, data.data);
                 }
+                
+                console.log('render time:', (new Date()).getTime() - window.rendertimerstart);
             }, this));
             
             if (e) {
@@ -272,10 +298,10 @@ define(['jquery', 'backbone', 'underscore'],
         renderPageIndicator: function() {
             var x = this._start / this._total,
                 w = 1 - (this._start + this.$rows.length) / this._total,
-                $indicator = this.$pageindicator.find('div');
+                $indicator = this.$pageindicator.find('div').tooltip();
 
             if ($indicator.length === 0) {
-                $indicator = $('<div></div>').appendTo(this.$pageindicator);
+                $indicator = $('<div></div>').appendTo(this.$pageindicator).tooltip();
             }
             
             if (this.$pageindicator.width() < 400) {
@@ -303,7 +329,6 @@ define(['jquery', 'backbone', 'underscore'],
                 left: (x * 100) + "%",
                 right: (w * 100) + "%"
             });
-
         },
 
         mouseoverRow: function(e) {
@@ -408,7 +433,7 @@ define(['jquery', 'backbone', 'underscore'],
             this._forEach(this.columns, function(column, i) {
                 // add a "filtered" indicator to a column that is filtered (or the only column showing if only one is showing)
                 if ((visible === 1 && self.filterCount() > 0) ||
-                    (column.filter && self._filter[column.filter.property] && self._filter[column.property].length > 0)) {
+                    (column.filter && self._filter[column.filter.property] && self._filter[column.filter.property].length > 0)) {
                     
                     tr.find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
                 }
@@ -590,7 +615,7 @@ define(['jquery', 'backbone', 'underscore'],
                 }
             } else {
                 if (value === 'all') {
-                    this._uncheckOption($menu.find('.dropdown-option .icon-checkbox'));
+                    this._uncheckOption($menu.find('.dropdown-option'));
                 } else {
                     this._uncheckOption($menu.find('.filter-all'));
                 }

@@ -14,7 +14,7 @@ require.config({
 	deps: ['app/router'],
     shim: {
         deny: {
-            deps: ['app/autoComplete', 'app/dynamictable', 'app/dropdown']
+            deps: ['app/autoComplete', 'app/dynamictable', 'app/dropdown', 'app/tooltip']
         }
     },
     stubModules: ['text']

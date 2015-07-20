@@ -61,7 +61,7 @@ define(['jquery',
                 this.hideTimer = setTimeout(function() {
                     self.$el.parent().removeClass("open");
                     self.destroy();
-                    Backbone.trigger("hide-game");
+                    self.trigger("hide-game");
                 }, 500);
             },
             destroy: function () {
@@ -80,12 +80,13 @@ define(['jquery',
                 }
                 this.$el.parent().css("overflow", "hidden");
                 setTimeout(function() {
-                    Backbone.trigger("show-game");
+                    self.trigger("show-game");
                     self.$el.parent().css("height", h);
                 }, 10);
                 
                 this.openTimer = setTimeout(function() {
                     self.$el.parent().addClass("open").css("overflow", "auto");
+                    self.trigger('shown-game');
                 }, 1000);
             },
             clearForm: function() {

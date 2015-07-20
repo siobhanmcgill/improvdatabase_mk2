@@ -22,6 +22,7 @@ define(['jquery',
                 this.TagGameCollection = options.TagGameCollection;
                 this.refuseNew = options.refuseNew;
                 this.refuseAdd = options.refuseAdd;
+                this.refuseRemove = options.refuseRemove;
             },
             render: function() {
                 var self = this;
@@ -43,7 +44,7 @@ define(['jquery',
             showAddTag: function(e) {
                 this.$("a").addClass("hide");
                 this.$("input").removeClass("hide");
-                Backbone.trigger("resize");
+                this.trigger("resize");
 
                 this.$("input").autocomplete({
                     data: this.collection,
@@ -63,6 +64,10 @@ define(['jquery',
                 }
             },
             removeTag: function(e) {
+                if (this.refuseRemove) {
+                    return false;
+                }
+
                 var tagid = $(e.currentTarget).data("tagid");
                 $(e.currentTarget).remove();
                 this.trigger("tag.remove", tagid);
