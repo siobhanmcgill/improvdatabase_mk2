@@ -2,7 +2,7 @@
   "name": "ImprovDatabase",
   "private": true,
   "description": "Improv Comedy Database for the 21st century.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "scripts": {
     "start": "node app",
     "postinstall": "./node_modules/bower/bin/bower install"
