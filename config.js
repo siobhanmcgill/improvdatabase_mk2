@@ -11,14 +11,12 @@ module.exports = function () {
             port: 1919
         };
     } else if (process.env.NODE_ENV === 'production') {
-        var rtg = require('url').parse(process.env.REDISTOGO_URL);
         return {
             token: process.env.SECRET,
             postgresql: process.env.DATABASE_URL,
             redis: {
-                port: rtg.port,
-                host: rtg.hostname,
-                auth: rtg.auth.split(':')[1]
+                port: 6379,
+                host: process.env.REDIS_HOST
             },
             port: process.env.PORT || 5000
         };
