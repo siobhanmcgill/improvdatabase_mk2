@@ -2,8 +2,9 @@ var config  = require("../config")(),
     _       = require("underscore"),
     pg      = require("pg"),
 
-    conString = 'postgres://' + config.postgres.user + ':' + config.postgres.pass + '@' + config.postgres.host + '/' + config.postgres.db;
+    conString = 'postgres://' + config.postgres.user + ':' + encodeURIComponent(config.postgres.pass) + '@' + config.postgres.host + '/' + config.postgres.db;
 
+console.log(conString);
 exports.query = function(query, values, callback) {
     /*
     var connection = mysql.createConnection(conObj);
