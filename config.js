@@ -13,7 +13,12 @@ module.exports = function () {
     } else if (process.env.NODE_ENV === 'production') {
         return {
             token: process.env.SECRET,
-            postgresql: process.env.DATABASE_URL,
+            postgres: {
+                host: process.env.POSTGRES_HOST,
+                user: process.env.POSTGRES_USER,
+                pass: process.env.POSTGRES_PASS,
+                db: process.env.POSTGRES_DB
+            },
             redis: {
                 port: 6379,
                 host: process.env.REDIS_HOST
