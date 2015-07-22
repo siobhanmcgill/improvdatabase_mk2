@@ -2,7 +2,7 @@ var config  = require("../config")(),
     _       = require("underscore"),
     pg      = require("pg"),
 
-    conString = config.postgresql;
+    conString = 'postgres://' + config.postgres.user + ':' + config.postgres.pass + '@' + config.postgres.host + '/' + config.postgres.db;
 
 exports.query = function(query, values, callback) {
     /*
