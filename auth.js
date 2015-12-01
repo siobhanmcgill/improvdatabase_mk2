@@ -2,10 +2,13 @@ var jwt = require('jwt-simple'),
     userApi = require('./routes/api/user'),
     config  = require('./config')(),
     redis   = require('redis'),
-    //client  = redis.createClient(config.redis.port, config.redis.host);
-    client = redis.createClient({
-        url: 'redis://app35261835:vIphR2UBHkZh93ud@' + config.redis.host + ':' + config.redis.port
-    });
+    client;
+
+if (config.redis.url) {
+    client = redis.createClient(config.redis.url, {no_ready_check: true});
+} else {
+    client = redis.createClient(config.redis.port, config.redis.host);
+}
 
 exports.login = function(req, res) {
     var username = req.body.username || '';

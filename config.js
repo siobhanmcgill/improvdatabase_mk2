@@ -25,8 +25,7 @@ module.exports = function () {
                 db: process.env.POSTGRES_DB
             },
             redis: {
-                port: process.env.REDIS_PORT,
-                host: process.env.REDIS_HOST
+                url: process.env.REDISCLOUD_URL
             },
             port: process.env.PORT || 5000
         };
