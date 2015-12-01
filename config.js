@@ -2,7 +2,6 @@ module.exports = function () {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
         return {
             "token": "fe73_yspk3g2i+6$nba6_p2zm$v0rz4ihdme*!z@++ej@^463p",
-            "postgresql": "postgres://improv:alyson_19@localhost:5432/improv_2014",
             postgres: {
                 host: 'localhost:5432',
                 user: 'postgres',
@@ -26,7 +25,7 @@ module.exports = function () {
                 db: process.env.POSTGRES_DB
             },
             redis: {
-                port: 6379,
+                port: process.env.REDIS_PORT,
                 host: process.env.REDIS_HOST
             },
             port: process.env.PORT || 5000
