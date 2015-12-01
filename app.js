@@ -21,7 +21,13 @@ app.set('port', config.port);
 app.set('views', __dirname + "/views");
 app.set('view engine', 'hbs');
 
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'production') {
+    app.use(morgan('common', {
+        skip: function (req, res) { return res.statusCode < 400 }
+    }));
+} else {
+    app.use(morgan('dev'));
+}
 app.use(bodyParser.json()).use(bodyParser.urlencoded({ extended: false }));
 
 app.use(errorHandler({ dumpExceptions: true, showStack: true }));

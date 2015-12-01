@@ -2,7 +2,7 @@ var jwt = require('jwt-simple'),
     userApi = require('./routes/api/user'),
     config  = require('./config')(),
     redis   = require('redis'),
-    client  = redis.createClient(config.redis.port, config.redis.host, {auth_pass: config.redis.auth});
+    client  = redis.createClient(config.redis.port, config.redis.host);
 
 exports.login = function(req, res) {
     var username = req.body.username || '';
@@ -27,6 +27,7 @@ exports.login = function(req, res) {
                     if (err) {
                         console.error('REDIS ERROR', err);
                     }
+                    console.log('USER LOG IN', username);
                     res.json('200', token);
                 });
             } else {
@@ -44,6 +45,7 @@ exports.logout = function (req, res) {
             if (err) {
                 res.json('500', { message: 'Server Error', error: err });
             } else if (response) {
+                console.log('USER LOG OUT');
                 res.json('200', { message: 'Logout' });
             }
         });
@@ -122,7 +124,6 @@ exports.checkToken = function (req, res, next) {
                             // the stored ID should be the supplied User ID
                             if (response && response === user.UserID) {
                                 req.user = user;
-                                console.log('USER FOUND', user);
                             }
                             next();
                         });
