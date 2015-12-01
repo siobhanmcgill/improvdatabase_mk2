@@ -1,15 +1,14 @@
 var jwt = require('jwt-simple'),
     userApi = require('./routes/api/user'),
     config  = require('./config')(),
+    url = require('url'),
     redis   = require('redis'),
     client;
 
 if (config.redis.url) {
-    console.log('using redis url ', config.redis.url);
-    client = redis.createClient({
-        url: config.redis.url,
-        no_ready_check: true
-    });
+    var redisUrl = url.parse(config.redis.url);
+    client = redis.createClient(redisUrl.port, redisUrl.hostname, {no_ready_check: true});
+    client.auth(redisUrl.auth.split(':')[1]);
 } else {
     client = redis.createClient(config.redis.port, config.redis.host);
 }
