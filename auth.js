@@ -5,7 +5,11 @@ var jwt = require('jwt-simple'),
     client;
 
 if (config.redis.url) {
-    client = redis.createClient(config.redis.url, {no_ready_check: true});
+    console.log('using redis url ', config.redis.url);
+    client = redis.createClient({
+        url: config.redis.url,
+        no_ready_check: true
+    });
 } else {
     client = redis.createClient(config.redis.port, config.redis.host);
 }
