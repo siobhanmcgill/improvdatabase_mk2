@@ -12,7 +12,7 @@ define(['jquery',
     function($, _, Backbone, moment, deny, Dropdown, Turnover, TurnoverContents) {
         return Backbone.View.extend({
             events: {
-                //"click .dropdown-option": "selectOption"
+                'click .dropdown-option': 'selectOption',
                 'change .dropdown-button': 'selectOption'
             },
             initialize: function(options) {
