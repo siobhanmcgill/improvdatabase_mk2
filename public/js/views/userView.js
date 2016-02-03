@@ -168,14 +168,20 @@ define(['jquery',
                     return false;
                 } else {
                     this.$('.user-login .btn').hide().after('<i class="fa fa-cog fa-spin"></i>');
-                    this.router.login(email, pass, $.proxy(function () {
-                        this.icon = 'fa-user';
-                        this.trigger('render-toolbar', this);
-                        var $pod = this.$('.user-login').removeClass('intoggle').addClass('anim outtoggle');
-                        this.render().show();
-                        setTimeout(function () {
-                            $pod.remove();
-                        }, 500);
+                    this.router.login(email, pass, $.proxy(function (error) {
+                        if (error) {
+                            this.shakeLogin('<a href="' + window.location.origin + '/images/password-incorrect.png" target="_blank">Die wanna wanga!</a>');
+                            this.$('.fa-cog').remove();
+                            this.$('.user-login .btn').show();
+                        } else {
+                            this.icon = 'fa-user';
+                            this.trigger('render-toolbar', this);
+                            var $pod = this.$('.user-login').removeClass('intoggle').addClass('anim outtoggle');
+                            this.render().show();
+                            setTimeout(function () {
+                                $pod.remove();
+                            }, 500);
+                        }
                     }, this));
                 }
 

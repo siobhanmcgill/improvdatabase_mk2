@@ -326,21 +326,23 @@ define(['jquery',
             },
 
             showEditDescription: function (e) {
-                if ($(e.currentTarget).text() === 'Save') {
+                if ($(e.currentTarget).data('mode') === 'save') {
                     var desc = this.$('.description textarea').val();
                     this.$('.description textarea').hide();
                     this.$('.description p').html(desc).show();
                     this.model.set({"Description": desc});
                     this.model.save();
+                    
+                    $(e.currentTarget).text('Change').data('mode', '');
                 } else {
                     var $p = this.$('.description p').hide(),
                         $box = this.$('.description textarea').show(),
                         h = $p.height(),
                         lh = $p.css('line-height').replace('px', ''),
                         rows = h / lh;
-                    $box.attr('rows', Math.ceil(rows));
+                    $box.attr('rows', Math.ceil(rows > 8 ? rows : 8));
 
-                    $(e.currentTarget).text('Save');
+                    $(e.currentTarget).text('Save').data('mode', 'save');
                 }
 
                 this.boxHeight();

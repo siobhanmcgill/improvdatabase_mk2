@@ -4,9 +4,9 @@ module.exports = function () {
             "token": "fe73_yspk3g2i+6$nba6_p2zm$v0rz4ihdme*!z@++ej@^463p",
             postgres: {
                 host: 'localhost:5432',
-                user: 'postgres',
-                pass: 'magnetsP?32',
-                db: 'improvdatabase'
+                user: 'sdbuatyadcczhj',
+                pass: 'password',
+                db: 'd1ihmfmjooehcl'
             },
             redis: {
                 port: 6379,

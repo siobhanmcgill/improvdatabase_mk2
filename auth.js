@@ -18,8 +18,7 @@ exports.login = function(req, res) {
     var password = req.body.password || '';
 
     if (username === '' || password === '') {
-        res.status(401);
-        res.json({
+        res.status(401).json({
             "status": 401,
             "message": "Invalid credentials"
         });
@@ -29,7 +28,7 @@ exports.login = function(req, res) {
     // Fire a query to your DB and check if the credentials are valid
     userApi.validateUser(username, password, function (err, user) {
         if (err) {
-            res.json('500', { 'message': 'Server error', 'error': err });
+            res.status(500).json({ 'message': 'Server error', 'error': err });
         } else {
             if (user) {
                 genToken(user, function (err, token) {
@@ -37,10 +36,13 @@ exports.login = function(req, res) {
                         console.error('REDIS ERROR', err);
                     }
                     console.log('USER LOG IN', username);
-                    res.json('200', token);
+                    res.status(200).json(token);
                 });
             } else {
-                res.json('401', { 'message': 'Invalid login' });
+                res.status(401).json({
+                    "status": 401,
+                    "message": "Invalid credentials"
+                });
             }
         }
     });
@@ -52,10 +54,10 @@ exports.logout = function (req, res) {
         // instantly expire the token from redis
         client.expire(token, 0, function (err, response) {
             if (err) {
-                res.json('500', { message: 'Server Error', error: err });
+                res.status(500).json({ message: 'Server Error', error: err });
             } else if (response) {
                 console.log('USER LOG OUT');
-                res.json('200', { message: 'Logout' });
+                res.status(200).json({ message: 'Logout' });
             }
         });
     }
@@ -65,8 +67,7 @@ exports.refresh = function (req, res) {
     var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
     
     if (!token || !req.user) {
-        res.status(401);
-        res.json({
+        res.status(401).json({
             'status': 401,
             'message': 'Invalid Token'
         });
@@ -76,13 +77,13 @@ exports.refresh = function (req, res) {
     // instantly expire the old token from redis
     client.expire(token, 0, function (err, response) {
         if (err) {
-            res.json('500', { message: 'Server Error', error: err });
+            res.status(500).json({ message: 'Server Error', error: err });
         } else if (response) {
             genToken(req.user, function (err, token) {
                 if (err) {
                     console.error('REDIS ERROR', err);
                 }
-                res.json('200', token);
+                res.status(200).json(token);
             });
         }
     });
@@ -152,8 +153,7 @@ exports.checkToken = function (req, res, next) {
 };
 
 function unauthorized (req, res) {
-    res.status(401);
-    res.json({
+    res.status(401).json({
         "message": "Unauthorized"
     });
 }

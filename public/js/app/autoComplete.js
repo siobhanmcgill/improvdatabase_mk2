@@ -34,7 +34,11 @@ define(['jquery', 'backbone'],
             return isSupported;
         },
 
-        listen: function() {
+        listen: function () {
+            this.listenElement();
+            this.listenMenu();
+        },
+        listenElement: function() {
             this.$element
                 .on('focus',    $.proxy(this.focus, this))
                 //.on('blur',     $.proxy(this.blur, this))
@@ -44,8 +48,10 @@ define(['jquery', 'backbone'],
             if (this.eventSupported('keydown')) {
                 this.$element.on('keydown', $.proxy(this.keydown, this));
             }
-
+        },
+        listenMenu: function () {
             this.$menu
+                .off('click mouseenter mouseleave')
                 .on('click', $.proxy(this.click, this))
                 .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
                 .on('mouseleave', 'li', $.proxy(this.mouseleave, this));
@@ -73,6 +79,7 @@ define(['jquery', 'backbone'],
                     position: "absolute"
                 }).show();
             $("body").append(this.$menu);
+            this.listenMenu();
             this.shown = true;
             return this;
         },
@@ -202,7 +209,7 @@ define(['jquery', 'backbone'],
                 return this.shown ? this.hide() : this;
             }
             //items = $.isFunction(this.source) ? this.source(this.query, $.proxy(this.process, this)) : this.source;
-            var pattern = new RegExp("^" + this.query, "gi"),
+            var pattern = new RegExp('^' + this.query, 'i'),
                 prop = this.options.property,
                 items;
             

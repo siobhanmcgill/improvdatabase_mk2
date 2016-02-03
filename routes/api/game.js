@@ -40,7 +40,7 @@ exports.create = function(req,res) {
                         res.json("500", err);
                     } else {
                         for(var t = 0, maxt = tagIDs.length; t < maxt; t++) {
-                            tagApi.tagGame(nameData.GameID, tagIDs[t]);
+                            tagApi.tagGame(nameData.GameID, tagIDs[t], UserID);
                         }
 
                         res.json("200", {GameID: nameData.GameID, NameID: nameResponse.rows[0].NameID});

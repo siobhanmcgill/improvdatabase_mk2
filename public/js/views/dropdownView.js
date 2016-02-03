@@ -30,7 +30,6 @@ define(['jquery',
                     this.listenTo(this.collection, "add", function(model) {
                         model.save({}, {
                             success: function(model) {
-                                console.log(model, "saved");
                                 self._renderModelOption(model);
                                 self.$dropdown.data('height', '');
                                 self.$(".dropdown-button").turnover("hide");
@@ -68,7 +67,6 @@ define(['jquery',
                 this.renderDropdown();
             },
             _renderModelOption: function (model) {
-                console.log('render model option', this);
                 var oOpt = this.$dropdown.find(".dropdown-option").eq(-1).clone();
                 oOpt.removeClass("new");
                 oOpt.attr("id", this.idattr + "_" + model.id);

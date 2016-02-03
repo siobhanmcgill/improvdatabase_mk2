@@ -221,7 +221,8 @@ define(['jquery', 'backbone', 'underscore'],
                     this._pageCount = Math.ceil(data.total / this.options.pageSize);
                 }
 
-                console.log('data time:', (new Date()).getTime() - window.datatimerstart);
+                // debug
+                //console.log('data time:', (new Date()).getTime() - window.datatimerstart);
                 window.rendertimerstart = (new Date()).getTime();
 
                 this.renderTableBody(data.data);
@@ -244,7 +245,8 @@ define(['jquery', 'backbone', 'underscore'],
                     this.options.onRender(this.$table, data.data);
                 }
                 
-                console.log('render time:', (new Date()).getTime() - window.rendertimerstart);
+                // debug
+                //console.log('render time:', (new Date()).getTime() - window.rendertimerstart);
             }, this));
             
             if (e) {
@@ -279,6 +281,15 @@ define(['jquery', 'backbone', 'underscore'],
                 } else if (b.get(prop)) {
                     bval = b.get(prop);
                 }
+                
+                // ignore "The" at the beginning
+                if (aval.toLowerCase().indexOf('the ') === 0) {
+                    aval = aval.substr(4);
+                }
+                if (bval.toLowerCase().indexOf('the ') === 0) {
+                    bval = bval.substr(4);
+                }
+
                 if (dir === "asc") {
                     return typeof(aval) === "string" ? aval.localeCompare(bval) : aval - bval;
                 } else {
