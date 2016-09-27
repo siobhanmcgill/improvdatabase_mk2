@@ -356,8 +356,15 @@ define(['jquery',
                         end: 0,
                         filter: filter
                     }, function (data) {
-                        var item = data.data[Math.floor(Math.random() * data.data.length)];
-                        self.showGame(item);
+                        var time = 0;
+                        if (self.page === 'Filters') {
+                            self.showDatabase();
+                            time = 500;
+                        }
+                        setTimeout(function () {
+                            var item = data.data[Math.floor(Math.random() * data.data.length)];
+                            self.showGame(item);
+                        }, time);
                     });
             }
 

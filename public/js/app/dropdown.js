@@ -23,6 +23,7 @@
         this.$home = this.$menu.parent();
 
         this.$btn.off('click.dropdown').on('click.dropdown', $.proxy(this.toggleDropdown, this));
+        this.$menu.off('click.dropdown').on('click.dropdown', '.dropdown-option', $.proxy(this.select, this));
     };
 
     Dropdown.prototype = {
@@ -51,9 +52,11 @@
             }
         },
 
-        trigger: function (e) {
-            this.$btn.trigger(e);
-            this.$menu.trigger(e);
+        trigger: function (e, data) {
+            var evt = $.Event(e);
+            this.$btn.trigger(evt, data);
+            this.$menu.trigger(evt, data);
+            return evt;
         },
 
         hide: function () {
@@ -154,6 +157,19 @@
                 this.hide();
             } else {
                 this.show();
+            }
+            e.stopPropagation();
+        },
+
+        select: function (e) {
+            var $option = $(e.currentTarget),
+                text = $option.html(),
+                data = $option.data(),
+                evt = this.trigger('change.dropdown', data);
+
+            this.$btn.find('.name').html(text);
+            if (!evt.isPropagationStopped()) {
+                this.toggleDropdown(evt);
             }
             e.stopPropagation();
         }

@@ -12,8 +12,6 @@ define(['jquery',
     function($, _, Backbone, moment, deny, Dropdown, Turnover, TurnoverContents) {
         return Backbone.View.extend({
             events: {
-                //"click .dropdown-option": "selectOption"
-                'change .dropdown-button': 'selectOption'
             },
             initialize: function(options) {
                 var self = this;
@@ -32,10 +30,10 @@ define(['jquery',
                     this.listenTo(this.collection, "add", function(model) {
                         model.save({}, {
                             success: function(model) {
-                                console.log(model, "saved");
-                                self.renderDropdown();
+                                self._renderModelOption(model);
+                                self.$dropdown.data('height', '');
                                 self.$(".dropdown-button").turnover("hide");
-                                self.$("#" + self.idattr + "_" + model.id).click();
+                                self.$dropdown.find("#" + self.idattr + "_" + model.id).click();
                             }
                         });
                     });
@@ -68,23 +66,28 @@ define(['jquery',
 
                 this.renderDropdown();
             },
+            _renderModelOption: function (model) {
+                var oOpt = this.$dropdown.find(".dropdown-option").eq(-1).clone();
+                oOpt.removeClass("new");
+                oOpt.attr("id", this.idattr + "_" + model.id);
+                oOpt.data({
+                    "model": model,
+                    "new": false
+                });
+                oOpt.html(model.get("Name")).attr("title", model.get("Description"));
+                this.$dropdown.find(".dropdown-option.new").before(oOpt);
+            },
             renderDropdown: function() {
                 var self = this;
+                this.$dropdown = this.$('.dropdown');
                 this.$(".dropdown .dropdown-option:not(.new)").remove();
                 
                 if (this.collection) {
-                    this.collection.each(function(model) {
-                        var oOpt = self.$(".dropdown .dropdown-option").eq(-1).clone();
-                        oOpt.removeClass("new");
-                        oOpt.attr("id", self.idattr + "_" + model.id);
-                        oOpt.data("model", model);
-                        oOpt.html(model.get("Name")).attr("title", model.get("Description"));
-                        self.$(".dropdown-option.new").before(oOpt);
-                    });
+                    this.collection.each($.proxy(this._renderModelOption, this));
                 } else if (this.data) {
                     _.each(this.data, function (item) {
                         var oOpt = self.$(".dropdown .dropdown-option").eq(-1).clone();
-                        oOpt.removeClass("new");
+                        oOpt.removeClass("new").data('new', false);
                         oOpt.attr("id", self.idattr + "_" + item.id);
                         if (item.data) {
                             oOpt.data(item.data);
@@ -96,11 +99,14 @@ define(['jquery',
 
                 if (!this._add) {
                     this.$(".dropdown .dropdown-option").eq(-1).hide();
+                } else {
+                    this.$(".dropdown .dropdown-option").eq(-1).data('new', true);
                 }
 
                 this.$(".dropdown").data("height", "").dropdown({
                     width: "auto"
-                });
+                }).on('change.dropdown', $.proxy(this.selectOption, this));
+
                 this.$(".has-tooltip").tooltip({
                     direction: "left"
                 });
@@ -109,23 +115,16 @@ define(['jquery',
                     this.$('.dropdown .dropdown-option').eq(this.default).click();
                 }
             },
-            selectOption: function(e, oOpt) {
-                oOpt = $(oOpt);
-                if (oOpt.hasClass("new")) {
+            selectOption: function(e, data) {
+                if (data.new) {
+                    // the "new" option was selected
                     this.$(".dropdown-button").turnover("show");
+                    e.stopPropagation();
                 } else {
-                    this.$(".dropdown-button .name").html(oOpt.html());
-                    if (this.collection) {
-                        var model = oOpt.data("model");
-                        this.$(".dropdown-button").data("val", model);
-                        this.trigger("change", model);
-                    } else if (this.data) {
-                        this.$(".dropdown-button").data("val", oOpt.data('val'));
-                        this.trigger('change', oOpt.data());
-                    }
+                    // an item was selected
+                    this.$(".dropdown-button").turnover("hide");
+                    this.trigger('change', data);
                 }
-                e.stopPropagation();
-                return false;
             },
             addNew: function(e) {
                 var form = $(e.currentTarget).closest("form");

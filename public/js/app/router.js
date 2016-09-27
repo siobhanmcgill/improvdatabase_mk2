@@ -85,9 +85,12 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                         self._handleToken();
                         
                         if (callback) {
-                            callback(response);
+                            callback(null, response);
                         }
                         self.trigger('login');
+                    },
+                    error: function (xhr) {
+                        callback(xhr);
                     }
                 });
             },

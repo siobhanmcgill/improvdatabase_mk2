@@ -48,11 +48,21 @@ define(['jquery',
                     collection: this.router.tags
                 });
                 this.tagInput.render();
-
+                
+                this.listenTo(this.durationDropdown, 'change', this.durationChange);
+                this.listenTo(this.playerCountDropdown, 'change', this.playerCountChange);
                 this.listenTo(this.tagInput, "tag.add tag.remove", this.boxHeight);
 
                 this.boxHeight();
             },
+
+            durationChange: function(data) {
+                this._durationSelection = data.model;
+            },
+            playerCountChange: function(data) {
+                this._playerCountSelection = data.model;
+            },
+
             hide: function() {
                 this.$el.parent().removeAttr("style").css("overflow", "hidden");
                 this.$el.parent().find("#btnAddGame").removeClass("active");
@@ -101,9 +111,9 @@ define(['jquery',
 
                 if (!this.$('input[name=Name]').val()) {
                     $.toast("<em>What, no name?</em>");
-                } else if (!this.$("#duration_toggle").data("val")) {
+                } else if (!this._durationSelection) {
                     $.toast("<em>Picking a duration isn't that hard.</em>");
-                } else if (!this.$("#playerCount_toggle").data("val")) {
+                } else if (!this._playerCountSelection) {
                     $.toast("<em>But, how many players are needed?</em>");
                 } else {
                     this.$(".tag").each(function() {
@@ -114,8 +124,8 @@ define(['jquery',
                     var data = {
                         Name: this.$("input[name=Name]").val(),
                         Description: this.$("textarea").val(),
-                        DurationID: this.$("#duration_toggle").data("val").get("DurationID"),
-                        PlayerCountID: this.$("#playerCount_toggle").data("val").get("PlayerCountID"),
+                        DurationID: this._durationSelection.get("DurationID"),
+                        PlayerCountID: this._playerCountSelection.get("PlayerCountID"),
                         Tags: tags
                     };
                     this.$("#saveItUp").addClass("wait");
