@@ -932,6 +932,7 @@ nav {
                 bottom: 0;
                 overflow: auto;
                 padding: 20px 10px 10px;
+                margin-bottom: 20px;
             }
 
             @media #{$media-mobile} {
@@ -1084,7 +1085,7 @@ nav {
         } /* end of #tags */
 
         .notes {
-            margin-top: 10px;
+            margin: 10px 0;
             & > .fa {
                 font-size: 20px;
                 margin-right: 3px;

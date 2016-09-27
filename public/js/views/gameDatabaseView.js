@@ -289,19 +289,18 @@ define(['jquery',
                     if (this.addGameForm) {
                         this.addGameForm.destroy();
                     }
-                    if (!this.gameView) {
-                        this.gameView = new GameView({
-                            GameID: data.id,
-                            router: this.router,
-                            model: data
-                        });
-                        this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));
-                        this.listenTo(this.gameView, 'shown-game', $.proxy(this.reload, this));
-                        this.listenTo(this.gameView, 'hide-game', $.proxy(this.onHideGame, this));
-                    } else {
+                    if (this.gameView) {
                         this.gameView.destroy();
-                        this.gameView.setGame(data);
                     }
+                    
+                    this.gameView = new GameView({
+                        GameID: data.id,
+                        router: this.router,
+                        model: data
+                    });
+                    this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));
+                    this.listenTo(this.gameView, 'shown-game', $.proxy(this.reload, this));
+                    this.listenTo(this.gameView, 'hide-game', $.proxy(this.onHideGame, this));
                     
                     this.$('#gameBox').append(this.gameView.$el);
 

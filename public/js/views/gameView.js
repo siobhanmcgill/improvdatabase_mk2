@@ -473,19 +473,30 @@ define(['jquery',
                     this.trigger("show-game");
                 } else {
                     var self = this;
+
                     this.$el.parent().removeClass('scrollContent');
                     var h = this.$el.outerHeight();
                     if (h > $(window).height()) {
                         h = $(window).height();
                     }
-                    this.$el.parent().css("overflow", "hidden");
+                    
+                    var fullscreen = this.$el.parent().outerHeight() == $(window).height() && h >= this.$el.parent().outerHeight();
+
+                    if (fullscreen) {
+                        this.$el.parent().addClass('scrollContent');
+                    } else {
+                        this.$el.parent().css("overflow", "hidden");
+                    }
+
                     setTimeout(function() {
                         self.trigger("show-game");
                         self.$el.parent().css("height", h);
                     }, 10);
 
                     var time;
-                    if (this.$el.closest('#main').hasClass('showGame')) {
+                    if (fullscreen) {
+                        time = 10;
+                    } else if (this.$el.closest('#main').hasClass('showGame')) {
                         time = 500;
                     } else {
                         time = 1000;
