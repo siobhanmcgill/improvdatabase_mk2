@@ -362,10 +362,14 @@ define(['jquery',
                 this.durationDropdown.render();
                 this.boxHeight();
 
-                this.listenToOnce(this.durationDropdown, "change", function(model) {
-                    this.model.set({"DurationID": model.get("DurationID")});
-                    this.model.save();
-                    this.render();
+                this.listenToOnce(this.durationDropdown, "change", function(data) {
+                    if (data && data.model && data.model.get) {
+                        this.model.set({"DurationID": data.model.get("DurationID")});
+                        this.model.save();
+                        this.render();
+                    } else {
+                        $.toast('There was an error processing your duration choice. I don\'t know, try again later?');
+                    }
                 });
 
                 if (e) {
@@ -384,10 +388,14 @@ define(['jquery',
                 this.playerCountDropdown.render();
                 this.boxHeight();
 
-                this.listenToOnce(this.playerCountDropdown, "change", function(model) {
-                    this.model.set({"PlayerCountID": model.get("PlayerCountID")});
-                    this.model.save();
-                    this.render();
+                this.listenToOnce(this.playerCountDropdown, "change", function(data) {
+                    if (data && data.model && data.model.get) {
+                        this.model.set({"PlayerCountID": data.model.get("PlayerCountID")});
+                        this.model.save();
+                        this.render();
+                    } else {
+                        $.toast('There was an error processing your duration choice. I don\'t know, try again later?');
+                    }
                 });
 
                 if (e) {
