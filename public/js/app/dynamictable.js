@@ -194,8 +194,6 @@ define(['jquery', 'backbone', 'underscore'],
             this.sort();
 
             this.data.getPage({
-                //page: this.options.pageSize === 'auto' ? 0 : this._page,
-                //pageSize: this.options.pageSize === 'auto' ? 0 : this.options.pageSize,
                 start: this._end,
                 end: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._end + this.options.pageSize,
                 sort: {
@@ -208,7 +206,7 @@ define(['jquery', 'backbone', 'underscore'],
                 this._total = data.total;
                 this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this._start + this.options.pageSize;
                 
-                //loop!
+                // the "next" page is really the first page, so loop around to the beginning
                 if (this._start >= data.total) {
                     this._page = 1;
                     this._start = 0;
@@ -223,7 +221,7 @@ define(['jquery', 'backbone', 'underscore'],
 
                 // debug
                 //console.log('data time:', (new Date()).getTime() - window.datatimerstart);
-                window.rendertimerstart = (new Date()).getTime();
+                //window.rendertimerstart = (new Date()).getTime();
 
                 this.renderTableBody(data.data);
                 this.resize();
@@ -234,7 +232,7 @@ define(['jquery', 'backbone', 'underscore'],
                     this._disablePrev();
                 }
 
-                if (this._total === this.$rows.length) {
+                if (this._total <= this.$rows.length) {
                     this._disableNext();
                 } else {
                     this._enableNext();
@@ -725,6 +723,16 @@ define(['jquery', 'backbone', 'underscore'],
                 $oldTable.addClass("right");
             }
             this.$container.append(this.$table);
+
+            if (data.length === 0) {
+                // there are no items!
+                console.log(this);
+                var emptyRow = self._createRow();
+                emptyRow.addClass('dt-no-items');
+                emptyRow.append("<h5>No " + self.options.items + " were found that match your chosen filters.</h5>");
+                
+                this._insertRow(emptyRow, false);
+            }
             
             this._forEach(data, function(row, ri) {
                 var tr = self._createRow();
@@ -788,28 +796,16 @@ define(['jquery', 'backbone', 'underscore'],
                         tr.append(td);
                     } // end of if !column.hide
                 }); //end of foreach column
+
                 if (row.id) {
                     tr.attr("id", self.options.idPrefix + row.id);
                 }
                 tr.data("data", row);
-                if (reverse) {
-                    self.$table.prepend(tr);
-                } else {
-                    self.$table.append(tr);
-                }
-                
-                if (self.options.paginate && self.options.pageSize === "auto" && self.getHeight() > self.getContainerHeight()) {
-                    tr.remove();
-                    self._autoPageCount();
-                    return false;
-                }
 
-                if (reverse) {
-                    self.$rows.unshift(tr);
-                } else {
-                    self.$rows.push(tr);
-                }
-            }, reverse);
+                return(self._insertRow(tr, reverse));
+
+            }, reverse); // end of foreach data item
+
             if (this.refresh) {
                 $oldTable.remove();
                 this.$table.removeClass("intoggle");
@@ -824,6 +820,30 @@ define(['jquery', 'backbone', 'underscore'],
                 }, 500);
             }
         },
+
+        _insertRow: function(tr, reverse) {
+            var self = this;
+            if (reverse) {
+                self.$table.prepend(tr);
+            } else {
+                self.$table.append(tr);
+            }
+            
+            if (self.options.paginate && self.options.pageSize === "auto" && self.getHeight() > self.getContainerHeight()) {
+                tr.remove();
+                self._autoPageCount();
+                return false;
+            }
+
+            if (reverse) {
+                self.$rows.unshift(tr);
+            } else {
+                self.$rows.push(tr);
+            }
+
+            return true;
+        },
+
         _autoPageCount: function() {
             //try to figure out the page count
             var self = this;

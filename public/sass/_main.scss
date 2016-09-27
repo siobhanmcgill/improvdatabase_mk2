@@ -1305,6 +1305,12 @@ nav {
             @include border-radius(5px 5px 0 0);
         }
     }
+
+    .dt-table .dt-row.dt-no-items h5 {
+        font-size: 1.1em;
+        margin: 5% 0;
+        text-align: center;
+    }
 } /* end of #gameTable */
 
 /* Game Filter Screen */
