@@ -2115,7 +2115,7 @@ nav .pod:last-child {
 }
 /* line 1048, ../sass/_main.scss */
 #gameBox .description p {
-  margin-bottom: 0px;
+  margin-bottom: 1em;
 }
 /* line 1051, ../sass/_main.scss */
 #gameBox .description textarea {
