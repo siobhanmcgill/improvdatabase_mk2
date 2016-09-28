@@ -1,14 +1,35 @@
-define(['backbone', 'jquery', 'underscore', 'models/game'],
-    function(Backbone, $, _, Game) {
+define(['backbone', 'jquery', 'underscore', 'models/game',
+        'collections/durationCollection',
+        'collections/nameCollection',
+        'collections/playerCountCollection',
+        'collections/tagCollection',
+        'collections/tagGameCollection'],
+    function(Backbone, $, _, Game,
+        DurationCollection,
+        NameCollection,
+        PlayerCountCollection,
+        TagCollection,
+        TagGameCollection) {
+
         return Backbone.Collection.extend({
             url: '/api/game',
             parse: function(response) {
                 return response;
             },
             initialize: function() {
+
+                this.durations = new DurationCollection();
+                this.names = new NameCollection();
+                this.playerCounts = new PlayerCountCollection();
+                this.tags = new TagCollection();
+                this.tagGames = new TagGameCollection();
+
+                this._fetched = false;
+                /*
                 this.on("sync", function() {
                     Backbone.trigger("data-load", this);
                 });
+                */
             },
             /*
             comparator: function(a,b) {
@@ -24,9 +45,46 @@ define(['backbone', 'jquery', 'underscore', 'models/game'],
             model: Game,
             friendlyName: "Game",
 
+            fetch: function (options) {
+                options = _.extend({parse: true}, options);
+                var success = options.success;
+                var self = this;
+
+                options.success = function(resp) {
+                    var method = options.reset ? 'reset' : 'set';
+                    self._fetched = true;
+                    self[method](resp, options);
+                    self.trigger('sync', self, resp, options);
+                };
+                
+                return $.when(
+                    this.durations.fetch(),
+                    this.names.fetch(),
+                    this.playerCounts.fetch(),
+                    this.tags.fetch(),
+                    this.tagGames.fetch(),
+                    this.sync('read', this, options)
+                    ).done(function () {
+                        if (success) {
+                            success.call(options.context, self, options);
+                        }
+                    });
+            },
+
             //for the dynamic table
             getPage: function(options, callback) {
-                callback(this._data(options));
+                var self = this;
+                if (this._fetched) {
+                    callback(self._data(options));
+                } else {
+                    this.fetch({
+                        success: function () {
+                            setTimeout(function () {
+                                callback(self._data(options));
+                            }, 500);
+                        }
+                    });
+                }
             },
 
             _data: function (options) {
@@ -65,7 +123,7 @@ define(['backbone', 'jquery', 'underscore', 'models/game'],
                     });
                     if (tagFilter) {
                         data = _.filter(data, function (game) {
-                            var taglist = _.map(window.router.tagGames.where({"GameID": game.id}), function (item) {
+                            var taglist = _.map(this.tagGames.where({"GameID": game.id}), function (item) {
                                 return item.get('TagID');
                             });
                             return _.intersection(tagFilter, taglist).length === tagFilter.length;

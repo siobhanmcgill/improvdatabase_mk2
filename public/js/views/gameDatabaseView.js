@@ -25,8 +25,8 @@ define(['jquery',
                 this.router = options.router;
                 var self = this;
 
-                this.listenTo(this.router.tagGames, "add remove", $.proxy(this.reload, this));
-                this.listenTo(this.router.games, "sync add", $.proxy(this.reload, this));
+                //this.listenTo(this.router.tagGames, "add remove", $.proxy(this.reload, this));
+                //this.listenTo(this.router.games, "sync add", $.proxy(this.reload, this));
 
                 this.searchView = new SearchView({ router: this.router });
 
@@ -148,6 +148,10 @@ define(['jquery',
             },
 
             render: function() {
+
+                var self = this;
+                var gameDb = this.router.games;
+
                 this.$el.html(_.template(Template)).show();
 
                 this.$(".has-tooltip").tooltip();
@@ -155,13 +159,12 @@ define(['jquery',
                 this.$("#pagesize").dropdown({width: "auto"});
 
                 this.tagFilter = new TagFilterView({
-                    collection: window.router.tags
+                    collection: gameDb.tags
                 });
 
                 this.$('#gameBox').before(this.searchView.el);
                 this.searchView.render();
 
-                var self = this;
 
                 this.columns = [
                     {
@@ -183,7 +186,7 @@ define(['jquery',
                         property: "Duration",
                         sortProperty: "DurationSort",
                         filter: {
-                            collection: this.router.durations,
+                            collection: gameDb.durations,
                             property: 'DurationID',
                             attributes: {
                                 value: 'DurationID',
@@ -198,7 +201,7 @@ define(['jquery',
                         property: "PlayerCount",
                         sortProperty: "PlayerCountSort",
                         filter: {
-                            collection: this.router.playerCounts,
+                            collection: gameDb.playerCounts,
                             property: 'PlayerCountID',
                             attributes: {
                                 value: 'PlayerCountID',
@@ -207,16 +210,11 @@ define(['jquery',
                             }
                         },
                         hide: this.router.device === 'mobile'
-                    }/*,
-                    {
-                        header: "Last Modified",
-                        property: "ModifiedDisplay",
-                        sortProperty: "DateModified"
-                    }*/
+                    }
                 ];
 
                 this.$("#gameTable").dynamictable({
-                    data: this.router.games,
+                    data: gameDb,
                     pageindicator: this.$("#pageindicator"),
                     prevpagebutton: this.$("#prevpage"),
                     nextpagebutton: this.$("#nextpage"),
@@ -232,6 +230,8 @@ define(['jquery',
                     },
                     columns: this.columns
                 }).on('filter.dynamictable', $.proxy(this.onFilter, this));
+
+
                 return this;
             },
 

@@ -26,6 +26,7 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                 
                 this.device = $(window).width() > 700 ? 'full' : 'mobile';
                 
+                /*
                 this.durations = new DurationCollection(window.database.duration);
                 this.games = new GameCollection(window.database.game);
                 this.groups = new GroupCollection(window.database.group);
@@ -41,12 +42,32 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                 this.suggestionTypeGames = new SuggestionTypeGameCollection(window.database.suggestiontypegame);
                 this.tags = new TagCollection(window.database.tag);
                 this.tagGames = new TagGameCollection(window.database.taggame);
+                */
+                this.games = new GameCollection();
 
                 this.mainView = new MainView({router: this});
 
                 this.listenTo(Backbone, "tag-add", function(tag) {
                     this.tags.add(tag);
                 });
+            },
+
+            fetchGameDatabase: function () {
+                var self = this;
+                var deferred = $.Deferred();
+                $.when(
+                    this.durations.fetch(),
+                    this.games.fetch(),
+                    this.names.fetch(),
+                    this.playerCounts.fetch(),
+                    this.tags.fetch(),
+                    this.tagGames
+                    ).done(function () {
+                        self.games.names = self.names;
+                        deferred.resolve();
+                    });
+
+                return deferred;
             },
 
             _handleToken: function () {
