@@ -569,6 +569,18 @@ nav {
         bottom: 0px;
         left: 0px;
         right: 0px;
+        text-align: center;
+
+        & > span {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            z-index: 2;
+
+            &:first-of-type {
+                height: 100%;
+            }
+        }
 
         div {
             background: $color-active;
