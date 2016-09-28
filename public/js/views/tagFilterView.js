@@ -25,7 +25,7 @@ define(['jquery',
                 var tag = $(e.currentTarget).text(),
                     id = $(e.currentTarget).data('id');
                 if (this.selected.indexOf(id) === -1) {
-                    this.tagInput.addTag(null, tag, window.router.tags.get(id));
+                    this.tagInput.addTag(null, tag, this.collection.tags.get(id));
                 } else {
                     //remove it
                     var $output = this.full ? this.$('.accordion-toggle .filter-output') : this.$menu.find('.taginput');
@@ -134,7 +134,7 @@ define(['jquery',
                     });
 
                     this.tagInput = new TagInputView({
-                        collection: window.router.tags,
+                        collection: this.collection.tags,
                         refuseNew: true,
                         output: this.full ? this.$('.accordion-toggle .filter-output') : false
                     });
@@ -144,7 +144,7 @@ define(['jquery',
                     if (this.selected && this.selected.length) {
                         _.each(this.selected, $.proxy(function (id) {
                             var tag = this.$('.taglist [data-id="' + id + '"]').addClass('active').text();
-                            this.tagInput.addTag(null, tag, window.router.tags.get(id));
+                            this.tagInput.addTag(null, tag, this.collection.tags.get(id));
                         }, this));
                     }
 

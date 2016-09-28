@@ -23,6 +23,7 @@ define(['jquery',
             icon: 'fa-database',
             initialize: function(options) {
                 this.router = options.router;
+                this.collection = this.router.games;
                 var self = this;
 
                 //this.listenTo(this.router.tagGames, "add remove", $.proxy(this.reload, this));
@@ -159,7 +160,7 @@ define(['jquery',
                 this.$("#pagesize").dropdown({width: "auto"});
 
                 this.tagFilter = new TagFilterView({
-                    collection: gameDb.tags
+                    collection: gameDb
                 });
 
                 this.$('#gameBox').before(this.searchView.el);
@@ -219,6 +220,7 @@ define(['jquery',
                     prevpagebutton: this.$("#prevpage"),
                     nextpagebutton: this.$("#nextpage"),
                     pagesizemenu: this.$("#pagesize"),
+                    loader: this.$('#gameTableLoader'),
                     pageSize: 'auto',
                     item: 'Game',
                     items: 'Games',
@@ -296,6 +298,7 @@ define(['jquery',
                     this.gameView = new GameView({
                         GameID: data.id,
                         router: this.router,
+                        collection: this.collection,
                         model: data
                     });
                     this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));

@@ -62,11 +62,15 @@ exports.getAll = function(req, res) {
                 res.json("500", err);
             }
         } else {
-            if (!res) {
-                return response.rows;
-            }else {
-                res.json("200", response.rows);
-            }
+            var delay = process.env.NODE_ENV === 'production' ? 0 : 2000;
+            
+            setTimeout(function () {
+                if (!res) {
+                    return response.rows;
+                } else {
+                    res.json("200", response.rows);
+                }
+            }, delay);
         }
     });
 };

@@ -18,6 +18,7 @@ define(['jquery',
             },
             initialize: function(options) {
                 this.router = options.router;
+                this.collection = this.router.games;
 
                 this.$el.addClass('pod').attr('id', 'gameSearch');
             },
@@ -73,7 +74,7 @@ define(['jquery',
 
                     this.$('.results').empty();
 
-                    this.router.names.each(function (name) {
+                    this.collection.names.each(function (name) {
                         if (name.get('Name').toLowerCase().indexOf(val) > -1) {
                             var regex = new RegExp('(' + val + ')', 'gi');
                             var text = name.get('Name').replace(regex, '<strong>$1</strong>');
@@ -95,7 +96,7 @@ define(['jquery',
                     
                     /*
                     data = [];
-                    this.router.tags.each(function (tag) {
+                    this.collection.tags.each(function (tag) {
                         if (tag.get('Name').toLowerCase().indexOf(val) > -1) {
                             var regex = new RegExp('(' + val + ')', 'gi');
                             var text = tag.get('Name').replace(regex, '<strong>$1</strong>');

@@ -30,6 +30,12 @@ define(['jquery', 'backbone', 'underscore'],
             this.$pagesizemenu = $("<div></div>");
         }
 
+        if (this.options.loader) {
+            this.$loader = this.options.loader;
+        } else {
+            this.$loader = $("<div></div>");
+        }
+
         this.data = this.options.data;
         if (this.data instanceof Backbone.Collection) {
             this.options.dataType = "backbone";
@@ -51,12 +57,22 @@ define(['jquery', 'backbone', 'underscore'],
             }
         }
 
+        // figure out the defalt sort property
+        this._forEach(this.columns, function(column) {
+            if (column.defaultSort) {
+                this._sortBy = column.property;
+            }
+        });
+        if (!this._sortBy) {
+            this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
+        }
+
+
         this._page = 0;
         this._start = 0;
         this._end = 0;
         this._total = 0;
         this._pageCount = 0;
-        this._sortBy = null;
         this._sortDir = "asc";
         this._filter = {};
 
@@ -96,7 +112,6 @@ define(['jquery', 'backbone', 'underscore'],
                 this.$nextbutton.hide();
             }
 
-            this.renderTableHeader();
             this.next();
         },
         reload: function() {
@@ -131,12 +146,21 @@ define(['jquery', 'backbone', 'underscore'],
             }
         },
 
+        _showLoader: function () {
+            this.$loader.show();
+        },
+        _hideLoader: function () {
+            this.$loader.hide();
+        },
+
         prev: function(e) {
             if (this._page > 1) {
                 this._page--;
                 this._reverse = true;
 
                 this.sort();
+                
+                this._showLoader();
 
                 this.data.getPage({
                     //page: this.options.pageSize === 'auto' ? 0 : this._page,
@@ -149,6 +173,10 @@ define(['jquery', 'backbone', 'underscore'],
                     },
                     filter: this._filter
                 }, $.proxy(function (data) {
+                    this._hideLoader();
+                
+                    this.renderTableHeader();
+
                     this._total = data.total;
                     this._end = this._start;
                     this._start = this.options.pageSize === "auto" ? 0 : this._start - this.options.pageSize;
@@ -192,6 +220,8 @@ define(['jquery', 'backbone', 'underscore'],
             this._reverse = false;
 
             this.sort();
+                
+            this._showLoader();
 
             this.data.getPage({
                 start: this._end,
@@ -202,6 +232,10 @@ define(['jquery', 'backbone', 'underscore'],
                 },
                 filter: this._filter
             }, $.proxy(function (data) {
+                this._hideLoader();
+                
+                this.renderTableHeader();
+                
                 this._start = this._end;
                 this._total = data.total;
                 this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this._start + this.options.pageSize;
@@ -269,6 +303,7 @@ define(['jquery', 'backbone', 'underscore'],
 
             var comparator = function(a,b) { //make a comparator function, because Backbone is too dumb to sort properly
                 var aval, bval;
+
                 if (a[prop]) {
                     aval = typeof(a[prop]) === "function" ? a[prop]() : a[prop];
                 } else if (a.get(prop)) {
@@ -314,7 +349,7 @@ define(['jquery', 'backbone', 'underscore'],
             }
             
             this.$pageindicator.find('span').remove();
-            if (this.$pageindicator.width() < 350) {
+            if (this.$pageindicator.width() < 400) {
                 this.$pageindicator.append('<span class="heightener"></span><span class="page">Showing ' + (this._start + 1) + ' - ' + this._end + '</span> <span class="total">of ' + this._total + '</span>');
                 if(this.filterCount() > 0) {
                     this.$pageindicator.append(' <span class="filter-status">(' + this.data.length + ')</span>');
@@ -394,6 +429,7 @@ define(['jquery', 'backbone', 'underscore'],
                 self = this,
                 visible = 0;
             
+            this.$head.empty();
             // render the column headers
             this._forEach(this.columns, function(column, i) {
                 if (!column.hide) {
@@ -412,8 +448,8 @@ define(['jquery', 'backbone', 'underscore'],
                     if (column.sortable !== false) {
                         th.addClass("sortable");
                     }
-                    if (column.defaultSort) {
-                        this._sortBy = column.property;
+                    if (self._sortBy === column.property) {
+                        th.addClass('sorted ' + self._sortDir);
                     }
                     // the actual column header text
                     th.html(column.header ? column.header : column.property).data("column", column);
@@ -433,9 +469,6 @@ define(['jquery', 'backbone', 'underscore'],
                     tr.append(th);
                 }
             });
-            if (!this._sortBy) {
-                this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
-            }
             this.$head.append(tr);
             
             // set up the filter events
@@ -726,7 +759,6 @@ define(['jquery', 'backbone', 'underscore'],
 
             if (data.length === 0) {
                 // there are no items!
-                console.log(this);
                 var emptyRow = self._createRow();
                 emptyRow.addClass('dt-no-items');
                 emptyRow.append("<h5>No " + self.options.items + " were found that match your chosen filters.</h5>");
@@ -866,7 +898,7 @@ define(['jquery', 'backbone', 'underscore'],
                     var size = self.$head.find(".dt-cell").eq(ci).css({
                             width: "auto"
                         }).outerWidth();
-                    self._forEach(self.$rows, function(row, ri) {
+                    self._forEach(self.$rows, function(row) {
                         var $cell = row.find(".dt-cell").eq(ci);
                         $cell.css({
                             width: "auto"

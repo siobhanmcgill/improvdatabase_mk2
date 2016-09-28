@@ -3,13 +3,15 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
         'collections/nameCollection',
         'collections/playerCountCollection',
         'collections/tagCollection',
-        'collections/tagGameCollection'],
+        'collections/tagGameCollection',
+        'collections/noteCollection'],
     function(Backbone, $, _, Game,
         DurationCollection,
         NameCollection,
         PlayerCountCollection,
         TagCollection,
-        TagGameCollection) {
+        TagGameCollection,
+        NoteCollection) {
 
         return Backbone.Collection.extend({
             url: '/api/game',
@@ -23,6 +25,9 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                 this.playerCounts = new PlayerCountCollection();
                 this.tags = new TagCollection();
                 this.tagGames = new TagGameCollection();
+                
+                // TODO: load notes on demand
+                this.notes = new NoteCollection();
 
                 this._fetched = false;
                 /*
@@ -65,6 +70,8 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                     this.tagGames.fetch(),
                     this.sync('read', this, options)
                     ).done(function () {
+                        // TODO: load notes on demand
+                        self.notes.fetch();
                         if (success) {
                             success.call(options.context, self, options);
                         }
@@ -88,7 +95,8 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
             },
 
             _data: function (options) {
-                var filter = options.filter,
+                var self = this,
+                    filter = options.filter,
                     tagFilter,
                     data,
                     returnObject = {};
@@ -123,7 +131,7 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                     });
                     if (tagFilter) {
                         data = _.filter(data, function (game) {
-                            var taglist = _.map(this.tagGames.where({"GameID": game.id}), function (item) {
+                            var taglist = _.map(self.tagGames.where({"GameID": game.id}), function (item) {
                                 return item.get('TagID');
                             });
                             return _.intersection(tagFilter, taglist).length === tagFilter.length;
