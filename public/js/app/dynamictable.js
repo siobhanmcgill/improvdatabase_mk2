@@ -313,8 +313,8 @@ define(['jquery', 'backbone', 'underscore'],
                 $indicator = $('<div></div>').appendTo(this.$pageindicator).tooltip();
             }
             
-            if (this.$pageindicator.width() < 400) {
-                this.$pageindicator.find('span').remove();
+            this.$pageindicator.find('span').remove();
+            if (this.$pageindicator.width() < 350) {
                 this.$pageindicator.append('<span class="heightener"></span><span class="page">Showing ' + (this._start + 1) + ' - ' + this._end + '</span> <span class="total">of ' + this._total + '</span>');
                 if(this.filterCount() > 0) {
                     this.$pageindicator.append(' <span class="filter-status">(' + this.data.length + ')</span>');
