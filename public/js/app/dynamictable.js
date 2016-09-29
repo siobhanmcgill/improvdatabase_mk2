@@ -63,7 +63,7 @@ define(['jquery', 'backbone', 'underscore'],
                 this._sortBy = column.property;
             }
         });
-        if (!this._sortBy) {
+        if (!this._sortBy && this.columns.length > 0) {
             this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
         }
 

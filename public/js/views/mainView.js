@@ -27,6 +27,8 @@ define(['jquery',
                 
                 this.currentView = '';
                 this.isRendered = {};
+
+                this.$loader = this.$el.find('#siteLoader');
             },
             
             renderToolbar: function (view) {
@@ -200,6 +202,8 @@ define(['jquery',
                     this.$views.append(this.views[key].$el.addClass('view'));
                     this.views[key].render();
                     this.isRendered[key] = true;
+
+                    this.$loader.hide();
                 } else {
                     this.views[key].$el.show();
                 }

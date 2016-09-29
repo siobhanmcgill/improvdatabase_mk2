@@ -15,6 +15,27 @@ a:visited {
     color: $color-primary;
 }
 
+.loading-icon {
+    position: absolute;
+    display: block;
+    width: 55px;
+    height: 55px;
+    background: url('../images/small-face.png') no-repeat;
+    top: 35%;
+    left: 50%;
+    margin: -27px 0 0 -27px;
+    @include animation(spin 1000ms 1000ms infinite);
+}
+
+#siteLoader {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5000;
+}
+
 .modal {
     position: fixed;
     top: 33%;
@@ -1213,18 +1234,6 @@ nav {
     right: 0;
     display: none;
     z-index: 5000;
-    
-    .loading-icon {
-        position: absolute;
-        display: block;
-        width: 55px;
-        height: 55px;
-        background: url('../images/small-face.png') no-repeat;
-        top: 35%;
-        left: 50%;
-        margin: -27px 0 0 -27px;
-        @include animation(spin 1000ms 1000ms infinite);
-    }
 }
 
 #gameTable {
