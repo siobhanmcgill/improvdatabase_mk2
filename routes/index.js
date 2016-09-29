@@ -6,7 +6,8 @@ var _   = require("underscore"),
  */
 exports.renderIndex = function(req, res) {
     res.render('layout', {
-        title: 'Improv Comedy Database'
+        title: 'Improv Comedy Database',
+        prod: process.env.NODE_ENV === 'production'
     });
 };
 

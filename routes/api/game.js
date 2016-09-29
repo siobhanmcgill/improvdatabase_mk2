@@ -62,7 +62,7 @@ exports.getAll = function(req, res) {
                 res.json("500", err);
             }
         } else {
-            var delay = process.env.NODE_ENV === 'production' ? 0 : 2000;
+            var delay = process.env.NODE_ENV === 'production' ? 0 : 1500;
             
             setTimeout(function () {
                 if (!res) {
