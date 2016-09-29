@@ -232,9 +232,18 @@ define(['jquery', 'backbone', 'underscore'],
                 },
                 filter: this._filter
             }, $.proxy(function (data) {
+                // debug
+                console.log('********* data time:', (new Date()).getTime() - window.datatimerstart);
+                window.rendertimerstart = (new Date()).getTime();
+
                 this._hideLoader();
                 
                 this.renderTableHeader();
+
+                // debug
+                var headertime = (new Date()).getTime() - window.rendertimerstart;
+                console.log('header render time:', headertime);
+                window.rendertimerstart = (new Date()).getTime();
                 
                 this._start = this._end;
                 this._total = data.total;
@@ -253,12 +262,20 @@ define(['jquery', 'backbone', 'underscore'],
                     this._pageCount = Math.ceil(data.total / this.options.pageSize);
                 }
 
-                // debug
-                //console.log('data time:', (new Date()).getTime() - window.datatimerstart);
-                //window.rendertimerstart = (new Date()).getTime();
 
                 this.renderTableBody(data.data);
+
+                // debug
+                var bodytime = (new Date()).getTime() - window.rendertimerstart;
+                console.log('render body time:', bodytime);
+                window.rendertimerstart = (new Date()).getTime();
+
                 this.resize();
+
+                // debug
+                var resizetime = (new Date()).getTime() - window.rendertimerstart;
+                console.log('resize time:', resizetime);
+                window.rendertimerstart = (new Date()).getTime();
 
                 if (this._page > 1) {
                     this._enablePrev();
@@ -278,7 +295,10 @@ define(['jquery', 'backbone', 'underscore'],
                 }
                 
                 // debug
-                //console.log('render time:', (new Date()).getTime() - window.rendertimerstart);
+                var finaltime = (new Date()).getTime() - window.rendertimerstart;
+                var totaltime = headertime + bodytime + resizetime + finaltime;
+                console.log('extra time: ', finaltime);
+                console.log('**** total render time:', totaltime);
             }, this));
             
             if (e) {
@@ -429,7 +449,10 @@ define(['jquery', 'backbone', 'underscore'],
                 self = this,
                 visible = 0;
             
-            this.$head.empty();
+            // we only need to do this once
+            if (this.$head.find('.dt-header').length > 0) {
+                return;
+            }
             // render the column headers
             this._forEach(this.columns, function(column, i) {
                 if (!column.hide) {
