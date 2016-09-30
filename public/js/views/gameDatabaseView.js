@@ -106,8 +106,6 @@ define(['jquery',
             },
 
             show: function (GameID) {
-                this.shown = true;
-
                 if (GameID) {
                     this.$('#gameTable').one('render.dynamictable', $.proxy(function () {
                         var game;
@@ -134,12 +132,11 @@ define(['jquery',
                 this.showDatabase();
             },
             hide: function () {
-                this.shown = false;
-
                 this.hideGame();
                 this.$('#gameTable').removeClass('intoggle').addClass('anim outtoggle');
                 this.$('.text-content-page-wrapper').removeClass('intoggle').addClass('anim outtoggle');
                 this.$toolbar.find('.sub .btn').removeClass('active');
+                this.page = false;
             },
 
             showDatabase: function () {
@@ -180,8 +177,8 @@ define(['jquery',
             },
 
             render: function() {
-
                 var self = this;
+
                 var gameDb = this.router.games;
 
                 this.$el.html(_.template(Template)).show();
@@ -288,6 +285,10 @@ define(['jquery',
                     this.addGameForm.hide();
                 }
                 this.$('nav').off('click.hidegame');
+
+                if (this.page === 'Database') {
+                    this.router.navigate('');
+                }
             },
 
             showAddGame: function() {
@@ -393,10 +394,6 @@ define(['jquery',
                 $('#btnAddGame').removeClass('active');
                 
                 this.selectedGame = false;
-
-                if (this.shown) {
-                    this.router.navigate('');
-                }
             },
 
             showRandomGame: function () {
