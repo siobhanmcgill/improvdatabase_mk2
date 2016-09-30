@@ -133,6 +133,12 @@ define(['jquery', 'backbone', 'underscore'],
             this.reload();
         },
 
+        reloadWithHeader: function () {
+            this._redoheader = true;
+            this.$head.hide();
+            this.reload();
+        },
+
         _disablePrev: function() {
             this.$prevbutton.addClass("disabled");
         },
@@ -417,6 +423,12 @@ define(['jquery', 'backbone', 'underscore'],
 
         renderTableHeader: function() {
             var self = this;
+
+            if (this._redoheader) {
+                this.$head.find('.dt-row').remove();
+                this._redoheader = false;
+            }
+
             // if the header already exists, we don't have to render it again
             if (this.$head.find('.dt-header').length === 0) {
                 var tr = this._createRow(),
@@ -478,7 +490,7 @@ define(['jquery', 'backbone', 'underscore'],
                     if ((visible === 1 && self.filterCount() > 0) ||
                         (column.filter && self._filter[column.filter.property] && self._filter[column.filter.property].length > 0)) {
                         
-                        tr.find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
+                        $(tr).find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
                     }
 
                     if (column.filter) {
@@ -486,7 +498,7 @@ define(['jquery', 'backbone', 'underscore'],
                             column.filter.view.off('filter');
                             column.filter.view.on('filter', function (prop, sel) {
                                 self._filter[prop] = sel;
-                                self.reload();
+                                self.reloadWithHeader();
                             });
                             column.filter.view.render();
                         } else {
@@ -688,7 +700,7 @@ define(['jquery', 'backbone', 'underscore'],
 
             this.$container.trigger('filter.dynamictable', self._filter);
 
-            this.reload();
+            this.reloadWithHeader();
 
             e.stopPropagation();
             return false;

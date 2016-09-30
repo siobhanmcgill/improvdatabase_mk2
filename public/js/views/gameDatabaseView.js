@@ -88,7 +88,7 @@ define(['jquery',
             },
 
             reload: function () {
-                this._queueTableFunction('reload');
+                this._queueTableFunction('reloadWithHeader');
             },
 
             refreshTable: function () {
@@ -107,6 +107,11 @@ define(['jquery',
 
             show: function (GameID) {
                 if (GameID) {
+                    if (GameID === 'filters') {
+                        this.showFilters();
+                        return;
+                    }
+
                     this.$('#gameTable').one('render.dynamictable', $.proxy(function () {
                         var game;
                         // this is expirimental, and doesn't really work
@@ -129,6 +134,7 @@ define(['jquery',
                     }, this));
                 }
 
+                this.shown = true;
                 this.showDatabase();
             },
             hide: function () {
@@ -136,13 +142,14 @@ define(['jquery',
                 this.$('#gameTable').removeClass('intoggle').addClass('anim outtoggle');
                 this.$('.text-content-page-wrapper').removeClass('intoggle').addClass('anim outtoggle');
                 this.$toolbar.find('.sub .btn').removeClass('active');
-                this.page = false;
+                this.shown = false;
             },
 
             showDatabase: function () {
                 this.hide();
                 this.$('#gameTable').removeClass('outtoggle').addClass('anim intoggle');
                 this.$('#prevpage, #nextpage').show();
+                
                 if (this.page && this.page !== 'Database') {
                     this.reload();
                 } else if (this.page) {
@@ -286,7 +293,7 @@ define(['jquery',
                 }
                 this.$('nav').off('click.hidegame');
 
-                if (this.page === 'Database') {
+                if (this.shown) {
                     this.router.navigate('');
                 }
             },

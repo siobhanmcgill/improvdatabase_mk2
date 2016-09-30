@@ -53,9 +53,11 @@ define(['jquery',
             },
 
             resize: function () {
+                /* I'm not sure this is necessary
                 if (!this.full) {
                     this.$menu.css('height', 'auto').css('height', this.$menu.outerHeight()).data('height', this.$menu.outerHeight());
                 }
+                */
             },
 
             setFilter: function (filter) {
