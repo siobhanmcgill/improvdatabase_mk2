@@ -30,23 +30,49 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                 this.notes = new NoteCollection();
 
                 this._fetched = false;
-                /*
-                this.on("sync", function() {
-                    Backbone.trigger("data-load", this);
-                });
-                */
+                
+                this._sort = {
+                    property: 'Name',
+                    dir: 'asc'
+                };
             },
-            /*
-            comparator: function(a,b) {
-                if (this.names) {
-                    var a_name = this.names.findWhere({"GameID": a.id}).get("Name");
-                    var b_name = this.names.findWhere({"GameID": b.id}).get("Name");
-                    return a_name.localeCompare(b_name);
+
+            comparator: function (a, b) {
+                var aval, bval;
+
+                var sortProperty = this._sort.property;
+                var sortDirection = this._sort.dir;
+
+                if (a[sortProperty]) {
+                    aval = typeof(a[sortProperty]) === "function" ? a[sortProperty]() : a[sortProperty];
                 } else {
-                    return 1;
+                    aval = a.get(sortProperty);
+                }
+                if (b[sortProperty]) {
+                    bval = typeof(b[sortProperty]) === "function" ? b[sortProperty]() : b[sortProperty];
+                } else {
+                    bval = b.get(sortProperty);
+                }
+                
+                if (typeof aval === 'string') {
+                    // ignore "The" at the beginning
+                    if (aval.toLowerCase().indexOf('the ') === 0) {
+                        aval = aval.substr(4);
+                    }
+                }
+                if (typeof bval === 'string') {
+                    if (bval.toLowerCase().indexOf('the ') === 0) {
+                        bval = bval.substr(4);
+                    }
+                }
+
+                if (sortDirection === "asc") {
+                    return typeof(aval) === "string" ? aval.localeCompare(bval) : aval - bval;
+                } else {
+                    return typeof(bval) === "string" ? bval.localeCompare(aval) : bval - aval;
                 }
             },
-            */
+
             model: Game,
             friendlyName: "Game",
 
@@ -100,8 +126,14 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                     tagFilter,
                     data,
                     returnObject = {};
+
+                // first sort the data, which we don't have to do if we're already sorted by that
+                if (options.sort.property !== this._sort.property || options.sort.dir !== this._sort.dir) {
+                    this._sort = options.sort;
+                    this.sort();
+                }
                 
-                // first filter the data
+                // now filter the data
                 if (filter && _.keys(filter).length) {
                     // filter tags later, because it might be more difficult
                     tagFilter = filter.tags;
@@ -160,6 +192,7 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                 } else {
                     data = data.slice(start, end);
                 }
+
                 returnObject.data = data;
 
                 return returnObject;
