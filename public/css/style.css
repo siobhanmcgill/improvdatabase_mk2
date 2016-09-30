@@ -1898,22 +1898,41 @@ nav .pod:last-child {
   -webkit-transition: opacity 500ms;
   transition: opacity 500ms;
 }
+/* line 863, ../sass/_main.scss */
+#gameSearch.dim .search-wrapper {
+  opacity: 0.4;
+}
+/* line 866, ../sass/_main.scss */
+#gameSearch.dim .results {
+  opacity: 0.4;
+}
 @media only screen and (max-width: 700px) {
-  /* line 863, ../sass/_main.scss */
+  /* line 872, ../sass/_main.scss */
   #gameSearch > i {
     float: left;
   }
-  /* line 867, ../sass/_main.scss */
+  /* line 876, ../sass/_main.scss */
+  #gameSearch .search-wrapper {
+    -moz-transition: opacity 500ms;
+    -o-transition: opacity 500ms;
+    -webkit-transition: opacity 500ms;
+    transition: opacity 500ms;
+  }
+  /* line 880, ../sass/_main.scss */
   #gameSearch .results {
     position: absolute;
     top: 38px;
     bottom: 0;
     overflow: auto;
     padding-top: 0px;
+    -moz-transition: opacity 500ms;
+    -o-transition: opacity 500ms;
+    -webkit-transition: opacity 500ms;
+    transition: opacity 500ms;
   }
 }
 
-/* line 877, ../sass/_main.scss */
+/* line 892, ../sass/_main.scss */
 #gameBox {
   position: absolute;
   top: 0;
@@ -1932,18 +1951,19 @@ nav .pod:last-child {
   /* end of #tags */
 }
 @media only screen and (max-width: 700px) {
-  /* line 877, ../sass/_main.scss */
+  /* line 892, ../sass/_main.scss */
   #gameBox {
     opacity: 1;
     background: rgba(255, 255, 255, 0.87);
+    z-index: 5;
   }
 }
-/* line 894, ../sass/_main.scss */
+/* line 910, ../sass/_main.scss */
 .showGame #gameBox {
   opacity: 1;
   z-index: 2;
 }
-/* line 898, ../sass/_main.scss */
+/* line 914, ../sass/_main.scss */
 .showGame #gameBox.open {
   overflow: auto;
   -moz-transition: top 500ms, height 500ms 0ms, opacity 500ms;
@@ -1953,7 +1973,7 @@ nav .pod:last-child {
   transition: top 500ms, height 500ms 0ms, opacity 500ms;
   cursor: default;
 }
-/* line 904, ../sass/_main.scss */
+/* line 920, ../sass/_main.scss */
 #gameBox .content {
   display: none;
   padding: 1px 10px 35px 10px;
@@ -1963,14 +1983,14 @@ nav .pod:last-child {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 914, ../sass/_main.scss */
+/* line 930, ../sass/_main.scss */
 #gameBox .content h5 {
   font-size: 20px;
   font-weight: bold;
   display: inline-block;
   vertical-align: middle;
 }
-/* line 920, ../sass/_main.scss */
+/* line 936, ../sass/_main.scss */
 #gameBox .content > h5 {
   font-size: 27px;
   line-height: 40px;
@@ -1983,39 +2003,39 @@ nav .pod:last-child {
   transition: opacity 500ms;
 }
 @media only screen and (max-width: 700px) {
-  /* line 920, ../sass/_main.scss */
+  /* line 936, ../sass/_main.scss */
   #gameBox .content > h5 {
     opacity: 1;
     margin-bottom: 0;
   }
 }
-/* line 936, ../sass/_main.scss */
+/* line 952, ../sass/_main.scss */
 .showGame #gameBox .content > h5 {
   opacity: 1;
 }
-/* line 940, ../sass/_main.scss */
+/* line 956, ../sass/_main.scss */
 #gameBox .content .btn {
   margin: 20px 0 0 0;
 }
 @media only screen and (max-width: 700px) {
-  /* line 945, ../sass/_main.scss */
+  /* line 961, ../sass/_main.scss */
   #gameBox .content .scroll-area {
     overflow: auto;
     padding: 20px 0 0;
   }
 }
-/* line 952, ../sass/_main.scss */
+/* line 968, ../sass/_main.scss */
 #gameBox.scrollContent .content {
   height: 100%;
 }
-/* line 955, ../sass/_main.scss */
+/* line 971, ../sass/_main.scss */
 #gameBox.scrollContent .content > h5 {
   position: absolute;
   left: 10px;
   right: 51px;
   min-height: 0;
 }
-/* line 961, ../sass/_main.scss */
+/* line 977, ../sass/_main.scss */
 #gameBox.scrollContent .content .scroll-area {
   position: absolute;
   top: 41px;
@@ -2027,19 +2047,19 @@ nav .pod:last-child {
   margin-bottom: 20px;
 }
 @media only screen and (max-width: 700px) {
-  /* line 952, ../sass/_main.scss */
+  /* line 968, ../sass/_main.scss */
   #gameBox.scrollContent .content {
     padding: 1px 0 0 0;
   }
 }
-/* line 977, ../sass/_main.scss */
+/* line 993, ../sass/_main.scss */
 #gameBox .altNameLink {
   margin: -10px 0 10px 0;
   text-align: right;
   font-style: italic;
   display: block;
 }
-/* line 983, ../sass/_main.scss */
+/* line 999, ../sass/_main.scss */
 #gameBox .altNames {
   display: none;
   margin: -10px 10px 10px;
@@ -2048,7 +2068,7 @@ nav .pod:last-child {
   border-radius: 5px;
   position: relative;
 }
-/* line 991, ../sass/_main.scss */
+/* line 1007, ../sass/_main.scss */
 #gameBox .altNames .close {
   position: absolute;
   top: 0;
@@ -2057,42 +2077,42 @@ nav .pod:last-child {
   right: 5px;
   color: #555;
 }
-/* line 999, ../sass/_main.scss */
+/* line 1015, ../sass/_main.scss */
 #gameBox .altNames label {
   margin: 0;
 }
-/* line 1002, ../sass/_main.scss */
+/* line 1018, ../sass/_main.scss */
 #gameBox .altNames > div {
   margin: 5px 0 0 10px;
   font-style: italic;
   font-size: 1.2em;
   cursor: pointer;
 }
-/* line 1007, ../sass/_main.scss */
+/* line 1023, ../sass/_main.scss */
 #gameBox .altNames > div:hover {
   color: #000;
   text-shadow: 0 0 4px #FFFFFF;
 }
-/* line 1011, ../sass/_main.scss */
+/* line 1027, ../sass/_main.scss */
 #gameBox .altNames > div:last-of-type {
   margin-bottom: 5px;
 }
-/* line 1015, ../sass/_main.scss */
+/* line 1031, ../sass/_main.scss */
 #gameBox .altNames > div .weight {
   font-size: 0.6em;
   text-decoration: none;
   display: inline-block;
 }
-/* line 1021, ../sass/_main.scss */
+/* line 1037, ../sass/_main.scss */
 #gameBox .altNames.noVoting > div {
   cursor: default;
 }
-/* line 1024, ../sass/_main.scss */
+/* line 1040, ../sass/_main.scss */
 #gameBox .altNames.noVoting > div:hover {
   color: #555;
   text-shadow: none;
 }
-/* line 1030, ../sass/_main.scss */
+/* line 1046, ../sass/_main.scss */
 #gameBox .altNames > .addName {
   text-align: right;
   display: block;
@@ -2100,7 +2120,7 @@ nav .pod:last-child {
   text-decoration: none;
   font-style: italic;
 }
-/* line 1037, ../sass/_main.scss */
+/* line 1053, ../sass/_main.scss */
 #gameBox .altNames > .alternateNameSubmit {
   text-align: right;
   display: block;
@@ -2108,14 +2128,14 @@ nav .pod:last-child {
   text-decoration: none;
   font-style: italic;
 }
-/* line 1046, ../sass/_main.scss */
+/* line 1062, ../sass/_main.scss */
 #gameBox label {
   display: block;
   margin-top: 10px;
   font-weight: bold;
   font-style: italic;
 }
-/* line 1052, ../sass/_main.scss */
+/* line 1068, ../sass/_main.scss */
 #gameBox input,
 #gameBox textarea,
 #gameBox .content .dropdown-button {
@@ -2129,118 +2149,118 @@ nav .pod:last-child {
   color: #444;
   cursor: pointer;
 }
-/* line 1065, ../sass/_main.scss */
+/* line 1081, ../sass/_main.scss */
 #gameBox textarea {
   font-size: 16px;
   line-height: 18px;
   font-family: Arial;
 }
-/* line 1070, ../sass/_main.scss */
+/* line 1086, ../sass/_main.scss */
 #gameBox p {
   font-size: 1em;
   line-height: 1.2;
   margin-bottom: 20px;
 }
-/* line 1075, ../sass/_main.scss */
+/* line 1091, ../sass/_main.scss */
 #gameBox a.edit {
   line-height: 26px;
   font-size: 12px;
   margin: 0 0 0 5px;
 }
-/* line 1080, ../sass/_main.scss */
+/* line 1096, ../sass/_main.scss */
 #gameBox .description {
   position: relative;
   margin-bottom: 20px;
 }
-/* line 1083, ../sass/_main.scss */
+/* line 1099, ../sass/_main.scss */
 #gameBox .description p {
   margin-bottom: 1em;
 }
-/* line 1086, ../sass/_main.scss */
+/* line 1102, ../sass/_main.scss */
 #gameBox .description textarea {
   display: none;
   font-size: 1em;
   line-height: 1.2;
   overflow: hidden;
 }
-/* line 1092, ../sass/_main.scss */
+/* line 1108, ../sass/_main.scss */
 #gameBox .description .edit {
   position: absolute;
   bottom: -20px;
   right: 5px;
 }
-/* line 1099, ../sass/_main.scss */
+/* line 1115, ../sass/_main.scss */
 #gameBox #playerCount_dropdown {
   margin-top: 10px;
 }
-/* line 1103, ../sass/_main.scss */
+/* line 1119, ../sass/_main.scss */
 #gameBox #tags {
   margin-top: 10px;
 }
-/* line 1106, ../sass/_main.scss */
+/* line 1122, ../sass/_main.scss */
 #gameBox #tags .tag {
   cursor: pointer;
 }
-/* line 1109, ../sass/_main.scss */
+/* line 1125, ../sass/_main.scss */
 #gameBox #tags #tagOutput {
   margin: 3px 0;
 }
-/* line 1112, ../sass/_main.scss */
+/* line 1128, ../sass/_main.scss */
 #gameBox #tags #tagOutput .fa {
   line-height: 30px;
   float: left;
   margin-right: 5px;
   font-size: 20px;
 }
-/* line 1121, ../sass/_main.scss */
+/* line 1137, ../sass/_main.scss */
 #gameBox .notes {
   margin: 10px 0;
 }
-/* line 1123, ../sass/_main.scss */
+/* line 1139, ../sass/_main.scss */
 #gameBox .notes > .fa {
   font-size: 20px;
   margin-right: 3px;
 }
-/* line 1128, ../sass/_main.scss */
+/* line 1144, ../sass/_main.scss */
 #gameBox .addNoteLink {
   display: block;
   margin: 16px 0 0;
   float: right;
 }
-/* line 1133, ../sass/_main.scss */
+/* line 1149, ../sass/_main.scss */
 #gameBox .addNote {
   display: none;
   margin-top: 15px;
 }
-/* line 1137, ../sass/_main.scss */
+/* line 1153, ../sass/_main.scss */
 #gameBox .addNote .saveNote {
   text-align: right;
   display: block;
 }
-/* line 1142, ../sass/_main.scss */
+/* line 1158, ../sass/_main.scss */
 #gameBox .notelist {
   display: none;
 }
-/* line 1144, ../sass/_main.scss */
+/* line 1160, ../sass/_main.scss */
 #gameBox .notelist .note {
   font-size: 0.9em;
   margin: 10px 0 0 20px;
 }
-/* line 1148, ../sass/_main.scss */
+/* line 1164, ../sass/_main.scss */
 #gameBox .notelist .note p {
   margin: 0;
   text-indent: -10px;
 }
-/* line 1151, ../sass/_main.scss */
+/* line 1167, ../sass/_main.scss */
 #gameBox .notelist .note p i:first-child {
   width: 6px;
 }
-/* line 1155, ../sass/_main.scss */
+/* line 1171, ../sass/_main.scss */
 #gameBox .notelist .note .noteSig {
   text-align: right;
   font-style: italic;
 }
-/* line 1162, ../sass/_main.scss */
+/* line 1178, ../sass/_main.scss */
 #gameBox > .close {
   position: absolute;
   bottom: 0;
@@ -2263,7 +2283,7 @@ nav .pod:last-child {
   display: none;
 }
 @media only screen and (max-width: 700px) {
-  /* line 1162, ../sass/_main.scss */
+  /* line 1178, ../sass/_main.scss */
   #gameBox > .close {
     position: absolute;
     top: 0;
@@ -2275,7 +2295,7 @@ nav .pod:last-child {
     background: none;
     width: 40px;
   }
-  /* line 1188, ../sass/_main.scss */
+  /* line 1204, ../sass/_main.scss */
   #gameBox > .close i {
     -moz-transform: rotateZ(90deg);
     -ms-transform: rotateZ(90deg);
@@ -2283,24 +2303,24 @@ nav .pod:last-child {
     transform: rotateZ(90deg);
   }
 }
-/* line 1193, ../sass/_main.scss */
+/* line 1209, ../sass/_main.scss */
 #gameBox.open > .close {
   display: block;
 }
-/* line 1196, ../sass/_main.scss */
+/* line 1212, ../sass/_main.scss */
 #gameBox.scrollContent > .close {
   opacity: 1;
 }
 
 /* end of #gameBox */
-/* line 1204, ../sass/_main.scss */
+/* line 1220, ../sass/_main.scss */
 #duration_add label {
   display: block;
   margin-top: 10px;
   font-weight: bold;
   font-style: italic;
 }
-/* line 1210, ../sass/_main.scss */
+/* line 1226, ../sass/_main.scss */
 #duration_add input,
 #duration_add textarea,
 #duration_add .content .dropdown-button {
@@ -2313,14 +2333,14 @@ nav .pod:last-child {
   box-sizing: border-box;
   color: #444;
 }
-/* line 1222, ../sass/_main.scss */
+/* line 1238, ../sass/_main.scss */
 #duration_add textarea {
   font-size: 16px;
   line-height: 18px;
   font-family: Arial;
 }
 
-/* line 1229, ../sass/_main.scss */
+/* line 1245, ../sass/_main.scss */
 #gameTableLoader {
   position: absolute;
   bottom: 0px;
@@ -2331,7 +2351,7 @@ nav .pod:last-child {
   z-index: 5000;
 }
 
-/* line 1239, ../sass/_main.scss */
+/* line 1255, ../sass/_main.scss */
 #gameTable {
   position: absolute;
   bottom: 0px;
@@ -2344,58 +2364,58 @@ nav .pod:last-child {
   -webkit-transition: right 500ms;
   transition: right 500ms;
 }
-/* line 1252, ../sass/_main.scss */
+/* line 1268, ../sass/_main.scss */
 .showGame #gameTable, .showSearch #gameTable {
   right: 33.3333%;
 }
-/* line 1257, ../sass/_main.scss */
+/* line 1273, ../sass/_main.scss */
 #gameTable.intoggle {
   z-index: 2;
 }
-/* line 1261, ../sass/_main.scss */
+/* line 1277, ../sass/_main.scss */
 #gameTable .dt-table-head .dt-row > .dt-cell {
   border-top-width: 1px;
 }
-/* line 1265, ../sass/_main.scss */
+/* line 1281, ../sass/_main.scss */
 #gameTable .dt-cell.name {
   cursor: pointer;
 }
-/* line 1269, ../sass/_main.scss */
+/* line 1285, ../sass/_main.scss */
 #gameTable .dt-table .dt-cell.tags {
   padding: 5px 10px;
 }
-/* line 1272, ../sass/_main.scss */
+/* line 1288, ../sass/_main.scss */
 #gameTable .dt-table .dt-row:last-child > .dt-cell.tags {
   padding: 5px 10px 4px;
 }
-/* line 1276, ../sass/_main.scss */
+/* line 1292, ../sass/_main.scss */
 #gameTable .has-tooltip {
   text-decoration: underline;
   cursor: pointer;
 }
-/* line 1281, ../sass/_main.scss */
+/* line 1297, ../sass/_main.scss */
 #gameTable .tag {
   float: none;
   display: inline-block;
   cursor: pointer;
 }
-/* line 1287, ../sass/_main.scss */
+/* line 1303, ../sass/_main.scss */
 #gameTable .dt-table .dt-hover {
   background: rgba(255, 237, 131, 0.5);
 }
-/* line 1290, ../sass/_main.scss */
+/* line 1306, ../sass/_main.scss */
 #gameTable .dt-table .dt-hover .dt-cell, #gameTable .dt-table .dt-hover .dt-cell a {
   color: black;
 }
-/* line 1295, ../sass/_main.scss */
+/* line 1311, ../sass/_main.scss */
 #gameTable .dt-table .dt-row.active {
   background: rgba(248, 188, 78, 0.5);
 }
-/* line 1299, ../sass/_main.scss */
+/* line 1315, ../sass/_main.scss */
 #gameTable .dt-header {
   position: relative;
 }
-/* line 1302, ../sass/_main.scss */
+/* line 1318, ../sass/_main.scss */
 #gameTable .dt-header.sortable:before {
   content: "";
   display: block;
@@ -2410,46 +2430,46 @@ nav .pod:last-child {
   -webkit-transition: -webkit-transform 200ms;
   transition: transform 200ms;
 }
-/* line 1318, ../sass/_main.scss */
+/* line 1334, ../sass/_main.scss */
 #gameTable .dt-header.sortable.asc:before {
   -webkit-transform: rotateZ(-90deg);
   transform: rotateZ(-90deg);
 }
-/* line 1322, ../sass/_main.scss */
+/* line 1338, ../sass/_main.scss */
 #gameTable .dt-header.sortable.desc:before {
   -webkit-transform: rotateZ(90deg);
   transform: rotateZ(90deg);
 }
-/* line 1327, ../sass/_main.scss */
+/* line 1343, ../sass/_main.scss */
 #gameTable .dt-header .filter-status {
   font-size: 0.75em;
   opacity: 0.75;
   margin-left: 5px;
 }
-/* line 1334, ../sass/_main.scss */
+/* line 1350, ../sass/_main.scss */
 #gameTable .filter-button {
   width: auto;
   height: auto;
   margin-top: -10px;
 }
-/* line 1339, ../sass/_main.scss */
+/* line 1355, ../sass/_main.scss */
 #gameTable .filter-button .active {
   text-shadow: 1px 1px 2px #6699FF;
 }
-/* line 1343, ../sass/_main.scss */
+/* line 1359, ../sass/_main.scss */
 #gameTable .dropdown-button {
   width: 20px;
   height: 20px;
   text-align: center;
   line-height: 20px;
 }
-/* line 1349, ../sass/_main.scss */
+/* line 1365, ../sass/_main.scss */
 #gameTable .dropdown-button.dropdown-active {
   -moz-border-radius: 5px 5px 0 0;
   -webkit-border-radius: 5px;
   border-radius: 5px 5px 0 0;
 }
-/* line 1354, ../sass/_main.scss */
+/* line 1370, ../sass/_main.scss */
 #gameTable .dt-table .dt-row.dt-no-items h5 {
   font-size: 1.1em;
   margin: 5% 0;
@@ -2458,42 +2478,42 @@ nav .pod:last-child {
 
 /* end of #gameTable */
 /* Game Filter Screen */
-/* line 1363, ../sass/_main.scss */
+/* line 1379, ../sass/_main.scss */
 .game-filters .text-content-page label {
   display: block;
   font-size: 1.5em;
 }
-/* line 1367, ../sass/_main.scss */
+/* line 1383, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections {
   margin: 5px 10px 20px;
 }
-/* line 1370, ../sass/_main.scss */
+/* line 1386, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .filter-button {
   cursor: pointer;
   display: inline-block;
 }
-/* line 1374, ../sass/_main.scss */
+/* line 1390, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .accordion-toggle {
   font-size: 18px;
 }
-/* line 1377, ../sass/_main.scss */
+/* line 1393, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .accordion-toggle span {
   display: inline-block;
   vertical-align: middle;
 }
 @media only screen and (max-width: 700px) {
-  /* line 1374, ../sass/_main.scss */
+  /* line 1390, ../sass/_main.scss */
   .game-filters .text-content-page .filter-selections .accordion-toggle {
     font-size: 20px;
     line-height: 25px;
   }
 }
-/* line 1387, ../sass/_main.scss */
+/* line 1403, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .filter-output {
   display: inline-block;
   vertical-align: middle;
 }
-/* line 1391, ../sass/_main.scss */
+/* line 1407, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .filter-output .btn {
   display: inline-block;
   line-height: normal;
@@ -2504,62 +2524,62 @@ nav .pod:last-child {
   color: #555;
 }
 @media only screen and (max-width: 700px) {
-  /* line 1391, ../sass/_main.scss */
+  /* line 1407, ../sass/_main.scss */
   .game-filters .text-content-page .filter-selections .filter-output .btn {
     line-height: 35px;
   }
 }
-/* line 1405, ../sass/_main.scss */
+/* line 1421, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .filter-menu {
   margin-top: 5px;
 }
-/* line 1408, ../sass/_main.scss */
+/* line 1424, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .filter-menu .btn {
   text-align: left;
   margin: 0 2% 2% 0;
   border-radius: 3px;
   display: inline-block;
 }
-/* line 1414, ../sass/_main.scss */
+/* line 1430, ../sass/_main.scss */
 .game-filters .text-content-page .filter-selections .filter-menu .btn.active {
   background: #6699FF;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3) inset;
   border-color: #555;
   color: #FFED83;
 }
-/* line 1423, ../sass/_main.scss */
+/* line 1439, ../sass/_main.scss */
 .game-filters .text-content-page #tags_filter {
   padding: 0px;
 }
-/* line 1426, ../sass/_main.scss */
+/* line 1442, ../sass/_main.scss */
 .game-filters .text-content-page #tags_filter #tagOutput > .fa {
   display: none;
 }
-/* line 1431, ../sass/_main.scss */
+/* line 1447, ../sass/_main.scss */
 .game-filters .text-content-page #tags_filter .accordion-toggle .filter-output {
   margin: -4px -5px 0 0;
 }
 @media only screen and (max-width: 700px) {
-  /* line 1436, ../sass/_main.scss */
+  /* line 1452, ../sass/_main.scss */
   .game-filters .text-content-page #tags_filter .accordion-toggle .tag {
     font-size: 20px;
     line-height: 25px;
   }
 }
-/* line 1444, ../sass/_main.scss */
+/* line 1460, ../sass/_main.scss */
 .game-filters .text-content-page .btn-clear {
   float: left;
   display: none;
 }
 @media only screen and (max-width: 700px) {
-  /* line 1444, ../sass/_main.scss */
+  /* line 1460, ../sass/_main.scss */
   .game-filters .text-content-page .btn-clear {
     float: right;
     margin: 10px 0 20px 0;
   }
 }
 
-/* line 1455, ../sass/_main.scss */
+/* line 1471, ../sass/_main.scss */
 .text-content-page-wrapper {
   position: absolute;
   top: 40px;
@@ -2568,11 +2588,11 @@ nav .pod:last-child {
   right: 0;
   z-index: 0;
 }
-/* line 1463, ../sass/_main.scss */
+/* line 1479, ../sass/_main.scss */
 .text-content-page-wrapper.intoggle {
   z-index: 2;
 }
-/* line 1467, ../sass/_main.scss */
+/* line 1483, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page {
   max-width: 700px;
   width: 90%;
@@ -2583,7 +2603,7 @@ nav .pod:last-child {
   overflow: auto;
   position: relative;
 }
-/* line 1477, ../sass/_main.scss */
+/* line 1493, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page > .close {
   position: absolute;
   top: 0px;
@@ -2591,66 +2611,66 @@ nav .pod:last-child {
   font-size: 35px;
   cursor: pointer;
 }
-/* line 1485, ../sass/_main.scss */
+/* line 1501, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page h2 {
   font-size: 2em;
   font-weight: bold;
   margin: 0 0 2% 0;
 }
-/* line 1490, ../sass/_main.scss */
+/* line 1506, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page h3 {
   font-size: 1.2em;
   margin-bottom: 1em;
   font-weight: bold;
 }
-/* line 1495, ../sass/_main.scss */
+/* line 1511, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page p, .text-content-page-wrapper .text-content-page ul, .text-content-page-wrapper .text-content-page ol {
   margin-bottom: 1em;
   line-height: 1.1;
 }
-/* line 1499, ../sass/_main.scss */
+/* line 1515, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page ol {
   list-style-type: decimal;
   padding-left: 30px;
 }
-/* line 1503, ../sass/_main.scss */
+/* line 1519, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page ol li {
   margin-bottom: 7px;
 }
-/* line 1507, ../sass/_main.scss */
+/* line 1523, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .creative-commons {
   margin: 50px auto 20px;
   max-width: 450px;
   text-align: center;
 }
-/* line 1512, ../sass/_main.scss */
+/* line 1528, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page ul {
   padding: 0 5%;
 }
-/* line 1514, ../sass/_main.scss */
+/* line 1530, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page ul li {
   line-height: 1.5;
 }
-/* line 1519, ../sass/_main.scss */
+/* line 1535, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .third-party-logos a {
   margin: 10px;
   display: inline-block;
   float: left;
   vertical-align: middle;
 }
-/* line 1525, ../sass/_main.scss */
+/* line 1541, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .third-party-logos img {
   max-width: 200px;
   max-height: 200px;
 }
-/* line 1529, ../sass/_main.scss */
+/* line 1545, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .third-party-logos .font-awesome {
   color: #279d75;
   font-size: 3em;
   text-decoration: none;
   font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-/* line 1536, ../sass/_main.scss */
+/* line 1552, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page textarea {
   width: 100%;
   border: 0;
@@ -2659,7 +2679,7 @@ nav .pod:last-child {
   padding: 1%;
   box-sizing: border-box;
 }
-/* line 1544, ../sass/_main.scss */
+/* line 1560, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page input {
   font-size: 1.5em;
   width: 100%;
@@ -2668,32 +2688,32 @@ nav .pod:last-child {
   padding: 1px 4px;
   background: rgba(255, 255, 255, 0.75);
 }
-/* line 1552, ../sass/_main.scss */
+/* line 1568, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .genderoptions {
   font-size: 1.5em;
 }
-/* line 1555, ../sass/_main.scss */
+/* line 1571, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .genderoptions div {
   cursor: pointer;
 }
-/* line 1558, ../sass/_main.scss */
+/* line 1574, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .genderoptions i {
   display: block;
   float: left;
   width: 25px;
 }
-/* line 1563, ../sass/_main.scss */
+/* line 1579, ../sass/_main.scss */
 .text-content-page-wrapper .text-content-page .genderoptions span {
   display: block;
   margin-left: 27px;
 }
 
 /* end of content-page-wrapper */
-/* line 1573, ../sass/_main.scss */
+/* line 1589, ../sass/_main.scss */
 .about-contact .text-content-page p {
   line-height: 1.5;
 }
-/* line 1576, ../sass/_main.scss */
+/* line 1592, ../sass/_main.scss */
 .about-contact .text-content-page select {
   background: none;
   border: 1px solid #555;
@@ -2701,11 +2721,11 @@ nav .pod:last-child {
   font-family: courier new;
   font-size: 0.9em;
 }
-/* line 1583, ../sass/_main.scss */
+/* line 1599, ../sass/_main.scss */
 .about-contact .text-content-page select.notice {
   border-color: darkred;
 }
-/* line 1587, ../sass/_main.scss */
+/* line 1603, ../sass/_main.scss */
 .about-contact .text-content-page input {
   background: none;
   font-family: Courier new;
@@ -2732,7 +2752,7 @@ nav .pod:last-child {
 .about-contact .text-content-page input::-webkit-input-placeholder {
   color: #333;
 }
-/* line 1601, ../sass/_main.scss */
+/* line 1617, ../sass/_main.scss */
 .about-contact .text-content-page textarea {
   background: none;
   border: 1px solid #555;
@@ -2740,11 +2760,11 @@ nav .pod:last-child {
   font-size: 0.9em;
   color: #333;
 }
-/* line 1608, ../sass/_main.scss */
+/* line 1624, ../sass/_main.scss */
 .about-contact .text-content-page textarea.notice {
   border-color: darkred;
 }
-/* line 1612, ../sass/_main.scss */
+/* line 1628, ../sass/_main.scss */
 .about-contact .text-content-page #contactSigOutput {
   font-family: 'Alex Brush';
   font-size: 52px;
@@ -2752,34 +2772,34 @@ nav .pod:last-child {
   transform-origin: 0%;
   color: #333;
 }
-/* line 1619, ../sass/_main.scss */
+/* line 1635, ../sass/_main.scss */
 .about-contact .text-content-page .error {
   display: none;
   color: darkred;
   text-align: center;
 }
-/* line 1624, ../sass/_main.scss */
+/* line 1640, ../sass/_main.scss */
 .about-contact .text-content-page .btn {
   margin: 30px auto 0;
   display: block;
   background: none;
 }
-/* line 1629, ../sass/_main.scss */
+/* line 1645, ../sass/_main.scss */
 .about-contact .text-content-page .btn:hover {
   background: #FFF;
 }
-/* line 1633, ../sass/_main.scss */
+/* line 1649, ../sass/_main.scss */
 .about-contact .text-content-page.shake {
   -moz-animation: shake 300ms both;
   -webkit-animation: shake 300ms both;
   animation: shake 300ms both;
 }
 
-/* line 1637, ../sass/_main.scss */
+/* line 1653, ../sass/_main.scss */
 .about-contact-success .text-content-page {
   text-align: center;
 }
-/* line 1640, ../sass/_main.scss */
+/* line 1656, ../sass/_main.scss */
 .about-contact-success .text-content-page .contact-success-header {
   font-family: 'Alex Brush';
   font-size: 52px;
@@ -2789,67 +2809,67 @@ nav .pod:last-child {
   margin-top: 40px;
 }
 
-/* line 1651, ../sass/_main.scss */
+/* line 1667, ../sass/_main.scss */
 .user-main .text-content-page textarea {
   background: rgba(255, 255, 255, 0.75);
   height: 64px;
   padding: 1px 4px;
   font-size: 1.5em;
 }
-/* line 1657, ../sass/_main.scss */
+/* line 1673, ../sass/_main.scss */
 .user-main .text-content-page .notice {
   border: 1px solid darkred;
 }
-/* line 1660, ../sass/_main.scss */
+/* line 1676, ../sass/_main.scss */
 .user-main .text-content-page .error, .user-main .text-content-page .success {
   text-align: center;
   color: darkred;
   display: none;
   margin-top: 1em;
 }
-/* line 1666, ../sass/_main.scss */
+/* line 1682, ../sass/_main.scss */
 .user-main .text-content-page .success {
   color: darkgreen;
 }
 
-/* line 1672, ../sass/_main.scss */
+/* line 1688, ../sass/_main.scss */
 .user-login .text-content-page {
   max-width: 400px;
 }
-/* line 1675, ../sass/_main.scss */
+/* line 1691, ../sass/_main.scss */
 .user-login .text-content-page h2 {
   margin-bottom: 0.5em;
 }
-/* line 1678, ../sass/_main.scss */
+/* line 1694, ../sass/_main.scss */
 .user-login .text-content-page .error {
   color: darkred;
   display: none;
 }
-/* line 1682, ../sass/_main.scss */
+/* line 1698, ../sass/_main.scss */
 .user-login .text-content-page button.btn {
   border: 0px;
   background: none;
 }
-/* line 1687, ../sass/_main.scss */
+/* line 1703, ../sass/_main.scss */
 .user-login .text-content-page.shake {
   -moz-animation: shake 300ms both;
   -webkit-animation: shake 300ms both;
   animation: shake 300ms both;
 }
-/* line 1690, ../sass/_main.scss */
+/* line 1706, ../sass/_main.scss */
 .user-login .text-content-page.runaway {
   position: relative;
   -moz-animation: runaway 3000ms 2s both, runaway-motion 3000ms 2s both linear;
   -webkit-animation: runaway 3000ms 2s both, runaway-motion 3000ms 2s both linear;
   animation: runaway 3000ms 2s both, runaway-motion 3000ms 2s both linear;
 }
-/* line 1694, ../sass/_main.scss */
+/* line 1710, ../sass/_main.scss */
 .user-login .text-content-page .fa-spin {
   font-size: 2em;
   float: right;
   line-height: 40px;
 }
-/* line 1700, ../sass/_main.scss */
+/* line 1716, ../sass/_main.scss */
 .user-login .fa-star {
   position: absolute;
   color: white;
@@ -2867,7 +2887,7 @@ nav .pod:last-child {
   -webkit-transform-origin: 50% 50% 50%;
   transform-origin: 50% 50% 50%;
 }
-/* line 1711, ../sass/_main.scss */
+/* line 1727, ../sass/_main.scss */
 .user-login .fa-star.starburst {
   -moz-animation: starburst 1500ms 6000ms both linear;
   -webkit-animation: starburst 1500ms 6000ms both linear;
@@ -3258,12 +3278,12 @@ nav .pod:last-child {
     top: -112px;
   }
 }
-/* line 1798, ../sass/_main.scss */
+/* line 1814, ../sass/_main.scss */
 .createdby {
   width: 320px;
   margin: 50px auto 20px;
 }
-/* line 1802, ../sass/_main.scss */
+/* line 1818, ../sass/_main.scss */
 .createdby > a {
   display: block;
   height: 35px;
@@ -3271,12 +3291,12 @@ nav .pod:last-child {
   text-indent: -9999em;
   float: left;
 }
-/* line 1809, ../sass/_main.scss */
+/* line 1825, ../sass/_main.scss */
 .createdby .denyconformity {
   width: 35px;
   margin-right: 20px;
 }
-/* line 1813, ../sass/_main.scss */
+/* line 1829, ../sass/_main.scss */
 .createdby .placeholder {
   width: 265px;
   background-position: -35px 0;

@@ -128,7 +128,7 @@ define(['backbone', 'jquery', 'underscore', 'models/game',
                     returnObject = {};
 
                 // first sort the data, which we don't have to do if we're already sorted by that
-                if (options.sort.property !== this._sort.property || options.sort.dir !== this._sort.dir) {
+                if (options.sort && (options.sort.property !== this._sort.property || options.sort.dir !== this._sort.dir)) {
                     this._sort = options.sort;
                     this.sort();
                 }

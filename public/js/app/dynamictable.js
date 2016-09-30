@@ -154,6 +154,12 @@ define(['jquery', 'backbone', 'underscore'],
         },
 
         _showLoader: function () {
+            /*
+            this.$loader.css({
+                left: this.$container.position().left,
+                right: this.$container.position().right
+            });
+            */
             this.$loader.show();
         },
         _hideLoader: function () {
@@ -851,7 +857,9 @@ define(['jquery', 'backbone', 'underscore'],
                 if (row.id) {
                     tr.id = self.options.idPrefix + row.id;
                 }
-                $(tr).data("data", row);
+
+                //$(tr).data("data", row);
+                tr.setAttribute('data-gameid', row.get('GameID'));
                 
                 if (reverse) {
                     self.$table.prepend(tr);
@@ -911,21 +919,25 @@ define(['jquery', 'backbone', 'underscore'],
                 var headChildren = self.headRow.childNodes;
 
                 this._forEach(this.columns, function(column, ci) {
-                    //find the widest cell in this column
-                    var headCell = headChildren[ci];
-                    headCell.style.width = 'auto';
 
-                    var size = headCell.offsetWidth;
-                    
-                    self._forEach(self.rows, function(row) {
-                        var cell = row.childNodes[ci];
-                        cell.style.width = 'auto';
-                        size = Math.max(size, cell.offsetWidth);
-                    });
-                    
-                    var perc = Math.ceil((size / maxWidth) * 100);
-                    self._sizes.push(Math.min(perc, self.options.maxWidth));
-                    totalSize += (perc);
+                    if (!column.hide) {
+                        //find the widest cell in this column
+                        var headCell = headChildren[ci];
+                        headCell.style.width = 'auto';
+
+                        var size = headCell.offsetWidth;
+                        
+                        self._forEach(self.rows, function(row) {
+                            var cell = row.childNodes[ci];
+                            cell.style.width = 'auto';
+                            size = Math.max(size, cell.offsetWidth);
+                        });
+                        
+                        var perc = Math.ceil((size / maxWidth) * 100);
+                        self._sizes.push(Math.min(perc, self.options.maxWidth));
+                        totalSize += (perc);
+                    }
+
                 });
 
                 //make sure all of the column widths add up to 100

@@ -100,7 +100,6 @@ define(['jquery',
                 var self = this;
                 if (this.$('#gameTable').hasClass('intoggle')) {
                     this._funcTimer = setTimeout(function () {
-                        console.log('function', func);
                         self.$('#gameTable').dynamictable(func);
                     }, 100);
                 }
@@ -292,10 +291,14 @@ define(['jquery',
                 var data;
                 this.$('#gameTable .dt-row').removeClass('active');
                 if (e.currentTarget) {
-                    data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
+                    // the user clicked on a row of the table
+                    var GameID = $(e.currentTarget).closest('.dt-row').addClass('active').data('gameid');
+                    data = this.collection.findWhere({GameID: GameID});
                 } else {
+                    // we were passed a game to show
                     data = e;
                 }
+
                 if (data) {
                     if (this.addGameForm) {
                         this.addGameForm.destroy();
@@ -332,7 +335,7 @@ define(['jquery',
 
             onShowGame: function() {
                 if (this.router.device === 'mobile') {
-                    this.searchView.hide();
+                    //this.searchView.hide();
                     this.$('#gameBox').addClass('active scrollContent').parent().addClass('active');
                 } else {
                     this.$el.addClass("showGame");
@@ -345,8 +348,14 @@ define(['jquery',
                 if (this.router.device === 'mobile') {
                     var $box = this.$('#gameBox').removeClass('active');
                     setTimeout(function () {
-                        $box.parent().removeClass('active');
-                        self.searchView.show();
+                        // deactivate the topnav
+                        // but if a search is active, we will just return to it
+                        if (self.searchView.val) {
+                            self.searchView.showSearch(true);
+                        } else {
+                            $box.parent().removeClass('active');
+                        }
+                        //self.searchView.show();
                     }, 500);
                 } else {
                     this.$el.removeClass("showGame");
