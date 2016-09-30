@@ -28,7 +28,7 @@ a:visited {
 
     .small-face {
         fill: $color-primary;
-        stroke: $color-text;
+        stroke: $color-secondary;
     }
 }
 
@@ -42,7 +42,7 @@ a:visited {
 
     .small-face {
         fill: rgba(0,0,0,0.3);
-        stroke: 0;
+        stroke: none;
     }
 }
 
@@ -189,9 +189,13 @@ a:visited {
     right: 0;
     z-index: 1;
     text-indent: -9999em;
-    width: 400px;
-    height: 320px;
-    background-image: url('../images/cornerlogo.png');
+    width: 100%;
+    height: auto;
+    text-align: right;
+
+    img {
+        max-width: 100%;
+    }
 }
     
 body > h1 {
@@ -276,16 +280,18 @@ nav {
                 @include transition(left 500ms, top 500ms);
 
                 > i {
+                    color: $color-mobile-topnav-text;
                     position: relative;
                     left: -40px;
                     margin-left: 2%;
-                    @include transition(left 500ms);
+                    @include transition(left 500ms, color 500ms);
                 }
 
                 &.active {
                     left: 20%;
 
                     > i {
+                        color: $color-text;
                         left: 0;
                     }
                 }
@@ -484,7 +490,8 @@ nav {
                     text-align: right;
 
                     i {
-                        @include transition(transform 500ms);
+                        color: $color-mobile-topnav-text;
+                        @include transition(transform 500ms, color 500ms);
                     }
                 }
             }
@@ -509,6 +516,7 @@ nav {
                     margin-left: 0;
 
                     i {
+                        color: $color-text;
                         transform: rotateZ(90deg);
                     }
                 }
@@ -664,6 +672,7 @@ nav {
             vertical-align: middle;
             position: relative;
             z-index: 2;
+            color: $color-mobile-topnav-text;
         }
         .heightener {
             height: 100%;
