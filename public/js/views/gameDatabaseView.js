@@ -134,7 +134,6 @@ define(['jquery',
                     }, this));
                 }
 
-                this.shown = true;
                 this.showDatabase();
             },
             hide: function () {
@@ -156,6 +155,7 @@ define(['jquery',
                     this.$('#gameTable').trigger('render.dynamictable');
                 }
                 this.page = 'Database';
+                this.shown = true;
             },
             showFilters: function () {
                 if (!this.$('.game-filters').length) {

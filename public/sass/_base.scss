@@ -1,14 +1,17 @@
 @import "compass/css3";
 
 // colors!
-$color-primary: #f5a73e;
-$color-secondary: #936538;
-$color-active: #dfd5b2;
-$color-active-text: #666;
-$color-hover: #dfd5b2;
-$color-text: #555;
-$color-content-bg: rgba(225, 209, 152, 0.9);
-$color-content-bg-mobile: #e1d198;
+$color-primary: #CE872D; // tags, links, smiley face
+$color-secondary: #8A211D; // background, active tag text
+$color-active: #F0CF4E; // active menu background, page indicator background, selected table row background
+$color-active-text: #666; // active menu text
+$color-hover: rgb(252,247,209); // table row hover background
+$color-text: #666;
+
+$color-content-bg: rgba(252,247,209, 0.9);
+$color-content-bg-mobile: rgba(252,247,209, 0.9);
+
+$color-mobile-topnav-text: rgb(252,247,209);
 
 // timings!
 $anim-duration: 300ms;
