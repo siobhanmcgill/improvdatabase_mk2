@@ -306,7 +306,7 @@ but this will require some javascript magic, probably
 }
 .turnover.ready {
     display: block;
-    transition: top 500ms, left 500ms;
+    transition: top $anim-duration, left $anim-duration;
 }
     .turnover > [class*='arrow-'] {
         position: absolute;
@@ -315,7 +315,7 @@ but this will require some javascript magic, probably
         transform-origin: 0% 100%;
     }
     .turnover.ready > [class*='arrow-'] {
-        transition: all 500ms;
+        transition: all $anim-duration;
     }
     .turnover > .arrow-left, .turnover > .arrow-right {
         top: -12px;
@@ -512,8 +512,8 @@ table th.sortable {
     transform: translateX(40px);
 }
 .intoggle.anim {
-    -webkit-animation: fadeToggle 500ms both;
-    animation: fadeToggle 500ms both;
+    -webkit-animation: fadeToggle $anim-duration both;
+    animation: fadeToggle $anim-duration both;
 }
 .outtoggle {
     opacity: 1;
@@ -521,8 +521,8 @@ table th.sortable {
     transform: translateX(0px);
 }
 .outtoggle.anim {
-    -webkit-animation: fadeToggle_out 500ms both;
-    animation: fadeToggle_out 500ms both;
+    -webkit-animation: fadeToggle_out $anim-duration both;
+    animation: fadeToggle_out $anim-duration both;
 }
 
 .intoggle.right {
@@ -531,8 +531,8 @@ table th.sortable {
     transform: translateX(-40px);
 }
 .intoggle.right.anim {
-    -webkit-animation: fadeToggle_out 500ms both reverse;
-    animation: fadeToggle_out 500ms both reverse;
+    -webkit-animation: fadeToggle_out $anim-duration both reverse;
+    animation: fadeToggle_out $anim-duration both reverse;
 }
 .outtoggle.right {
     opacity: 1;
@@ -540,8 +540,8 @@ table th.sortable {
     transform: translateX(0px);
 }
 .outtoggle.right.anim {
-    -webkit-animation: fadeToggle 500ms both reverse;
-    animation: fadeToggle 500ms both reverse;
+    -webkit-animation: fadeToggle $anim-duration both reverse;
+    animation: fadeToggle $anim-duration both reverse;
 }
 @-webkit-keyframes fadeToggle {
     0% {

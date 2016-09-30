@@ -35,7 +35,7 @@ define(['jquery',
                     if (this.router.device !== 'mobile') {
                         this.$el.addClass('showSearch');
                         setTimeout(function () {
-                            self.reload();
+                            self.refreshTable();
                         }, 500);
                     }
                 });
@@ -43,7 +43,7 @@ define(['jquery',
                     if (this.router.device !== 'mobile') {
                         this.$el.removeClass('showSearch');
                         setTimeout(function () {
-                            self.reload();
+                            self.refreshTable();
                         }, 500);
                     }
                 });
@@ -57,7 +57,7 @@ define(['jquery',
                     this.trigger('render-toolbar', this);
                 });
 
-                $(window).on('resize', $.proxy(this.reload, this));
+                $(window).on('resize', $.proxy(this.refreshTable, this));
             },
 
             registerTools: function () {
@@ -88,11 +88,20 @@ define(['jquery',
             },
 
             reload: function () {
-                clearTimeout(this._reloadTimer);
+                this._queueTableFunction('reload');
+            },
+
+            refreshTable: function () {
+                this._queueTableFunction('refresh');
+            },
+
+            _queueTableFunction: function (func) {
+                clearTimeout(this._funcTimer);
                 var self = this;
                 if (this.$('#gameTable').hasClass('intoggle')) {
-                    this._reloadTimer = setTimeout(function () {
-                        self.$('#gameTable').dynamictable('reload');
+                    this._funcTimer = setTimeout(function () {
+                        console.log('function', func);
+                        self.$('#gameTable').dynamictable(func);
                     }, 100);
                 }
             },
@@ -262,7 +271,7 @@ define(['jquery',
                 if (!this.addGameForm) {
                     this.addGameForm = new AddGameFormView({router: this.router});
                     this.listenTo(this.addGameForm, 'show-game', $.proxy(this.onShowGame, this));
-                    this.listenTo(this.addGameForm, 'shown-game', $.proxy(this.reload, this));
+                    this.listenTo(this.addGameForm, 'shown-game', $.proxy(this.refreshTable, this));
                     this.listenTo(this.addGameForm, 'hide-game', $.proxy(this.onHideGame, this));
                 }
                 if (this.$el.hasClass("showGame")) {
@@ -302,7 +311,7 @@ define(['jquery',
                         model: data
                     });
                     this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));
-                    this.listenTo(this.gameView, 'shown-game', $.proxy(this.reload, this));
+                    this.listenTo(this.gameView, 'shown-game', $.proxy(this.refreshTable, this));
                     this.listenTo(this.gameView, 'hide-game', $.proxy(this.onHideGame, this));
                     
                     this.$('#gameBox').append(this.gameView.$el);
@@ -343,7 +352,7 @@ define(['jquery',
                     this.$el.removeClass("showGame");
                     this.gameView = false;
                     setTimeout(function() {
-                        self.reload();
+                        self.refreshTable();
                     }, 500);
                 }
                 $('#btnAddGame').removeClass('active');

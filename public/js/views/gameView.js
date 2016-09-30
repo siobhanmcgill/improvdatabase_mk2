@@ -48,7 +48,7 @@ define(['jquery',
                 this.model = data;
             },
             render: function() {
-                var gameName = this.model.Name();
+                var gameName = this.model.get('Name');
                 this.names = this.collection.names.where({GameID: this.model.id});
                 this.notes = this.collection.notes.where({GameID: this.model.id});
 
@@ -158,6 +158,7 @@ define(['jquery',
                     }, 100);
                 });
                 nameModel.addWeight();
+                this.model.clearCache();
                 e.stopPropagation();
                 return false;
             },
@@ -246,7 +247,7 @@ define(['jquery',
                         var dddata = [
                                 {
                                     id: 'game_' + this.model.id,
-                                    text: 'Game "' + this.model.Name() + '"',
+                                    text: 'Game "' + this.model.get('Name') + '"',
                                     description: 'Game recognize game. That is, you have comments that apply to this game specifically.',
                                     data: {
                                         attr: 'GameID',
@@ -357,7 +358,7 @@ define(['jquery',
                     idattr: "duration",
                     idname: "Duration",
                     attr: "(Minutes)",
-                    add: this.collection.hasPermission('meta_create')
+                    add: this.router.hasPermission('meta_create')
                 });
                 this.durationDropdown.render();
                 this.boxHeight();

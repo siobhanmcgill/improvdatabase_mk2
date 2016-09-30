@@ -537,7 +537,7 @@ but this will require some javascript magic, probably
 /* line 307, ../sass/_framework.scss */
 .turnover.ready {
   display: block;
-  transition: top 500ms, left 500ms;
+  transition: top 300ms, left 300ms;
 }
 
 /* line 311, ../sass/_framework.scss */
@@ -550,7 +550,7 @@ but this will require some javascript magic, probably
 
 /* line 317, ../sass/_framework.scss */
 .turnover.ready > [class*='arrow-'] {
-  transition: all 500ms;
+  transition: all 300ms;
 }
 
 /* line 320, ../sass/_framework.scss */
@@ -808,8 +808,8 @@ table th.sortable.desc:before {
 
 /* line 514, ../sass/_framework.scss */
 .intoggle.anim {
-  -webkit-animation: fadeToggle 500ms both;
-  animation: fadeToggle 500ms both;
+  -webkit-animation: fadeToggle 300ms both;
+  animation: fadeToggle 300ms both;
 }
 
 /* line 518, ../sass/_framework.scss */
@@ -821,8 +821,8 @@ table th.sortable.desc:before {
 
 /* line 523, ../sass/_framework.scss */
 .outtoggle.anim {
-  -webkit-animation: fadeToggle_out 500ms both;
-  animation: fadeToggle_out 500ms both;
+  -webkit-animation: fadeToggle_out 300ms both;
+  animation: fadeToggle_out 300ms both;
 }
 
 /* line 528, ../sass/_framework.scss */
@@ -834,8 +834,8 @@ table th.sortable.desc:before {
 
 /* line 533, ../sass/_framework.scss */
 .intoggle.right.anim {
-  -webkit-animation: fadeToggle_out 500ms both reverse;
-  animation: fadeToggle_out 500ms both reverse;
+  -webkit-animation: fadeToggle_out 300ms both reverse;
+  animation: fadeToggle_out 300ms both reverse;
 }
 
 /* line 537, ../sass/_framework.scss */
@@ -847,8 +847,8 @@ table th.sortable.desc:before {
 
 /* line 542, ../sass/_framework.scss */
 .outtoggle.right.anim {
-  -webkit-animation: fadeToggle 500ms both reverse;
-  animation: fadeToggle 500ms both reverse;
+  -webkit-animation: fadeToggle 300ms both reverse;
+  animation: fadeToggle 300ms both reverse;
 }
 
 @-webkit-keyframes fadeToggle {
@@ -1711,19 +1711,19 @@ nav .pod:last-child {
   box-sizing: border-box;
   color: #555;
 }
-/* line 61, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 61, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input:-moz-placeholder {
   color: #555;
 }
-/* line 64, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 64, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input::-moz-placeholder {
   color: #555;
 }
-/* line 67, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 67, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input:-ms-input-placeholder {
   color: #555;
 }
-/* line 56, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 56, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 #searchBox input::-webkit-input-placeholder {
   color: #555;
 }
@@ -2716,19 +2716,19 @@ nav .pod:last-child {
   padding: 4px;
   color: #333;
 }
-/* line 61, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 61, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 .about-contact .text-content-page input:-moz-placeholder {
   color: #333;
 }
-/* line 64, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 64, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 .about-contact .text-content-page input::-moz-placeholder {
   color: #333;
 }
-/* line 67, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 67, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 .about-contact .text-content-page input:-ms-input-placeholder {
   color: #333;
 }
-/* line 56, ../../../../../../Ruby22-x64/lib/ruby/gems/2.2.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+/* line 56, C:/Ruby21-x64/lib/ruby/gems/2.1.0/gems/compass-core-1.0.1/stylesheets/compass/css3/_user-interface.scss */
 .about-contact .text-content-page input::-webkit-input-placeholder {
   color: #333;
 }
