@@ -200,14 +200,14 @@ define(['jquery',
                 
                 if (!this.isRendered[key]) {
                     this.$views.append(this.views[key].$el.addClass('view'));
-                    this.views[key].render(key2);
+                    this.views[key].render();
                     this.isRendered[key] = true;
 
                     this.$loader.hide();
                 } else {
                     this.views[key].$el.show();
                 }
-                this.views[key].show();
+                this.views[key].show(key2);
                 
                 var self = this,
                     title = this.views[key] ? this.views[key].title : '',

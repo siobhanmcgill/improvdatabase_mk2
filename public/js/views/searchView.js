@@ -85,9 +85,17 @@ define(['jquery',
                     return false;
                 }
                 if (val) {
+                    var navOptions;
+
                     if (!this.val) {
+                        // this is a new search
                         this.trigger('search-show');
+                    } else {
+                        navOptions = {replace: true};
                     }
+
+                    this.router.navigate('search/' + val, navOptions);
+
                     this.$el.addClass('open');
 
                     this.$('.results').empty();

@@ -105,16 +105,37 @@ define(['jquery',
                 }
             },
 
-            show: function () {
-                /*
-                if (!this.page) {
-                    this.page = 'Database';
+            show: function (GameID) {
+                this.shown = true;
+
+                if (GameID) {
+                    this.$('#gameTable').one('render.dynamictable', $.proxy(function () {
+                        var game;
+                        // this is expirimental, and doesn't really work
+                        if (isNaN(Number(GameID))) {
+                            this.collection.names.forEach(function (name) {
+                                if (name.get('Name').toLowerCase().indexOf(GameID) > -1) {
+                                    game = this.collection.get(name.get('GameID'));
+                                    return;
+                                }
+                            });
+                        } else {
+                            game = this.collection.get(GameID);
+                        }
+                        if (game) {
+                            this.showGame(game);
+                        } else {
+                            console.error('Yo dude, game ' + GameID + ' doesn\'t exist. Check yoself.');
+                            this.router.navigate('', {replace: true});
+                        }
+                    }, this));
                 }
-                this['show' + this.page]();
-                */
+
                 this.showDatabase();
             },
             hide: function () {
+                this.shown = false;
+
                 this.hideGame();
                 this.$('#gameTable').removeClass('intoggle').addClass('anim outtoggle');
                 this.$('.text-content-page-wrapper').removeClass('intoggle').addClass('anim outtoggle');
@@ -127,6 +148,8 @@ define(['jquery',
                 this.$('#prevpage, #nextpage').show();
                 if (this.page && this.page !== 'Database') {
                     this.reload();
+                } else if (this.page) {
+                    this.$('#gameTable').trigger('render.dynamictable');
                 }
                 this.page = 'Database';
             },
@@ -156,7 +179,7 @@ define(['jquery',
                 return true;
             },
 
-            render: function(GameID) {
+            render: function() {
 
                 var self = this;
                 var gameDb = this.router.games;
@@ -222,27 +245,8 @@ define(['jquery',
                     }
                 ];
 
-                if (GameID) {
-                    this.$('#gameTable').one('render.dynamictable', function () {
-                        var game;
-                        if (isNaN(Number(GameID))) {
-                            self.collection.names.forEach(function (name) {
-                                if (name.get('Name').toLowerCase().indexOf(GameID) > -1) {
-                                    game = self.collection.get(name.get('GameID'));
-                                    return;
-                                }
-                            });
-                        } else {
-                            game = self.collection.get(GameID);
-                        }
-                        if (game) {
-                            self.showGame(game);
-                        } else {
-                            console.error('Yo dude, game ' + GameID + ' doesn\'t exist. Check yoself.');
-                            self.router.navigate('', {replace: true});
-                        }
-                    });
-                }
+                var $loader = $('#siteLoader').clone().attr('id', 'gameTableLoader');
+                this.$('#gameTable').after($loader);
 
                 this.$("#gameTable").dynamictable({
                     data: gameDb,
@@ -250,7 +254,7 @@ define(['jquery',
                     prevpagebutton: this.$("#prevpage"),
                     nextpagebutton: this.$("#nextpage"),
                     pagesizemenu: this.$("#pagesize"),
-                    loader: this.$('#gameTableLoader'),
+                    loader: $loader,
                     pageSize: 'auto',
                     item: 'Game',
                     items: 'Games',
@@ -389,7 +393,10 @@ define(['jquery',
                 $('#btnAddGame').removeClass('active');
                 
                 this.selectedGame = false;
-                this.router.navigate('');
+
+                if (this.shown) {
+                    this.router.navigate('');
+                }
             },
 
             showRandomGame: function () {

@@ -53,12 +53,16 @@ define(['jquery',
                 ];
             },
 
-            show: function () {
+            show: function (page) {
+                page = page || 'Main';
+                this.page = page;
+
                 if (!this.page) {
                     this.page = 'Main';
                 }
                 this['show' + this.page]();
             },
+
             hide: function () {
                 this.$toolbar.find('.sub .btn').removeClass('active');
                 this.$('.text-content-page-wrapper').removeClass('intoggle').addClass('anim outtoggle');
@@ -72,12 +76,10 @@ define(['jquery',
             },
 
             render: function() {
-                this.showMain();
-
                 return this;
             },
 
-            showMain: function () {
+            showMain: function (navigate) {
                 if (!this.$('.about-main').length) {
                     this.$el.html(_.template(Template));
                 }
@@ -85,9 +87,11 @@ define(['jquery',
                 this.$('.about-main').removeClass('outtoggle').addClass('anim intoggle');
                 this.$toolbar.find('#btnAboutMain').addClass('active');
                 this.page = 'Main';
+                
+                this.router.navigate('about', {replace: navigate === false});
             },
 
-            showCredits: function () {
+            showCredits: function (navigate) {
                 if (!this.$('.about-credits').length) {
                     this.$el.append(_.template(CreditsTemplate));
                 }
@@ -95,9 +99,11 @@ define(['jquery',
                 this.$('.about-credits').removeClass('outtoggle').addClass('anim intoggle');
                 this.$toolbar.find('#btnCredits').addClass('active');
                 this.page = 'Credits';
+                
+                this.router.navigate('about/Credits', {replace: navigate === false});
             },
 
-            showContact: function () {
+            showContact: function (navigate) {
                 if (!this.$('.about-contact').length) {
                     this.$el.append(_.template(ContactTemplate));
                 }
@@ -109,6 +115,8 @@ define(['jquery',
                 this.$('.about-contact').removeClass('outtoggle').addClass('anim intoggle');
                 this.$toolbar.find('#btnContact').addClass('active');
                 this.page = 'Contact';
+                
+                this.router.navigate('about/Contact', {replace: navigate === false});
             },
 
             contactName: function () {
@@ -120,7 +128,7 @@ define(['jquery',
                 }
             },
 
-            showChangelog: function () {
+            showChangelog: function (navigate) {
                 if (!this.$('.about-changelog').length) {
                     this.$el.append(_.template(ChangelogTemplate));
                 }
@@ -128,6 +136,8 @@ define(['jquery',
                 this.$('.about-changelog').removeClass('outtoggle').addClass('anim intoggle');
                 this.$toolbar.find('#btnChangelog').addClass('active');
                 this.page = 'Changelog';
+                
+                this.router.navigate('about/Changelog', {replace: navigate === false});
             },
 
             submitContact: function () {
