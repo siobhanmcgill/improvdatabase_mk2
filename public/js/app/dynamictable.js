@@ -887,12 +887,14 @@ define(['jquery', 'backbone', 'underscore'],
                 this._refresh = false;
                 setTimeout(function () {
                     self.options.onRender(self.$table, data.data);
+                    self.$container.trigger('render.dynamictable', self);
                 }, 50);
             } else {
                 setTimeout(function() {
                     self.$table.addClass("anim");
                     setTimeout(function() {
                         self.options.onRender(self.$table, data.data);
+                        self.$container.trigger('render.dynamictable', self);
                     }, 300);
                 }, 250);
             }
