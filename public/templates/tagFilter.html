@@ -17,8 +17,8 @@
 
             <!-- <label>Available Tags:</label> -->
             <div class="taglist">
-            <% _.each(collection.models, function (model) { %>
-                <span class="tag" data-id="<%- model.id %>" data-weight="<%- window.router.tagGames.where({ TagID: model.id }).length %>"><%- model.attributes.Name %></span>
+            <% _.each(collection.tags.models, function (model) { %>
+                <span class="tag" data-id="<%- model.id %>" data-weight="<%- collection.tagGames.where({ TagID: model.id }).length %>"><%- model.attributes.Name %></span>
             <% }) %>
                 <span class="clear"></span>
             </div>

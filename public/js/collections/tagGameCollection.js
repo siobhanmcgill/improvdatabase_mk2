@@ -20,14 +20,16 @@ define(['backbone', 'underscore', 'models/tagGame'],
                 if (tagGameID) {
                     tagData.tagGameID = tagGameID;
                 }
+                window.router.games.get(gameID).clearCache();
                 taggame.save(tagData, {
-                    success: function(model, response) {
+                    success: function(model) {
                         self.add(model);
                     }
                 });
             },
             removeTagFromGame: function(tagID, gameID) {
                 this.findWhere({TagID: tagID, GameID: gameID}).destroy();
+                window.router.games.get(gameID).clearCache();
             }
         });
     });

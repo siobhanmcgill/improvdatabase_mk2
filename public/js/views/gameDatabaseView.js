@@ -23,10 +23,11 @@ define(['jquery',
             icon: 'fa-database',
             initialize: function(options) {
                 this.router = options.router;
+                this.collection = this.router.games;
                 var self = this;
 
-                this.listenTo(this.router.tagGames, "add remove", $.proxy(this.reload, this));
-                this.listenTo(this.router.games, "sync add", $.proxy(this.reload, this));
+                //this.listenTo(this.router.tagGames, "add remove", $.proxy(this.reload, this));
+                //this.listenTo(this.router.games, "sync add", $.proxy(this.reload, this));
 
                 this.searchView = new SearchView({ router: this.router });
 
@@ -34,7 +35,7 @@ define(['jquery',
                     if (this.router.device !== 'mobile') {
                         this.$el.addClass('showSearch');
                         setTimeout(function () {
-                            self.reload();
+                            self.refreshTable();
                         }, 500);
                     }
                 });
@@ -42,7 +43,7 @@ define(['jquery',
                     if (this.router.device !== 'mobile') {
                         this.$el.removeClass('showSearch');
                         setTimeout(function () {
-                            self.reload();
+                            self.refreshTable();
                         }, 500);
                     }
                 });
@@ -56,7 +57,7 @@ define(['jquery',
                     this.trigger('render-toolbar', this);
                 });
 
-                $(window).on('resize', $.proxy(this.reload, this));
+                $(window).on('resize', $.proxy(this.refreshTable, this));
             },
 
             registerTools: function () {
@@ -87,22 +88,53 @@ define(['jquery',
             },
 
             reload: function () {
-                clearTimeout(this._reloadTimer);
+                this._queueTableFunction('reloadWithHeader');
+            },
+
+            refreshTable: function () {
+                this._queueTableFunction('refresh');
+            },
+
+            _queueTableFunction: function (func) {
+                clearTimeout(this._funcTimer);
                 var self = this;
                 if (this.$('#gameTable').hasClass('intoggle')) {
-                    this._reloadTimer = setTimeout(function () {
-                        self.$('#gameTable').dynamictable('reload');
+                    this._funcTimer = setTimeout(function () {
+                        self.$('#gameTable').dynamictable(func);
                     }, 100);
                 }
             },
 
-            show: function () {
-                /*
-                if (!this.page) {
-                    this.page = 'Database';
+            show: function (GameID) {
+                if (GameID) {
+                    if (GameID === 'filters') {
+                        this.showFilters();
+                        return;
+                    }
+
+                    this.$('#gameTable').one('render.dynamictable', $.proxy(function () {
+                        var game;
+                        // this is expirimental, and doesn't really work
+                        if (isNaN(Number(GameID))) {
+                            this.collection.names.forEach(function (name) {
+                                if (name.get('Name').toLowerCase().indexOf(GameID) > -1) {
+                                    game = this.collection.get(name.get('GameID'));
+                                    return;
+                                }
+                            });
+                        } else {
+                            game = this.collection.get(GameID);
+                        }
+                        if (game) {
+                            this.showGame(game);
+                        } else {
+                            console.error('Yo dude, game ' + GameID + ' doesn\'t exist. Check yoself.');
+                            this.router.navigate('', {replace: true});
+                        }
+                    }, this));
                 }
-                this['show' + this.page]();
-                */
+
+                this.shown = true;
                 this.showDatabase();
             },
             hide: function () {
@@ -110,14 +142,18 @@ define(['jquery',
                 this.$('#gameTable').removeClass('intoggle').addClass('anim outtoggle');
                 this.$('.text-content-page-wrapper').removeClass('intoggle').addClass('anim outtoggle');
                 this.$toolbar.find('.sub .btn').removeClass('active');
+                this.shown = false;
             },
 
             showDatabase: function () {
                 this.hide();
                 this.$('#gameTable').removeClass('outtoggle').addClass('anim intoggle');
                 this.$('#prevpage, #nextpage').show();
+                
                 if (this.page && this.page !== 'Database') {
                     this.reload();
+                } else if (this.page) {
+                    this.$('#gameTable').trigger('render.dynamictable');
                 }
                 this.page = 'Database';
             },
@@ -148,6 +184,10 @@ define(['jquery',
             },
 
             render: function() {
+                var self = this;
+
+                var gameDb = this.router.games;
+
                 this.$el.html(_.template(Template)).show();
 
                 this.$(".has-tooltip").tooltip();
@@ -155,13 +195,12 @@ define(['jquery',
                 this.$("#pagesize").dropdown({width: "auto"});
 
                 this.tagFilter = new TagFilterView({
-                    collection: window.router.tags
+                    collection: gameDb
                 });
 
                 this.$('#gameBox').before(this.searchView.el);
                 this.searchView.render();
 
-                var self = this;
 
                 this.columns = [
                     {
@@ -183,7 +222,7 @@ define(['jquery',
                         property: "Duration",
                         sortProperty: "DurationSort",
                         filter: {
-                            collection: this.router.durations,
+                            collection: gameDb.durations,
                             property: 'DurationID',
                             attributes: {
                                 value: 'DurationID',
@@ -198,7 +237,7 @@ define(['jquery',
                         property: "PlayerCount",
                         sortProperty: "PlayerCountSort",
                         filter: {
-                            collection: this.router.playerCounts,
+                            collection: gameDb.playerCounts,
                             property: 'PlayerCountID',
                             attributes: {
                                 value: 'PlayerCountID',
@@ -207,20 +246,19 @@ define(['jquery',
                             }
                         },
                         hide: this.router.device === 'mobile'
-                    }/*,
-                    {
-                        header: "Last Modified",
-                        property: "ModifiedDisplay",
-                        sortProperty: "DateModified"
-                    }*/
+                    }
                 ];
 
+                var $loader = $('#siteLoader').clone().attr('id', 'gameTableLoader');
+                this.$('#gameTable').after($loader);
+
                 this.$("#gameTable").dynamictable({
-                    data: this.router.games,
+                    data: gameDb,
                     pageindicator: this.$("#pageindicator"),
                     prevpagebutton: this.$("#prevpage"),
                     nextpagebutton: this.$("#nextpage"),
                     pagesizemenu: this.$("#pagesize"),
+                    loader: $loader,
                     pageSize: 'auto',
                     item: 'Game',
                     items: 'Games',
@@ -254,13 +292,17 @@ define(['jquery',
                     this.addGameForm.hide();
                 }
                 this.$('nav').off('click.hidegame');
+
+                if (this.shown) {
+                    this.router.navigate('');
+                }
             },
 
             showAddGame: function() {
                 if (!this.addGameForm) {
                     this.addGameForm = new AddGameFormView({router: this.router});
                     this.listenTo(this.addGameForm, 'show-game', $.proxy(this.onShowGame, this));
-                    this.listenTo(this.addGameForm, 'shown-game', $.proxy(this.reload, this));
+                    this.listenTo(this.addGameForm, 'shown-game', $.proxy(this.refreshTable, this));
                     this.listenTo(this.addGameForm, 'hide-game', $.proxy(this.onHideGame, this));
                 }
                 if (this.$el.hasClass("showGame")) {
@@ -281,27 +323,31 @@ define(['jquery',
                 var data;
                 this.$('#gameTable .dt-row').removeClass('active');
                 if (e.currentTarget) {
-                    data = $(e.currentTarget).closest(".dt-row").addClass("active").data("data");
+                    // the user clicked on a row of the table
+                    var GameID = $(e.currentTarget).closest('.dt-row').addClass('active').data('gameid');
+                    data = this.collection.findWhere({GameID: GameID});
                 } else {
+                    // we were passed a game to show
                     data = e;
                 }
+
                 if (data) {
                     if (this.addGameForm) {
                         this.addGameForm.destroy();
                     }
-                    if (!this.gameView) {
-                        this.gameView = new GameView({
-                            GameID: data.id,
-                            router: this.router,
-                            model: data
-                        });
-                        this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));
-                        this.listenTo(this.gameView, 'shown-game', $.proxy(this.reload, this));
-                        this.listenTo(this.gameView, 'hide-game', $.proxy(this.onHideGame, this));
-                    } else {
+                    if (this.gameView) {
                         this.gameView.destroy();
-                        this.gameView.setGame(data);
                     }
+                    
+                    this.gameView = new GameView({
+                        GameID: data.id,
+                        router: this.router,
+                        collection: this.collection,
+                        model: data
+                    });
+                    this.listenTo(this.gameView, 'show-game', $.proxy(this.onShowGame, this));
+                    this.listenTo(this.gameView, 'shown-game', $.proxy(this.refreshTable, this));
+                    this.listenTo(this.gameView, 'hide-game', $.proxy(this.onHideGame, this));
                     
                     this.$('#gameBox').append(this.gameView.$el);
 
@@ -317,11 +363,13 @@ define(['jquery',
                 } else {
                     this.selectedGame = false;
                 }
+
+                this.router.navigate('game/' + this.selectedGame.id);
             },
 
             onShowGame: function() {
                 if (this.router.device === 'mobile') {
-                    this.searchView.hide();
+                    //this.searchView.hide();
                     this.$('#gameBox').addClass('active scrollContent').parent().addClass('active');
                 } else {
                     this.$el.addClass("showGame");
@@ -334,17 +382,25 @@ define(['jquery',
                 if (this.router.device === 'mobile') {
                     var $box = this.$('#gameBox').removeClass('active');
                     setTimeout(function () {
-                        $box.parent().removeClass('active');
-                        self.searchView.show();
+                        // deactivate the topnav
+                        // but if a search is active, we will just return to it
+                        if (self.searchView.val) {
+                            self.searchView.showSearch(true);
+                        } else {
+                            $box.parent().removeClass('active');
+                        }
+                        //self.searchView.show();
                     }, 500);
                 } else {
                     this.$el.removeClass("showGame");
                     this.gameView = false;
                     setTimeout(function() {
-                        self.reload();
+                        self.refreshTable();
                     }, 500);
                 }
                 $('#btnAddGame').removeClass('active');
+                
+                this.selectedGame = false;
             },
 
             showRandomGame: function () {

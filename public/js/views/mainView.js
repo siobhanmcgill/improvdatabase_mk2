@@ -21,18 +21,20 @@ define(['jquery',
                 this.router = options.router;
                 
                 this.views = {};
-                this.views.gamedb = new gameDatabaseView({ router: this.router });
+                this.views.game = new gameDatabaseView({ router: this.router });
                 this.views.about = new aboutView({ router: this.router });
                 this.views.user = new userView({ router: this.router });
                 
                 this.currentView = '';
                 this.isRendered = {};
+
+                this.$loader = this.$el.find('#siteLoader');
             },
             
             renderToolbar: function (view) {
                 var key = view.key,
                     data = {
-                        key: key === 'gamedb' ? '' : key,
+                        key: key === 'game' ? '' : key,
                         id: key + 'Tools',
                         icon: view.icon,
                         title: view.title,
@@ -87,7 +89,7 @@ define(['jquery',
                 }
             },
 
-            render: function(key) {
+            render: function(key, key2) {
                 if (!this.isRendered.main) {
                     this.$el.append(_.template(Template));
                     this.$views = this.$el.children('#views');
@@ -177,7 +179,7 @@ define(['jquery',
                     this.isRendered.main = true;
                 }
 
-                key = key || 'gamedb';
+                key = key || 'game';
                 
                 // if a view is currently showing, get rid of it
                 if (this.views[this.currentView] && this.currentView !== key) {
@@ -200,10 +202,12 @@ define(['jquery',
                     this.$views.append(this.views[key].$el.addClass('view'));
                     this.views[key].render();
                     this.isRendered[key] = true;
+
+                    this.$loader.hide();
                 } else {
                     this.views[key].$el.show();
                 }
-                this.views[key].show();
+                this.views[key].show(key2);
                 
                 var self = this,
                     title = this.views[key] ? this.views[key].title : '',

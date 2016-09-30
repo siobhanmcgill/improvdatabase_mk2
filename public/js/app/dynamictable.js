@@ -30,6 +30,12 @@ define(['jquery', 'backbone', 'underscore'],
             this.$pagesizemenu = $("<div></div>");
         }
 
+        if (this.options.loader) {
+            this.$loader = this.options.loader;
+        } else {
+            this.$loader = $("<div></div>");
+        }
+
         this.data = this.options.data;
         if (this.data instanceof Backbone.Collection) {
             this.options.dataType = "backbone";
@@ -51,20 +57,32 @@ define(['jquery', 'backbone', 'underscore'],
             }
         }
 
+        // figure out the defalt sort property
+        this._forEach(this.columns, function(column) {
+            if (column.defaultSort) {
+                this._sortBy = column.property;
+            }
+        });
+        if (!this._sortBy && this.columns.length > 0) {
+            this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
+        }
+
+
         this._page = 0;
         this._start = 0;
         this._end = 0;
         this._total = 0;
         this._pageCount = 0;
-        this._sortBy = null;
         this._sortDir = "asc";
         this._filter = {};
+        this._refresh = false;
 
+        this.rows = [];
         this._sizes = [];
 
         this.render();
         
-        $(window).resize($.proxy(this.heights, this));
+        //$(window).resize($.proxy(this.heights, this));
 
         this.$pagesizemenu.on("change", $.proxy(this.pageSize, this));
         this.$nextbutton.click($.proxy(this.next, this));
@@ -85,8 +103,8 @@ define(['jquery', 'backbone', 'underscore'],
 
             this.$container.empty();
 
+            this.$table = $("");
             this.$head = $("<div class='dt-table-head'><div class='dt-table-head-shadow'></div></div>");
-            this.$table = this._tableBody();
 
             this.$container.append(this.$head);
             this.$container.append(this.$table);
@@ -96,7 +114,6 @@ define(['jquery', 'backbone', 'underscore'],
                 this.$nextbutton.hide();
             }
 
-            this.renderTableHeader();
             this.next();
         },
         reload: function() {
@@ -105,10 +122,21 @@ define(['jquery', 'backbone', 'underscore'],
             //this._sizes = [];
             this._page = this.options.pageSize === 0 ? 0 : this._page - 1;
             this._end = this._start;
-            this.refresh = true;
-            this.render();
+            //this._refresh = true;
+            this.next();
 
             this.$table.scrollTop(scroll);
+        },
+
+        refresh: function () {
+            this._refresh = true;
+            this.reload();
+        },
+
+        reloadWithHeader: function () {
+            this._redoheader = true;
+            this.$head.hide();
+            this.reload();
         },
 
         _disablePrev: function() {
@@ -131,48 +159,48 @@ define(['jquery', 'backbone', 'underscore'],
             }
         },
 
+        _showLoader: function () {
+            /*
+            this.$loader.css({
+                left: this.$container.position().left,
+                right: this.$container.position().right
+            });
+            */
+            this.$loader.show();
+        },
+        _hideLoader: function () {
+            this.$loader.hide();
+        },
+
         prev: function(e) {
             if (this._page > 1) {
+
                 this._page--;
                 this._reverse = true;
 
-                this.sort();
+                var renderDelay = this._renderBeforeData();
+                
+                setTimeout($.proxy(function () {
+                    this.data.getPage({
+                        //page: this.options.pageSize === 'auto' ? 0 : this._page,
+                        //pageSize: this.options.pageSize === 'auto' ? 0 : this.options.pageSize,
+                        start: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._start - this.options.pageSize,
+                        end: this._start,
+                        sort: {
+                            property: this._sortBy,
+                            dir: this._sortDir
+                        },
+                        filter: this._filter
+                    }, $.proxy(function (data) {
 
-                this.data.getPage({
-                    //page: this.options.pageSize === 'auto' ? 0 : this._page,
-                    //pageSize: this.options.pageSize === 'auto' ? 0 : this.options.pageSize,
-                    start: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._start - this.options.pageSize,
-                    end: this._start,
-                    sort: {
-                        property: this._sortBy,
-                        dir: this._sortDir
-                    },
-                    filter: this._filter
-                }, $.proxy(function (data) {
-                    this._total = data.total;
-                    this._end = this._start;
-                    this._start = this.options.pageSize === "auto" ? 0 : this._start - this.options.pageSize;
-                    
-                    if (this.options.pageSize === 0) {
-                        this._pageCount = 1;
-                    } else if (this.options.pageSize !== "auto") {
-                        this._pageCount = Math.ceil(data.total / this.options.pageSize);
-                    }
+                        this._total = data.total;
+                        this._end = this._start;
+                        this._start = this.options.pageSize === "auto" ? 0 : this._start - this.options.pageSize;
+                        
+                        this._renderAfterData(data, renderDelay);
 
-                    this.renderTableBody(data.data);
-                    this.resize();
-
-                    if (this._page > 1) {
-                        this._enablePrev();
-                    } else {
-                        this._disablePrev();
-                    }
-                    this.renderPageIndicator();
-
-                    if (typeof this.options.onRender === "function") {
-                        this.options.onRender(this.$table, data.data);
-                    }
-                }, this));
+                    }, this));
+                }, this), renderDelay);
             }
             
             if (e) {
@@ -182,151 +210,158 @@ define(['jquery', 'backbone', 'underscore'],
         },
         next: function(e) {
             // ignore the "next" button if there isn't a next page
-            if (this.$nextbutton.hasClass('disabled') && !this.refresh) {
+            if (this.$nextbutton.hasClass('disabled') && !this._refresh) {
                 return false;
             }
-
-            window.datatimerstart = (new Date()).getTime();
 
             this._page++;
             this._reverse = false;
 
-            this.sort();
+            var renderDelay = this._renderBeforeData();
+            
+            setTimeout($.proxy(function () {
+                this.data.getPage({
+                    start: this._end,
+                    end: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._end + this.options.pageSize,
+                    sort: {
+                        property: this._sortBy,
+                        dir: this._sortDir
+                    },
+                    filter: this._filter
+                }, $.proxy(function (data) {
 
-            this.data.getPage({
-                //page: this.options.pageSize === 'auto' ? 0 : this._page,
-                //pageSize: this.options.pageSize === 'auto' ? 0 : this.options.pageSize,
-                start: this._end,
-                end: this.options.pageSize === 'auto' || this.options.pageSize === 0 ? 0 : this._end + this.options.pageSize,
-                sort: {
-                    property: this._sortBy,
-                    dir: this._sortDir
-                },
-                filter: this._filter
-            }, $.proxy(function (data) {
-                this._start = this._end;
-                this._total = data.total;
-                this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this._start + this.options.pageSize;
-                
-                //loop!
-                if (this._start >= data.total) {
-                    this._page = 1;
-                    this._start = 0;
-                    this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this.options.pageSize;
-                }
-                
-                if (this.options.pageSize === 0) {
-                    this._pageCount = 1;
-                } else if (this.options.pageSize !== "auto") {
-                    this._pageCount = Math.ceil(data.total / this.options.pageSize);
-                }
+                    this._start = this._end;
+                    this._total = data.total;
+                    this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this._start + this.options.pageSize;
+                    
+                    // the "next" page is really the first page, so loop around to the beginning
+                    if (this._start >= data.total) {
+                        this._page = 1;
+                        this._start = 0;
+                        this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this.options.pageSize;
+                    }
 
-                // debug
-                //console.log('data time:', (new Date()).getTime() - window.datatimerstart);
-                window.rendertimerstart = (new Date()).getTime();
+                    this._renderAfterData(data, renderDelay);
 
-                this.renderTableBody(data.data);
-                this.resize();
-
-                if (this._page > 1) {
-                    this._enablePrev();
-                } else {
-                    this._disablePrev();
-                }
-
-                if (this._total === this.$rows.length) {
-                    this._disableNext();
-                } else {
-                    this._enableNext();
-                }
-                this.renderPageIndicator();
-
-                if (typeof this.options.onRender === "function") {
-                    this.options.onRender(this.$table, data.data);
-                }
-                
-                // debug
-                //console.log('render time:', (new Date()).getTime() - window.rendertimerstart);
-            }, this));
+                }, this));
+            }, this), renderDelay);
             
             if (e) {
                 e.stopPropagation();
                 return false;
             }
         },
-        sort: function(callback) {
-            var prop = this._sortBy,
-                dir = this._sortDir,
-                self = this;
 
-            this.$head.find(".dt-cell").removeClass("sorted asc desc");
-            this._forEach(this.columns, function(column, index) {
-                if (column === prop || column.property === prop || column.sortProperty === prop) {
+        _renderBeforeData: function () {
+            window.datatimerstart = (new Date()).getTime();
+            
+            var renderDelay = 1;
+            if (!this._refresh) {
+                // animate out the currently showing table
+                if (this.$table && this.$table.length > 0) {
+                    var $oldTable = this.$table.removeClass("intoggle outtoggle right anim");
+                    if (this._reverse) {
+                        $oldTable.addClass('right');
+                    }
+                    $oldTable.addClass("outtoggle anim");
                     setTimeout(function() {
-                        self.$head.find(".dt-row > .dt-cell").eq(index).addClass("sorted " + dir);
-                    }, 100);
-                    return false;
-                }
-            });
-
-            var comparator = function(a,b) { //make a comparator function, because Backbone is too dumb to sort properly
-                var aval, bval;
-                if (a[prop]) {
-                    aval = typeof(a[prop]) === "function" ? a[prop]() : a[prop];
-                } else if (a.get(prop)) {
-                    aval = a.get(prop);
-                }
-                if (b[prop]) {
-                    bval = typeof(b[prop]) === "function" ? b[prop]() : b[prop];
-                } else if (b.get(prop)) {
-                    bval = b.get(prop);
-                }
-                
-                // ignore "The" at the beginning
-                if (aval.toLowerCase().indexOf('the ') === 0) {
-                    aval = aval.substr(4);
-                }
-                if (bval.toLowerCase().indexOf('the ') === 0) {
-                    bval = bval.substr(4);
-                }
-
-                if (dir === "asc") {
-                    return typeof(aval) === "string" ? aval.localeCompare(bval) : aval - bval;
+                        $oldTable.remove();
+                    }, 350);
+                    renderDelay = 100;
                 } else {
-                    return typeof(bval) === "string" ? bval.localeCompare(aval) : bval - aval;
+                    this.$head.hide();
                 }
-            };
-
-            if (this.options.dataType === "backbone") {
-                this.data.comparator = comparator;
-                this.data.sort();
-                if (callback) {
-                    callback();
-                }
+                    
+                // show the spinner, just in case this takes a sec
+                this._showLoader();
             }
+
+            return renderDelay;
+        },
+
+        _renderAfterData: function (data, renderDelay) {
+            /*
+            // debug
+            console.log('********* data time:', (new Date()).getTime() - window.datatimerstart, ' - ' + renderDelay);
+            window.rendertimerstart = (new Date()).getTime();
+            */
+            
+            this.renderTableHeader();
+            
+            if (this.options.pageSize === 0) {
+                this._pageCount = 1;
+            } else if (this.options.pageSize !== "auto") {
+                this._pageCount = Math.ceil(data.total / this.options.pageSize);
+            }
+            
+            /*
+            // debug
+            var headertime = (new Date()).getTime() - window.rendertimerstart;
+            console.log('header render time:', headertime);
+            window.rendertimerstart = (new Date()).getTime();
+            */
+
+            setTimeout($.proxy(function () {
+                this.$head.show();
+
+                this.renderTableBody(data.data);
+            
+                this._hideLoader();
+
+                /*
+                // debug
+                var bodytime = (new Date()).getTime() - window.rendertimerstart;
+                console.log('render body time:', bodytime, ' - ' + renderDelay);
+                window.rendertimerstart = (new Date()).getTime();
+                */
+
+                this.resize();
+
+                /*
+                // debug
+                var resizetime = (new Date()).getTime() - window.rendertimerstart;
+                console.log('resize time:', resizetime);
+                window.rendertimerstart = (new Date()).getTime();
+                */
+                
+                if (this._page > 1) {
+                    this._enablePrev();
+                } else {
+                    this._disablePrev();
+                }
+
+                if (this._total <= this.rows.length) {
+                    this._disableNext();
+                } else {
+                    this._enableNext();
+                }
+                this.renderPageIndicator();
+                
+                /*
+                // debug
+                var finaltime = (new Date()).getTime() - window.rendertimerstart;
+                var totaltime = headertime + bodytime + resizetime + finaltime;
+                console.log('extra time: ', finaltime);
+                console.log('**** total render time:', totaltime);
+                */
+            }, this), renderDelay);
         },
 
         renderPageIndicator: function() {
             var x = this._start / this._total,
-                w = 1 - (this._start + this.$rows.length) / this._total,
+                w = 1 - (this._start + this.rows.length) / this._total,
                 $indicator = this.$pageindicator.find('div').tooltip();
 
             if ($indicator.length === 0) {
-                $indicator = $('<div></div>').appendTo(this.$pageindicator).tooltip();
+                $indicator = $(document.createElement('div')).appendTo(this.$pageindicator).tooltip();
             }
             
+            this.$pageindicator.find('span').remove();
             if (this.$pageindicator.width() < 400) {
-                this.$pageindicator.find('span').remove();
                 this.$pageindicator.append('<span class="heightener"></span><span class="page">Showing ' + (this._start + 1) + ' - ' + this._end + '</span> <span class="total">of ' + this._total + '</span>');
                 if(this.filterCount() > 0) {
                     this.$pageindicator.append(' <span class="filter-status">(' + this.data.length + ')</span>');
                 }
-                /*
-                this.$pageindicator.find('.page').css({
-                    left: (x * 100) + "%",
-                    right: (w * 100) + "%"
-                });
-                */
             } else {
                 var tooltip = 'Showing ' + this.options.items + ' ' + (this._start + 1) + ' to ' + this._end + ' of ' + this._total;
                 
@@ -361,111 +396,132 @@ define(['jquery', 'backbone', 'underscore'],
             this.reload();
         },
 
+        _createDiv: function(className) {
+            var div = document.createElement('div');
+            div.className = className;
+            return div;
+        },
         _createRow: function() {
-            return $("<div class='dt-row'></div>");
+            return this._createDiv('dt-row');
         },
         _createCell: function() {
-            return $("<div class='dt-cell'></div>");
+            return this._createDiv('dt-cell');
         },
 
         _forEach: function(array, fn, reverse) {
-            var cellCount = reverse ? array.length - 1 : 0,
-                max = reverse ? -1 : array.length,
+            var index,
                 res;
-            if (reverse) {
-                while (cellCount > max) {
-                    res = fn(array[cellCount], cellCount);
-                    if (res === false) {
-                        break;
-                    }
-                    cellCount--;
-                }
-            } else {
-                while (cellCount < max) {
-                    res = fn(array[cellCount], cellCount);
-                    if (res === false) {
-                        break;
-                    }
-                    cellCount++;
+
+            for (var i = 0, max = array.length - 1; i <= max; i++) {
+                index = reverse ? max - i : i;
+                res = fn(array[index], index);
+                if (res === false) {
+                    i = array.length;
                 }
             }
         },
 
         renderTableHeader: function() {
-            var tr = this._createRow(),
-                self = this,
-                visible = 0;
-            
-            // render the column headers
-            this._forEach(this.columns, function(column, i) {
-                if (!column.hide) {
-                    var th = self._createCell();
-                    th.addClass("dt-header");
-                    // if just a property name was passed, turn it into an object
-                    if (typeof column === 'string') {
-                        column = {property: column, sortable: true};
-                    }
-                    
-                    if (column.className) {
-                        th.addClass(column.className);
-                    } else {
-                        th.addClass(column.property.toLowerCase());
-                    }
-                    if (column.sortable !== false) {
-                        th.addClass("sortable");
-                    }
-                    if (column.defaultSort) {
-                        this._sortBy = column.property;
-                    }
-                    // the actual column header text
-                    th.html(column.header ? column.header : column.property).data("column", column);
-                    visible++;
+            var self = this;
 
-                    // include the filter menu
+            if (this._redoheader) {
+                this.$head.find('.dt-row').remove();
+                this._redoheader = false;
+            }
+
+            // if the header already exists, we don't have to render it again
+            if (this.$head.find('.dt-header').length === 0) {
+                var tr = this._createRow(),
+                    visible = 0;
+                
+                // render the column headers
+                this._forEach(this.columns, function(column, i) {
+                    if (!column.hide) {
+                        var th = self._createCell();
+                        var className = th.className += ' dt-header ';
+
+                        // if just a property name was passed, turn it into an object
+                        if (typeof column === 'string') {
+                            column = {property: column, sortable: true};
+                        }
+                        
+                        if (column.className) {
+                            className += column.className;
+                        } else {
+                            className += column.property.toLowerCase();
+                        }
+
+                        if (column.sortable !== false) {
+                            className += ' sortable';
+
+                            if (self._sortBy === column.property) {
+                                className += ' sorted ' + self._sortDir;
+                            }
+                        }
+
+                        th.className = className;
+
+                        // the actual column header text
+                        th.innerHTML = column.header ? column.header : column.property;
+                        $(th).data("column", column);
+
+                        visible++;
+
+                        // include the filter menu
+                        if (column.filter) {
+                            if (column.filter.view) {
+                                column.filter.view.setFilter(self._filter[column.filter.property]);
+                                $(th).append(column.filter.view.$el);
+                            } else {
+                                $(th).append(self._createFilterMenu(column));
+                            }
+                        }
+
+                        th.setAttribute('data-index', i);
+                        tr.appendChild(th);
+                    }
+                });
+                this.headRow = tr;
+                this.$head.append(tr);
+                
+                // set up the filter events
+                this._forEach(this.columns, function(column, i) {
+                    // add a "filtered" indicator to a column that is filtered (or the only column showing if only one is showing)
+                    if ((visible === 1 && self.filterCount() > 0) ||
+                        (column.filter && self._filter[column.filter.property] && self._filter[column.filter.property].length > 0)) {
+                        
+                        $(tr).find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
+                    }
+
                     if (column.filter) {
                         if (column.filter.view) {
-                            column.filter.view.setFilter(self._filter[column.filter.property]);
-                            th.append(column.filter.view.$el);
+                            column.filter.view.off('filter');
+                            column.filter.view.on('filter', function (prop, sel) {
+                                self._filter[prop] = sel;
+                                self.reloadWithHeader();
+                            });
+                            column.filter.view.render();
                         } else {
-                            th.append(self._createFilterMenu(column));
+                            self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown()
+                                        .off('change')
+                                        .on('change', $.proxy(self._clickFilterDropdown, self))
+                                        .find('.has-tooltip').tooltip({ direction: "left" });
                         }
                     }
+                });
 
-                    th.attr('data-index', i);
-                    tr.append(th);
-                }
-            });
-            if (!this._sortBy) {
-                this._sortBy = this.columns[0].property ? this.columns[0].property : this.columns[0];
-            }
-            this.$head.append(tr);
+            }// end of if $header.find('.dt-header').length === 0
             
-            // set up the filter events
-            this._forEach(this.columns, function(column, i) {
-                // add a "filtered" indicator to a column that is filtered (or the only column showing if only one is showing)
-                if ((visible === 1 && self.filterCount() > 0) ||
-                    (column.filter && self._filter[column.filter.property] && self._filter[column.filter.property].length > 0)) {
-                    
-                    tr.find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
-                }
-
-                if (column.filter) {
-                    if (column.filter.view) {
-                        column.filter.view.off('filter');
-                        column.filter.view.on('filter', function (prop, sel) {
-                            self._filter[prop] = sel;
-                            self.reload();
-                        });
-                        column.filter.view.render();
-                    } else {
-                        self.$head.find('.dt-header').eq(i).find('.dropdown-button').dropdown()
-                                    .off('change')
-                                    .on('change', $.proxy(self._clickFilterDropdown, self))
-                                    .find('.has-tooltip').tooltip({ direction: "left" });
-                    }
+            // set up the sort details
+            var prop = this._sortBy,
+                dir = this._sortDir;
+            this.$head.find(".dt-cell").removeClass("sorted asc desc");
+            this._forEach(this.columns, function(column, index) {
+                if (column === prop || column.property === prop || column.sortProperty === prop) {
+                    self.$head.find(".dt-row > .dt-cell").eq(index).addClass("sorted " + dir);
+                    return false;
                 }
             });
-
 
         },
         
@@ -644,7 +700,7 @@ define(['jquery', 'backbone', 'underscore'],
 
             this.$container.trigger('filter.dynamictable', self._filter);
 
-            this.reload();
+            this.reloadWithHeader();
 
             e.stopPropagation();
             return false;
@@ -713,17 +769,29 @@ define(['jquery', 'backbone', 'underscore'],
             obj.scroll($.proxy(this.scroll, this));
             return obj;
         },
+
         renderTableBody: function(data) {
-            this.$rows = [];
             var self = this,
-                $oldTable = this.$table.removeClass("intoggle outtoggle right anim"),
-                reverse = this._reverse;
+                reverse = this._reverse,
+                autoPage = self.options.paginate && self.options.pageSize === "auto",
+                $oldtable = this.$table;
+            
+            this.rows = [];
             
             this.$table = this._tableBody();
             if (reverse) {
                 this.$table.addClass("right");
-                $oldTable.addClass("right");
             }
+
+            if (data.length === 0) {
+                // there are no items!
+                var emptyRow = self._createRow();
+                emptyRow.addClass('dt-no-items');
+                emptyRow.append("<h5>No " + self.options.items + " were found that match your chosen filters.</h5>");
+                
+                this.$table.append(emptyRow);
+            }
+            
             this.$container.append(this.$table);
             
             this._forEach(data, function(row, ri) {
@@ -733,21 +801,24 @@ define(['jquery', 'backbone', 'underscore'],
                     if (!column.hide) {
                         var td = self._createCell(),
                             text,
-                            className,
+                            className = '',
                             colObj;
-
+                        
+                        // make sure we're dealing with an object
                         if (typeof(column) === "string") {
                             colObj = {property: column};
                         } else {
                             colObj = column;
                         }
                         
+                        // get the text figured out
                         if (typeof(colObj.property) === "function") {
                             text = colObj.property(row, data);
                         } else {
                             if (row[colObj.property]) {
                                 text = typeof(row[colObj.property]) === "function" ? row[colObj.property](row, data) : row[colObj.property];
-                            } else if (row.get) { //it's a backbone model and we're getting an attribute
+                            } else if (row.get) {
+                                //it's a backbone model and we're getting an attribute
                                 text = row.get(colObj.property);
                             } else { //umm . . .
                                 console.warn("Couldn't find " + colObj.property + " on row " + ri);
@@ -756,7 +827,7 @@ define(['jquery', 'backbone', 'underscore'],
                         }
 
                         if (colObj.className) {
-                            className = colObj.className;
+                            className += ' ' + colObj.className;
                         }
 
                         //try to parse some common data types
@@ -783,88 +854,106 @@ define(['jquery', 'backbone', 'underscore'],
                                 text += " at " + h + ":" + m + " " + ampm;
                             }
                         }
+                        
+                        if (typeof text === 'string') {
+                            td.innerHTML = text;
+                        } else {
+                            td.appendChild(text);
+                        }
 
-                        td.append(text).addClass(className);
-                        tr.append(td);
+                        td.className = td.className += ' ' + className;
+                        tr.appendChild(td);
                     } // end of if !column.hide
                 }); //end of foreach column
+
                 if (row.id) {
-                    tr.attr("id", self.options.idPrefix + row.id);
+                    tr.id = self.options.idPrefix + row.id;
                 }
-                tr.data("data", row);
+
+                //$(tr).data("data", row);
+                tr.setAttribute('data-gameid', row.get('GameID'));
+                
                 if (reverse) {
                     self.$table.prepend(tr);
                 } else {
                     self.$table.append(tr);
                 }
-                
-                if (self.options.paginate && self.options.pageSize === "auto" && self.getHeight() > self.getContainerHeight()) {
-                    tr.remove();
+
+                if (autoPage && self.getHeight() > self.getContainerHeight()) {
+                    $(tr).remove();
                     self._autoPageCount();
                     return false;
                 }
 
                 if (reverse) {
-                    self.$rows.unshift(tr);
+                    self.rows.unshift(tr);
                 } else {
-                    self.$rows.push(tr);
+                    self.rows.push(tr);
                 }
-            }, reverse);
-            if (this.refresh) {
-                $oldTable.remove();
+
+            }, reverse); // end of foreach data item
+
+            if (this._refresh) {
+                $oldtable.remove();
                 this.$table.removeClass("intoggle");
-                this.refresh = false;
+                this._refresh = false;
+                setTimeout(function () {
+                    self.options.onRender(self.$table, data.data);
+                    self.$container.trigger('render.dynamictable', self);
+                }, 50);
             } else {
-                $oldTable.addClass("outtoggle anim");
                 setTimeout(function() {
                     self.$table.addClass("anim");
+                    setTimeout(function() {
+                        self.options.onRender(self.$table, data.data);
+                        self.$container.trigger('render.dynamictable', self);
+                    }, 300);
                 }, 250);
-                setTimeout(function() {
-                    $oldTable.remove();
-                }, 500);
             }
         },
+
         _autoPageCount: function() {
             //try to figure out the page count
             var self = this;
-            self._pageCount = Math.ceil(self._total / self.$rows.length);
+            self._pageCount = Math.ceil(self._total / self.rows.length);
             self.renderPageIndicator();
             if (self._reverse) {
-                self._start = self._end - self.$rows.length;
+                self._start = self._end - self.rows.length;
             } else {
-                self._end = self._start + self.$rows.length;
+                self._end = self._start + self.rows.length;
             }
         },
+
         resize: function() {
             var self = this,
                 maxWidth = this.$container.width(),
                 totalSize = 0;
             
             if (this._sizes.length === 0) {
+                var headChildren = self.headRow.childNodes;
+
                 this._forEach(this.columns, function(column, ci) {
-                    //find the widest cell in this column
-                    var size = self.$head.find(".dt-cell").eq(ci).css({
-                            width: "auto"
-                        }).outerWidth();
-                    self._forEach(self.$rows, function(row, ri) {
-                        var $cell = row.find(".dt-cell").eq(ci);
-                        $cell.css({
-                            width: "auto"
+
+                    if (!column.hide) {
+                        //find the widest cell in this column
+                        var headCell = headChildren[ci];
+                        headCell.style.width = 'auto';
+
+                        var size = headCell.offsetWidth;
+                        
+                        self._forEach(self.rows, function(row) {
+                            var cell = row.childNodes[ci];
+                            cell.style.width = 'auto';
+                            size = Math.max(size, cell.offsetWidth);
                         });
                         
-                        if ($cell.outerWidth() > size) {
-                            size = $cell.outerWidth();
-                        }
-                    });
-                    
-                    var perc = Math.ceil((size / maxWidth) * 100);
-                    if (perc > self.options.maxWidth) {
-                        self._sizes.push(self.options.maxWidth);
-                    } else {
-                        self._sizes.push(perc);
+                        var perc = Math.ceil((size / maxWidth) * 100);
+                        self._sizes.push(Math.min(perc, self.options.maxWidth));
+                        totalSize += (perc);
                     }
-                    totalSize += (perc);
+
                 });
+
                 //make sure all of the column widths add up to 100
                 var diff = 100 - totalSize;
                 var pad = diff / this.columns.length;
@@ -874,35 +963,42 @@ define(['jquery', 'backbone', 'underscore'],
                         self._sizes[i] += pad;
                         total += self._sizes[i];
                     } else {
+                        // the last cell gets all the rest
                         self._sizes[i] = 100 - total;
                     }
                 });
             }
 
-            this.setRowWidth(this.$head, this._sizes);
-            this._forEach(this.$rows, function(row) {
+            // now we can set all the sizes on things
+            this.setRowWidth(this.headRow, this._sizes);
+            this._forEach(this.rows, function(row) {
                 self.setRowWidth(row, self._sizes);
             });
 
             this._setAllRowHeights();
         },
-        setRowWidth: function(row, w) {
-            row.find(".dt-cell").each(function(c) {
-                if (c < row.find(".dt-cell").length - 1) {
-                    $(this).css({
-                        "width": w[c] + "%",
-                    });
+
+        setRowWidth: function(row, widths) {
+            var cells = row.childNodes;
+            this._forEach(cells, function(cell, ci) {
+                if (ci < cells.length - 1) {
+                    cell.style.width = widths[ci] + '%';
                 } else {
-                    $(this).css({
-                        "width": "auto",
-                        "float": "none"
-                    });
+                    cell.style.width = 'auto';
+                    cell.style.float = 'none';
                 }
             });
         },
+
         _fixhead: function() {
             // align the header with the body, in case a scrollbar is throwing off the width
-            this.$head.css("right", (this.$container.width() - this.$table.find(".dt-row").eq(0).outerWidth()) + "px");
+            var rightvalue;
+            if (this.getHeight() > this.getContainerHeight()) {
+                rightvalue = (this.$container.width() - this.rows[0].offsetWidth) + "px";
+            } else {
+                rightvalue = '0px';
+            }
+            this.$head.css('right', rightvalue);
             this.$table.css("top", this.$head.outerHeight());
         },
 
@@ -915,45 +1011,54 @@ define(['jquery', 'backbone', 'underscore'],
         },
         _setAllRowHeights: function() {
             this._fixhead();
-            
-            this._forEach(this.$rows, function(row) {
-                row.css("height", "auto");
+
+            this.headRow.style.height = 'auto';
+            this.headRow.style.height = this.headRow.offsetHeight + 'px';
+
+            this._forEach(this.rows, function(row) {
+                row.style.height = 'auto';
             });
             
             var diff = this.getContainerHeight() - this.getHeight(),
                 pad, mod;
+            
             if (diff < 0 && this.options.paginate && this.options.pageSize === "auto") {
+                // if the page size is auto, and we have more rows than will fit, we have to remove rows until it does fit
                 while (diff < 0) {
+                    var row;
                     if (this._reverse) {
-                        this.$rows.shift().remove();
+                        row = this.rows.shift();
                     } else {
-                        this.$rows.pop().remove();
+                        row = this.rows.pop();
                     }
+                    row.parentElement.removeChild(row);
                     this._autoPageCount();
                     diff = this.getContainerHeight() - this.getHeight();
                 }
             }
 
-            if (diff > 0 && diff / this.$rows.length < this.$rows[0].outerHeight()) { //we'll pad each row, as long as it doesn't double their height
-                pad = Math.floor(diff / this.$rows.length);
-                mod = diff % this.$rows.length;
-            } else {
-                pad = 0;
-                mod = 0;
+            if (this.rows.length > 0) {
+
+                if (diff > 0 && diff / this.rows.length < this.rows[0].offsetHeight) {
+                    //we'll pad each row with the leftover space, as long as it doesn't double their height
+                    pad = Math.floor(diff / this.rows.length);
+                    mod = diff % this.rows.length;
+                } else {
+                    pad = 0;
+                    mod = 0;
+                }
+
+                this._forEach(this.rows, function(row) {
+                    row.style.height = (row.offsetHeight + pad) + 'px';
+                });
+
+                //give any remainder to the last row
+                if (mod > 1) {
+                    var lastRow = this.rows[this.rows.length - 1];
+                    lastRow.style.height = (lastRow.offsetHeight + (diff % this.rows.length)) + 'px';
+                }
             }
 
-            this.$head.find(".dt-row").css("height", "auto");
-            this.$head.find(".dt-row").css("height", this.$head.find(".dt-row").height());
-            
-            this._forEach(this.$rows, function(row) {
-                row.css("height", row.height() + pad);
-            });
-
-            //give any remainder to the last row
-            if (mod > 1) {
-                this.$rows[this.$rows.length - 1].css('height', this.$rows[this.$rows.length - 1].height() + (diff % this.$rows.length));
-            }
-            
             this._fixhead();
         },
 
@@ -967,17 +1072,12 @@ define(['jquery', 'backbone', 'underscore'],
             return this.$container.height() - this.$head.outerHeight();
         },
         getHeight: function() {
-            /*
-            this.$table.css("bottom", "auto");
-            var r = this.$table.outerHeight();
-            this.$table.css("bottom", "-1px");
-            */
-            var h = 0;
-            this.$table.find('.dt-row').each(function () {
-                $(this).css('height', 'auto');
-                h += $(this).outerHeight();
-            });
-            return h;
+            if (this.rows.length > 0) {
+                var lastRow = this.rows[this.rows.length - 1];
+                return lastRow.offsetTop + lastRow.offsetHeight;
+            } else {
+                return 0;
+            }
         },
 
         getFilter: function () {
@@ -1027,7 +1127,8 @@ define(['jquery', 'backbone', 'underscore'],
         maxWidth: 50,
         idPrefix: 'row',
         item: 'item',
-        items: 'items'
+        items: 'items',
+        onRender: function() {}
     };
 
     $.fn.dynamictable.Constructor = DynamicTable;

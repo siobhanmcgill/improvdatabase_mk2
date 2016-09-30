@@ -1,7 +1,7 @@
 define(['backbone', 'underscore', 'models/tag'],
     function(Backbone, _, Tag) {
         return Backbone.Collection.extend({
-            url: '/api/tagGame',
+            url: '/api/tag',
             parse: function(response) {
                 return response;
             },

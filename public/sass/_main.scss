@@ -15,6 +15,46 @@ a:visited {
     color: $color-primary;
 }
 
+.loading-icon {
+    position: absolute;
+    display: block;
+    width: 55px;
+    height: 55px;
+    top: 35%;
+    left: 50%;
+    margin: -27px 0 0 -27px;
+    z-index: 2;
+    @include animation(spin 1000ms 1000ms infinite);
+
+    .small-face {
+        fill: $color-primary;
+        stroke: $color-text;
+    }
+}
+
+.loading-icon-shadow {
+    @extend .loading-icon;
+    z-index: 1;
+    width: 85px;
+    height: 125px;
+    margin: -27px 0 0 -37px;
+    transform-origin: 37px 40px 0px;
+
+    .small-face {
+        fill: rgba(0,0,0,0.3);
+        stroke: 0;
+    }
+}
+
+#siteLoader {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5000;
+}
+
 .modal {
     position: fixed;
     top: 33%;
@@ -173,10 +213,10 @@ body > h1 {
 }
 
 .pod {
-    background: rgba(255,255,255,0.6);
+    background: $color-content-bg;
 
     @media #{$media-mobile} {
-        background: rgba(255,255,255,0.8);
+        background: $color-content-bg-mobile;
     }
 }
 
@@ -569,6 +609,18 @@ nav {
         bottom: 0px;
         left: 0px;
         right: 0px;
+        text-align: center;
+
+        & > span {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            z-index: 2;
+
+            &:first-of-type {
+                height: 100%;
+            }
+        }
 
         div {
             background: $color-active;
@@ -577,6 +629,7 @@ nav {
             bottom: 0px;
             color: $color-active-text;
             text-align: center;
+            font-size: 0.75em;
 
             @include transition(left 500ms, right 500ms);
 
@@ -825,9 +878,22 @@ nav {
         }
     }
 
+    &.dim {
+        .search-wrapper {
+            opacity: 0.4;
+        }
+        .results {
+            opacity: 0.4;
+        }
+    }
+
     @media #{$media-mobile} {
         & > i {
             float: left;
+        }
+
+        .search-wrapper {
+            @include transition(opacity 500ms);
         }
 
         .results {
@@ -836,6 +902,8 @@ nav {
             bottom: 0;
             overflow: auto;
             padding-top: 0px;
+
+            @include transition(opacity 500ms);
         }
     }
 } // end of gameSearch
@@ -855,6 +923,7 @@ nav {
         @media #{$media-mobile} {
             opacity: 1;
             background: rgba(255,255,255,0.87);
+            z-index: 5;
         }
         
         .showGame & {
@@ -932,6 +1001,7 @@ nav {
                 bottom: 0;
                 overflow: auto;
                 padding: 20px 10px 10px;
+                margin-bottom: 20px;
             }
 
             @media #{$media-mobile} {
@@ -1025,6 +1095,7 @@ nav {
             padding: 1px 3px;
             box-sizing: border-box;
             color: #444;
+            cursor: pointer;
         }
         textarea {
             font-size: 16px;
@@ -1045,7 +1116,7 @@ nav {
             position: relative;
             margin-bottom: 20px;
             p {
-                margin-bottom: 0px;
+                margin-bottom: 1em;
             }
             textarea {
                 display: none;
@@ -1083,7 +1154,7 @@ nav {
         } /* end of #tags */
 
         .notes {
-            margin-top: 10px;
+            margin: 10px 0;
             & > .fa {
                 font-size: 20px;
                 margin-right: 3px;
@@ -1187,6 +1258,20 @@ nav {
         font-size: 16px;
         line-height: 18px;
         font-family: Arial;
+    }
+}
+
+#gameTableLoader {
+    position: absolute;
+    bottom: 0px;
+    top: 40px;
+    left: 0;
+    right: 0;
+    display: none;
+    z-index: 5000;
+
+    .showGame & {
+        right: 33.3333%;
     }
 }
 
@@ -1303,6 +1388,12 @@ nav {
         &.dropdown-active {
             @include border-radius(5px 5px 0 0);
         }
+    }
+
+    .dt-table .dt-row.dt-no-items h5 {
+        font-size: 1.1em;
+        margin: 5% 0;
+        text-align: center;
     }
 } /* end of #gameTable */
 

@@ -48,16 +48,16 @@ define(['jquery',
                 this.model = data;
             },
             render: function() {
-                var gameName = this.model.Name();
-                this.names = this.router.names.where({GameID: this.model.id});
-                this.notes = this.router.notes.where({GameID: this.model.id});
+                var gameName = this.model.get('Name');
+                this.names = this.collection.names.where({GameID: this.model.id});
+                this.notes = this.collection.notes.where({GameID: this.model.id});
 
                 this.notes = this.notes.concat(
-                    this.router.notes.where({ DurationID: this.model.get('DurationID') }),
-                    this.router.notes.where({ PlayerCountID: this.model.get('PlayerCountID') })
+                    this.collection.notes.where({ DurationID: this.model.get('DurationID') }),
+                    this.collection.notes.where({ PlayerCountID: this.model.get('PlayerCountID') })
                 );
-                _.each(this.router.tagGames.where({ GameID: this.model.id} ), $.proxy(function (tagGame) {
-                    this.notes = this.notes.concat(this.router.notes.where({ TagID: tagGame.get('TagID') }));
+                _.each(this.collection.tagGames.where({ GameID: this.model.id} ), $.proxy(function (tagGame) {
+                    this.notes = this.notes.concat(this.collection.notes.where({ TagID: tagGame.get('TagID') }));
                 }, this));
 
                 _.each(this.notes, $.proxy(function (note) {
@@ -65,7 +65,7 @@ define(['jquery',
                     if (note.get('GameID')) {
                         note.regarding = 'this particular game.';
                     } else if (note.get('TagID')) {
-                        note.regarding = 'the "' + this.router.tags.get(note.get('TagID')).get('Name') + '" tag.';
+                        note.regarding = 'the "' + this.collection.tags.get(note.get('TagID')).get('Name') + '" tag.';
                     } else if (note.get('PlayerCountID')) {
                         note.regarding = 'the number of players in this game.';
                     } else if (note.get('DurationID')) {
@@ -79,10 +79,10 @@ define(['jquery',
                         namePlural: this.names.length - 1 > 1,
                         mainName: gameName,
                         Description: this.model.get("Description"),
-                        durationName: this.router.durations.get(this.model.get("DurationID")).get("Name"),
-                        durationDescription: this.router.durations.get(this.model.get("DurationID")).get("Description"),
-                        playerCountName: this.router.playerCounts.get(this.model.get("PlayerCountID")).get("Name"),
-                        playerCountDescription: this.router.playerCounts.get(this.model.get("PlayerCountID")).get("Description"),
+                        durationName: this.collection.durations.get(this.model.get("DurationID")).get("Name"),
+                        durationDescription: this.collection.durations.get(this.model.get("DurationID")).get("Description"),
+                        playerCountName: this.collection.playerCounts.get(this.model.get("PlayerCountID")).get("Name"),
+                        playerCountDescription: this.collection.playerCounts.get(this.model.get("PlayerCountID")).get("Description"),
                         
                         hasNotes: this.notes.length > 0,
                         noteCount: this.notes.length,
@@ -101,9 +101,9 @@ define(['jquery',
 
                 this.tagInput = new TagInputView({
                     el: "#tags",
-                    collection: this.router.tags,
+                    collection: this.collection.tags,
                     GameID: this.GameID,
-                    TagGameCollection: this.router.tagGames,
+                    TagGameCollection: this.collection.tagGames,
                     refuseAdd: !this.router.hasPermission('game_edit'),
                     refuseNew: !this.router.hasPermission('meta_create'),
                     refuseRemove: !this.router.hasPermission('game_edit')
@@ -148,7 +148,7 @@ define(['jquery',
                 }
 
                 var NameID = $(e.currentTarget).parent().data('nameid'),
-                    nameModel = this.router.names.get(NameID),
+                    nameModel = this.collection.names.get(NameID),
                     self = this;
                 $(e.currentTarget).text('Wait...');
                 this.listenToOnce(nameModel, 'sync', function () {
@@ -158,6 +158,7 @@ define(['jquery',
                     }, 100);
                 });
                 nameModel.addWeight();
+                this.model.clearCache();
                 e.stopPropagation();
                 return false;
             },
@@ -193,7 +194,7 @@ define(['jquery',
                 this.$('input[name="alternateName"]').val('');
                 nameModel.save({}, {
                     success: function () {
-                        self.router.names.add(nameModel);
+                        self.collection.names.add(nameModel);
                         self.render();
                         setTimeout(function () {
                             self.$('.altNameLink').click();
@@ -246,7 +247,7 @@ define(['jquery',
                         var dddata = [
                                 {
                                     id: 'game_' + this.model.id,
-                                    text: 'Game "' + this.model.Name() + '"',
+                                    text: 'Game "' + this.model.get('Name') + '"',
                                     description: 'Game recognize game. That is, you have comments that apply to this game specifically.',
                                     data: {
                                         attr: 'GameID',
@@ -255,7 +256,7 @@ define(['jquery',
                                 },
                                 {
                                     id: 'duration_' + this.model.get('DurationID'),
-                                    text: 'Duration "' + this.router.durations.get(this.model.get('DurationID')).get('Name') + '"',
+                                    text: 'Duration "' + this.collection.durations.get(this.model.get('DurationID')).get('Name') + '"',
                                     description: 'You have comments for this duration type, which will be shown for all games with this duration. Apparently somebody do got time for that.',
                                     data: {
                                         attr: 'DurationID',
@@ -264,7 +265,7 @@ define(['jquery',
                                 },
                                 {
                                     id: 'playercount_' + this.model.get('PlayerCountID'),
-                                    text: 'Player Count "' + this.router.playerCounts.get(this.model.get('PlayerCountID')).get('Name') + '"',
+                                    text: 'Player Count "' + this.collection.playerCounts.get(this.model.get('PlayerCountID')).get('Name') + '"',
                                     description: 'You don\'t hate the playah, but you do have some comments on them. This comment will be shown for all games with this many players.',
                                     data: {
                                         attr: 'PlayerCountID',
@@ -316,7 +317,7 @@ define(['jquery',
                 noteData[this.noteData.attr] = this.noteData.val;
                 note.save(noteData, {
                     success: function () {
-                        self.router.notes.add(note);
+                        self.collection.notes.add(note);
                         self.render();
                         self.$('.showNotes').click();
                     }
@@ -353,7 +354,7 @@ define(['jquery',
             showDurationDropdown: function(e) {
                 this.durationDropdown = new DropdownView({
                     el: "#duration_dropdown",
-                    collection: this.router.durations,
+                    collection: this.collection.durations,
                     idattr: "duration",
                     idname: "Duration",
                     attr: "(Minutes)",
@@ -362,10 +363,14 @@ define(['jquery',
                 this.durationDropdown.render();
                 this.boxHeight();
 
-                this.listenToOnce(this.durationDropdown, "change", function(model) {
-                    this.model.set({"DurationID": model.get("DurationID")});
-                    this.model.save();
-                    this.render();
+                this.listenToOnce(this.durationDropdown, "change", function(data) {
+                    if (data && data.model && data.model.get) {
+                        this.model.set({"DurationID": data.model.get("DurationID")});
+                        this.model.save();
+                        this.render();
+                    } else {
+                        $.toast('There was an error processing your duration choice. I don\'t know, try again later?');
+                    }
                 });
 
                 if (e) {
@@ -375,7 +380,7 @@ define(['jquery',
             showPlayerCountDropdown: function(e) {
                 this.playerCountDropdown = new DropdownView({
                     el: "#playerCount_dropdown",
-                    collection: this.router.playerCounts,
+                    collection: this.collection.playerCounts,
                     idattr: "playerCount",
                     idname: "Player Count",
                     attr: "Players",
@@ -384,10 +389,14 @@ define(['jquery',
                 this.playerCountDropdown.render();
                 this.boxHeight();
 
-                this.listenToOnce(this.playerCountDropdown, "change", function(model) {
-                    this.model.set({"PlayerCountID": model.get("PlayerCountID")});
-                    this.model.save();
-                    this.render();
+                this.listenToOnce(this.playerCountDropdown, "change", function(data) {
+                    if (data && data.model && data.model.get) {
+                        this.model.set({"PlayerCountID": data.model.get("PlayerCountID")});
+                        this.model.save();
+                        this.render();
+                    } else {
+                        $.toast('There was an error processing your duration choice. I don\'t know, try again later?');
+                    }
                 });
 
                 if (e) {
@@ -465,19 +474,30 @@ define(['jquery',
                     this.trigger("show-game");
                 } else {
                     var self = this;
+
                     this.$el.parent().removeClass('scrollContent');
                     var h = this.$el.outerHeight();
                     if (h > $(window).height()) {
                         h = $(window).height();
                     }
-                    this.$el.parent().css("overflow", "hidden");
+                    
+                    var fullscreen = this.$el.parent().outerHeight() === $(window).height() && h >= this.$el.parent().outerHeight();
+
+                    if (fullscreen) {
+                        this.$el.parent().addClass('scrollContent');
+                    } else {
+                        this.$el.parent().css("overflow", "hidden");
+                    }
+
                     setTimeout(function() {
                         self.trigger("show-game");
                         self.$el.parent().css("height", h);
                     }, 10);
 
                     var time;
-                    if (this.$el.closest('#main').hasClass('showGame')) {
+                    if (fullscreen) {
+                        time = 10;
+                    } else if (this.$el.closest('#main').hasClass('showGame')) {
                         time = 500;
                     } else {
                         time = 1000;
@@ -500,7 +520,7 @@ define(['jquery',
                 var self = this;
                 this.$(".tag").each(function() {
                     if ($(this).text()) {
-                        tags.push(self.router.tags.findWhere({"Name": $(this).text()}).get("TagID"));
+                        tags.push(self.collection.tags.findWhere({"Name": $(this).text()}).get("TagID"));
                     }
                 });
                 var data = {
@@ -520,10 +540,10 @@ define(['jquery',
                             "Name": model.get("Name")
                         });
                         _.each(tags, function(tag) {
-                            self.router.tagGames.add({TagID: tag, GameID: response.GameID});
+                            self.collection.tagGames.add({TagID: tag, GameID: response.GameID});
                         });
-                        self.router.names.add(newName);
-                        self.router.games.add(model);
+                        self.collection.names.add(newName);
+                        self.collection.games.add(model);
                         
                         self.$("#saveItUp").removeClass("wait");
                         $.toast("<em>" + model.get("Name") + "</em> added.");

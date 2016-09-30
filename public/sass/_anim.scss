@@ -21,3 +21,12 @@
     opacity: 1;
   }
 }
+
+@include keyframes (spin) {
+    0% {
+        @include transform(rotateZ(0deg));
+    }
+    100% {
+        @include transform(rotateZ(359deg));
+    }
+}

@@ -4,6 +4,14 @@ var _   = require("underscore"),
 /*
  * GET home page.
  */
+exports.renderIndex = function(req, res) {
+    res.render('layout', {
+        title: 'Improv Comedy Database',
+        prod: process.env.NODE_ENV === 'production'
+    });
+};
+
+ /* DEPRECATED: bootstraps all the data, which makes the page load super slow
 exports.renderIndex = function(req, res){
     var data = {};
     var tables = [
@@ -30,3 +38,4 @@ exports.renderIndex = function(req, res){
         });
     });
 };
+*/

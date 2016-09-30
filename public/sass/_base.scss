@@ -1,12 +1,17 @@
 @import "compass/css3";
 
 // colors!
-$color-primary: #6699FF;
-$color-secondary: #FFED83;
-$color-active: rgba(248, 188, 78, 0.5);
-$color-active-text: #555;
-$color-hover: rgba(255,237,131,0.5);
+$color-primary: #f5a73e;
+$color-secondary: #936538;
+$color-active: #dfd5b2;
+$color-active-text: #666;
+$color-hover: #dfd5b2;
 $color-text: #555;
+$color-content-bg: rgba(225, 209, 152, 0.9);
+$color-content-bg-mobile: #e1d198;
+
+// timings!
+$anim-duration: 300ms;
 
 // media query names
 $media-mobile: "only screen and (max-width: 700px)";

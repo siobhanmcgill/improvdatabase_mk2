@@ -1,20 +1,12 @@
-define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
-        
-        'collections/durationCollection', 'collections/gameCollection', 'collections/groupCollection', 'collections/nameCollection',
-        'collections/noteCollection', 'collections/playerCountCollection', 'collections/suggestionCollection', 'collections/suggestionTypeCollection', 
-        'collections/suggestionTypeGameCollection', 'collections/tagCollection', 'collections/tagGameCollection',
-
-        'models/user'
+define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView', 'collections/gameCollection', 'models/user'
         ],
-    function($,     _,           Backbone, store,   MainView,
-    
-        DurationCollection, GameCollection, GroupCollection, NameCollection, NoteCollection, PlayerCountCollection, SuggestionCollection, SuggestionTypeCollection,
-        SuggestionTypeGameCollection, TagCollection, TagGameCollection, User) {
+    function($,     _,           Backbone, store,   MainView,           GameCollection,                 User) {
 
         var Router = Backbone.Router.extend({
             routes: {
                 '': 'showView',
                 ':key': 'showView',
+                ':primary/:secondary': 'showSecondaryView'
             },
             initialize: function() {
                 this.token = store.get('token');
@@ -26,21 +18,7 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
                 
                 this.device = $(window).width() > 700 ? 'full' : 'mobile';
                 
-                this.durations = new DurationCollection(window.database.duration);
-                this.games = new GameCollection(window.database.game);
-                this.groups = new GroupCollection(window.database.group);
-                this.names = new NameCollection(window.database.name);
-                
-                this.games.names = this.names;
-                //this.games.sort();
-
-                this.notes = new NoteCollection(window.database.note);
-                this.playerCounts = new PlayerCountCollection(window.database.playercount);
-                this.suggestions = new SuggestionCollection(window.database.suggestion);
-                this.suggestionTypes = new SuggestionTypeCollection(window.database.suggestiontype);
-                this.suggestionTypeGames = new SuggestionTypeGameCollection(window.database.suggestiontypegame);
-                this.tags = new TagCollection(window.database.tag);
-                this.tagGames = new TagGameCollection(window.database.taggame);
+                this.games = new GameCollection();
 
                 this.mainView = new MainView({router: this});
 
@@ -136,6 +114,10 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView',
 
             showView: function(key) {
                 this.mainView.render(key);
+            },
+
+            showSecondaryView: function(primary, secondary) {
+                this.mainView.render(primary, secondary);
             }
         });
 

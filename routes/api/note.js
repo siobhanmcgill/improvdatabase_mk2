@@ -27,7 +27,7 @@ exports.create = function(req,res) {
 };
 
 function getSelectQuery() {
-    var q = 'SELECT "NoteID", "GameID", "Description", "Public", note."DateAdded", note."DateModified", ';
+    var q = 'SELECT "NoteID", "GameID", note."Description", "Public", note."DateAdded", note."DateModified", ';
         q += '"AddedUserID", "ModifiedUserID", "TagID", "DurationID", "PlayerCountID", ';
         q += 'addeduser."FirstName" AS "AddedFirstName", addeduser."LastName" AS "AddedLastName", ';
         q += 'moduser."FirstName" AS "ModifiedFirstName", moduser."LastName" AS "ModifiedLastName" ';

@@ -20,6 +20,7 @@ define(['jquery',
             },
             initialize: function(options) {
                 this.router = options.router;
+                this.collection = this.router.games;
             },
             render: function() {
                 this.$el.addClass("content").html(_.template(AddGameTemplate)).show();
@@ -27,7 +28,7 @@ define(['jquery',
 
                 this.durationDropdown = new DropdownView({
                     el: "#duration_dropdown",
-                    collection: this.router.durations,
+                    collection: this.collection.durations,
                     idattr: "duration",
                     idname: "Duration",
                     attr: "(Minutes)"
@@ -36,7 +37,7 @@ define(['jquery',
 
                 this.playerCountDropdown = new DropdownView({
                     el: "#playerCount_dropdown",
-                    collection: this.router.playerCounts,
+                    collection: this.collection.playerCounts,
                     idattr: "playerCount",
                     idname: "Player Count",
                     attr: "Players"
@@ -45,7 +46,7 @@ define(['jquery',
 
                 this.tagInput = new TagInputView({
                     el: "#tags",
-                    collection: this.router.tags
+                    collection: this.collection.tags
                 });
                 this.tagInput.render();
                 
@@ -118,7 +119,7 @@ define(['jquery',
                 } else {
                     this.$(".tag").each(function() {
                         if ($(this).text()) {
-                            tags.push(self.router.tags.findWhere({"Name": $(this).text()}).get("TagID"));
+                            tags.push(self.collection.tags.findWhere({"Name": $(this).text()}).get("TagID"));
                         }
                     });
                     var data = {
@@ -138,11 +139,11 @@ define(['jquery',
                                 "Name": model.get("Name")
                             });
                             _.each(tags, function(tag) {
-                                self.router.tagGames.add({TagID: tag, GameID: response.GameID});
+                                self.collection.tagGames.add({TagID: tag, GameID: response.GameID});
                             });
 
-                            self.router.names.add(newName);
-                            self.router.games.add(model);
+                            self.collection.names.add(newName);
+                            self.collection.add(model);
                             
                             self.$("#saveItUp").removeClass("wait");
                             $.toast("<em>" + model.get("Name") + "</em> added.");

@@ -18,6 +18,7 @@ define(['jquery',
             },
             initialize: function(options) {
                 this.router = options.router;
+                this.collection = this.router.games;
 
                 this.$el.addClass('pod').attr('id', 'gameSearch');
             },
@@ -25,26 +26,44 @@ define(['jquery',
                 this.$el.append(_.template(SearchViewTemplate));
             },
 
-            showSearch: function () {
+            showSearch: function (force) {
                 if (this.router.device === 'mobile') {
-                    if (this.$el.hasClass('active')) { // hide it
+                    if (this.$el.hasClass('active') && force !== true) { // hide it
                         this.$el.removeClass('active');
                         var $item = this.$el.parent().off('click.hidesearch');
                         setTimeout(function () {
                             $item.removeClass('active');
                         }, 500);
+                        this.clearSearch();
+                        this.$('[name=search]').blur();
                     } else { // show it
                         this.$el.addClass('active').parent().addClass('active');
+                        this.$el.removeClass('dim');
                         var self = this;
                         setTimeout(function () {
+                            // clicking outside the search will close it
                             self.$el.parent().on('click.hidesearch', $.proxy(self.showSearch, self));
                             self.$el.on('click', function (e) { e.stopPropagation(); });
-
-                            setTimeout(function () {
-                                self.$('[name=search]').focus();
-                            }, 500);
+                            
+                            // force is true if we're returning from a game, so we don't need to re-focus in the search box
+                            // it's a slightly smoother UX this way
+                            if (force !== true) {
+                                setTimeout(function () {
+                                    self.$('[name=search]').focus();
+                                }, 500);
+                            }
                         }, 100);
                     }
+                }
+            },
+
+            openGame: function (e) {
+                var id = $(e.currentTarget).data('gameid');
+                this.trigger('open-game', id);
+
+                if (this.router.device === 'mobile') {
+                    this.$el.addClass('dim');
+                    this.$el.parent().off('click.hidesearch');
                 }
             },
 
@@ -66,14 +85,22 @@ define(['jquery',
                     return false;
                 }
                 if (val) {
+                    var navOptions;
+
                     if (!this.val) {
+                        // this is a new search
                         this.trigger('search-show');
+                    } else {
+                        navOptions = {replace: true};
                     }
+
+                    this.router.navigate('search/' + val, navOptions);
+
                     this.$el.addClass('open');
 
                     this.$('.results').empty();
 
-                    this.router.names.each(function (name) {
+                    this.collection.names.each(function (name) {
                         if (name.get('Name').toLowerCase().indexOf(val) > -1) {
                             var regex = new RegExp('(' + val + ')', 'gi');
                             var text = name.get('Name').replace(regex, '<strong>$1</strong>');
@@ -95,7 +122,7 @@ define(['jquery',
                     
                     /*
                     data = [];
-                    this.router.tags.each(function (tag) {
+                    this.collection.tags.each(function (tag) {
                         if (tag.get('Name').toLowerCase().indexOf(val) > -1) {
                             var regex = new RegExp('(' + val + ')', 'gi');
                             var text = tag.get('Name').replace(regex, '<strong>$1</strong>');
@@ -115,6 +142,7 @@ define(['jquery',
 
                     this.$('.fa-search').removeClass('fa-search').addClass('fa-close');
                 } else {
+                    // nothing has been entered
                     if (this.val && this.router.device !== 'mobile') {
                         this.$('.results').removeClass('scroll');
                         this.$el.removeClass('noTransition').css('height', '40px');
@@ -163,11 +191,6 @@ define(['jquery',
                         }, 500);
                     }, time);
                 }
-            },
-
-            openGame: function (e) {
-                var id = $(e.currentTarget).data('gameid');
-                this.trigger('open-game', id);
             }
 
         });

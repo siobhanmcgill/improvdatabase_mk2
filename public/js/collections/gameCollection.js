@@ -1,41 +1,139 @@
-define(['backbone', 'jquery', 'underscore', 'models/game'],
-    function(Backbone, $, _, Game) {
+define(['backbone', 'jquery', 'underscore', 'models/game',
+        'collections/durationCollection',
+        'collections/nameCollection',
+        'collections/playerCountCollection',
+        'collections/tagCollection',
+        'collections/tagGameCollection',
+        'collections/noteCollection'],
+    function(Backbone, $, _, Game,
+        DurationCollection,
+        NameCollection,
+        PlayerCountCollection,
+        TagCollection,
+        TagGameCollection,
+        NoteCollection) {
+
         return Backbone.Collection.extend({
             url: '/api/game',
             parse: function(response) {
                 return response;
             },
             initialize: function() {
-                this.on("sync", function() {
-                    Backbone.trigger("data-load", this);
-                });
+
+                this.durations = new DurationCollection();
+                this.names = new NameCollection();
+                this.playerCounts = new PlayerCountCollection();
+                this.tags = new TagCollection();
+                this.tagGames = new TagGameCollection();
+                
+                // TODO: load notes on demand
+                this.notes = new NoteCollection();
+
+                this._fetched = false;
+                
+                this._sort = {
+                    property: 'Name',
+                    dir: 'asc'
+                };
             },
-            /*
-            comparator: function(a,b) {
-                if (this.names) {
-                    var a_name = this.names.findWhere({"GameID": a.id}).get("Name");
-                    var b_name = this.names.findWhere({"GameID": b.id}).get("Name");
-                    return a_name.localeCompare(b_name);
+
+            comparator: function (a, b) {
+                var aval, bval;
+
+                var sortProperty = this._sort.property;
+                var sortDirection = this._sort.dir;
+
+                if (a[sortProperty]) {
+                    aval = typeof(a[sortProperty]) === "function" ? a[sortProperty]() : a[sortProperty];
                 } else {
-                    return 1;
+                    aval = a.get(sortProperty);
+                }
+                if (b[sortProperty]) {
+                    bval = typeof(b[sortProperty]) === "function" ? b[sortProperty]() : b[sortProperty];
+                } else {
+                    bval = b.get(sortProperty);
+                }
+                
+                if (typeof aval === 'string') {
+                    // ignore "The" at the beginning
+                    if (aval.toLowerCase().indexOf('the ') === 0) {
+                        aval = aval.substr(4);
+                    }
+                }
+                if (typeof bval === 'string') {
+                    if (bval.toLowerCase().indexOf('the ') === 0) {
+                        bval = bval.substr(4);
+                    }
+                }
+
+                if (sortDirection === "asc") {
+                    return typeof(aval) === "string" ? aval.localeCompare(bval) : aval - bval;
+                } else {
+                    return typeof(bval) === "string" ? bval.localeCompare(aval) : bval - aval;
                 }
             },
-            */
+
             model: Game,
             friendlyName: "Game",
 
+            fetch: function (options) {
+                options = _.extend({parse: true}, options);
+                var success = options.success;
+                var self = this;
+
+                options.success = function(resp) {
+                    var method = options.reset ? 'reset' : 'set';
+                    self._fetched = true;
+                    self[method](resp, options);
+                    self.trigger('sync', self, resp, options);
+                };
+                
+                return $.when(
+                    this.durations.fetch(),
+                    this.names.fetch(),
+                    this.playerCounts.fetch(),
+                    this.tags.fetch(),
+                    this.tagGames.fetch(),
+                    this.sync('read', this, options)
+                    ).done(function () {
+                        // TODO: load notes on demand
+                        self.notes.fetch();
+                        if (success) {
+                            success.call(options.context, self, options);
+                        }
+                    });
+            },
+
             //for the dynamic table
             getPage: function(options, callback) {
-                callback(this._data(options));
+                var self = this;
+                if (this._fetched) {
+                    callback(self._data(options));
+                } else {
+                    this.fetch({
+                        success: function () {
+                            setTimeout(function () {
+                                callback(self._data(options));
+                            }, 500);
+                        }
+                    });
+                }
             },
 
             _data: function (options) {
-                var filter = options.filter,
+                var self = this,
+                    filter = options.filter,
                     tagFilter,
                     data,
                     returnObject = {};
+
+                // first sort the data, which we don't have to do if we're already sorted by that
+                if (options.sort && (options.sort.property !== this._sort.property || options.sort.dir !== this._sort.dir)) {
+                    this._sort = options.sort;
+                    this.sort();
+                }
                 
-                // first filter the data
+                // now filter the data
                 if (filter && _.keys(filter).length) {
                     // filter tags later, because it might be more difficult
                     tagFilter = filter.tags;
@@ -65,7 +163,7 @@ define(['backbone', 'jquery', 'underscore', 'models/game'],
                     });
                     if (tagFilter) {
                         data = _.filter(data, function (game) {
-                            var taglist = _.map(window.router.tagGames.where({"GameID": game.id}), function (item) {
+                            var taglist = _.map(self.tagGames.where({"GameID": game.id}), function (item) {
                                 return item.get('TagID');
                             });
                             return _.intersection(tagFilter, taglist).length === tagFilter.length;
@@ -94,6 +192,7 @@ define(['backbone', 'jquery', 'underscore', 'models/game'],
                 } else {
                     data = data.slice(start, end);
                 }
+
                 returnObject.data = data;
 
                 return returnObject;
