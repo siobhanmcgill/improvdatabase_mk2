@@ -131,12 +131,13 @@ define(['jquery',
                     };
                     this.$("#saveItUp").addClass("wait");
                     var newModel = new Game();
+                    newModel.collection = this.collection;
                     newModel.save(data, {
                         success: function(model, response) {
                             var newName = new Name({
                                 "NameID": response.NameID,
                                 "GameID": response.GameID,
-                                "Name": model.get("Name")
+                                "Name":   model.get('Name')
                             });
                             _.each(tags, function(tag) {
                                 self.collection.tagGames.add({TagID: tag, GameID: response.GameID});
@@ -144,7 +145,7 @@ define(['jquery',
 
                             self.collection.names.add(newName);
                             self.collection.add(model);
-                            
+
                             self.$("#saveItUp").removeClass("wait");
                             $.toast("<em>" + model.get("Name") + "</em> added.");
 

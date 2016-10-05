@@ -33,7 +33,12 @@ define(['jquery', 'backbone', 'underscore', 'moment'],
 
             //functions for table columns
             getName: function() {
-                return this.collection.names.getMainName(this.id);
+                if (this.attributes.Name) {
+                    // when we are creating a new game, it will have a Name attribute
+                    return this.attributes.Name;
+                } else {
+                    return this.collection.names.getMainName(this.id);
+                }
             },
             getTags: function() {
                 var taglist = this.collection.tagGames.where({"GameID": this.id});

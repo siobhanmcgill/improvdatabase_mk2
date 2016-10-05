@@ -23,7 +23,7 @@ define(['jquery', 'underscore', 'backbone', 'store', 'views/mainView', 'collecti
                 this.mainView = new MainView({router: this});
 
                 this.listenTo(Backbone, "tag-add", function(tag) {
-                    this.tags.add(tag);
+                    this.games.tags.add(tag);
                 });
             },
 
