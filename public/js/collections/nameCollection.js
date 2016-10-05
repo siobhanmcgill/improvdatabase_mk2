@@ -18,10 +18,11 @@ define(['backbone', 'underscore', 'models/name'],
                 if (this.length > 0) {
                     this.sort();
                     var names = this.where({GameID: GameID});
-                    return names.pop().get("Name");
-                } else {
-                    return "";
+                    if (names && names.length) {
+                        return names.pop().get("Name");
+                    }
                 }
+                return "";
             }
         });
     });

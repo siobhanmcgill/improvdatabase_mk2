@@ -1,6 +1,6 @@
 {
     "name": "improv-database",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Node (and PostgreSQL) web application for listing and organizing Improv Comedy games.",
     "private": true,
     "location": "https://github.com/ShauvonM/improvdatabase.git",

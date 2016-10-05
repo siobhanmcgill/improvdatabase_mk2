@@ -786,8 +786,8 @@ define(['jquery', 'backbone', 'underscore'],
             if (data.length === 0) {
                 // there are no items!
                 var emptyRow = self._createRow();
-                emptyRow.addClass('dt-no-items');
-                emptyRow.append("<h5>No " + self.options.items + " were found that match your chosen filters.</h5>");
+                emptyRow.className += ' dt-no-items';
+                emptyRow.innerHTML = "<h5>No " + self.options.items + " were found that match your chosen filters.</h5>";
                 
                 this.$table.append(emptyRow);
             }
