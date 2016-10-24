@@ -244,7 +244,7 @@ strong {
 
 /* line 88, ../sass/_framework.scss */
 .dropdown.ready {
-  overflow: visible;
+  overflow: auto;
 }
 
 /* line 93, ../sass/_framework.scss */
@@ -629,7 +629,7 @@ $icon: 18px;
     width: 18px;
     height: 18px;
     background: url('../images/iconsprite.png') no-repeat;
-    
+
     @include iconsprite('filter', $icon, 0);
     @include iconsprite('checkbox', $icon, 1) {
         &.checked {

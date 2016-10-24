@@ -39,7 +39,7 @@ define(['jquery', 'backbone', 'underscore'],
         this.data = this.options.data;
         if (this.data instanceof Backbone.Collection) {
             this.options.dataType = "backbone";
-        } 
+        }
 
         this.columns = this.options.columns;
         //figure out where the columns are defined, if they aren't in the init options
@@ -81,7 +81,7 @@ define(['jquery', 'backbone', 'underscore'],
         this._sizes = [];
 
         this.render();
-        
+
         //$(window).resize($.proxy(this.heights, this));
 
         this.$pagesizemenu.on("change", $.proxy(this.pageSize, this));
@@ -135,6 +135,7 @@ define(['jquery', 'backbone', 'underscore'],
 
         reloadWithHeader: function () {
             this._redoheader = true;
+            this._refresh = true;
             this.$head.hide();
             this.reload();
         },
@@ -179,7 +180,7 @@ define(['jquery', 'backbone', 'underscore'],
                 this._reverse = true;
 
                 var renderDelay = this._renderBeforeData();
-                
+
                 setTimeout($.proxy(function () {
                     this.data.getPage({
                         //page: this.options.pageSize === 'auto' ? 0 : this._page,
@@ -196,13 +197,13 @@ define(['jquery', 'backbone', 'underscore'],
                         this._total = data.total;
                         this._end = this._start;
                         this._start = this.options.pageSize === "auto" ? 0 : this._start - this.options.pageSize;
-                        
+
                         this._renderAfterData(data, renderDelay);
 
                     }, this));
                 }, this), renderDelay);
             }
-            
+
             if (e) {
                 e.stopPropagation();
                 return false;
@@ -218,7 +219,7 @@ define(['jquery', 'backbone', 'underscore'],
             this._reverse = false;
 
             var renderDelay = this._renderBeforeData();
-            
+
             setTimeout($.proxy(function () {
                 this.data.getPage({
                     start: this._end,
@@ -233,7 +234,7 @@ define(['jquery', 'backbone', 'underscore'],
                     this._start = this._end;
                     this._total = data.total;
                     this._end = this.options.pageSize === "auto" || this.options.pageSize === 0 ? this._total : this._start + this.options.pageSize;
-                    
+
                     // the "next" page is really the first page, so loop around to the beginning
                     if (this._start >= data.total) {
                         this._page = 1;
@@ -245,7 +246,7 @@ define(['jquery', 'backbone', 'underscore'],
 
                 }, this));
             }, this), renderDelay);
-            
+
             if (e) {
                 e.stopPropagation();
                 return false;
@@ -254,7 +255,7 @@ define(['jquery', 'backbone', 'underscore'],
 
         _renderBeforeData: function () {
             window.datatimerstart = (new Date()).getTime();
-            
+
             var renderDelay = 1;
             if (!this._refresh) {
                 // animate out the currently showing table
@@ -271,7 +272,7 @@ define(['jquery', 'backbone', 'underscore'],
                 } else {
                     this.$head.hide();
                 }
-                    
+
                 // show the spinner, just in case this takes a sec
                 this._showLoader();
             }
@@ -285,15 +286,15 @@ define(['jquery', 'backbone', 'underscore'],
             console.log('********* data time:', (new Date()).getTime() - window.datatimerstart, ' - ' + renderDelay);
             window.rendertimerstart = (new Date()).getTime();
             */
-            
+
             this.renderTableHeader();
-            
+
             if (this.options.pageSize === 0) {
                 this._pageCount = 1;
             } else if (this.options.pageSize !== "auto") {
                 this._pageCount = Math.ceil(data.total / this.options.pageSize);
             }
-            
+
             /*
             // debug
             var headertime = (new Date()).getTime() - window.rendertimerstart;
@@ -305,7 +306,7 @@ define(['jquery', 'backbone', 'underscore'],
                 this.$head.show();
 
                 this.renderTableBody(data.data);
-            
+
                 this._hideLoader();
 
                 /*
@@ -323,7 +324,7 @@ define(['jquery', 'backbone', 'underscore'],
                 console.log('resize time:', resizetime);
                 window.rendertimerstart = (new Date()).getTime();
                 */
-                
+
                 if (this._page > 1) {
                     this._enablePrev();
                 } else {
@@ -336,7 +337,7 @@ define(['jquery', 'backbone', 'underscore'],
                     this._enableNext();
                 }
                 this.renderPageIndicator();
-                
+
                 /*
                 // debug
                 var finaltime = (new Date()).getTime() - window.rendertimerstart;
@@ -355,7 +356,7 @@ define(['jquery', 'backbone', 'underscore'],
             if ($indicator.length === 0) {
                 $indicator = $(document.createElement('div')).appendTo(this.$pageindicator).tooltip();
             }
-            
+
             this.$pageindicator.find('span').remove();
             if (this.$pageindicator.width() < 400) {
                 this.$pageindicator.append('<span class="heightener"></span><span class="page">Showing ' + (this._start + 1) + ' - ' + this._end + '</span> <span class="total">of ' + this._total + '</span>');
@@ -364,7 +365,7 @@ define(['jquery', 'backbone', 'underscore'],
                 }
             } else {
                 var tooltip = 'Showing ' + this.options.items + ' ' + (this._start + 1) + ' to ' + this._end + ' of ' + this._total;
-                
+
                 if(Object.keys(this._filter).length) {
                     tooltip += ' (Filtered from ' + this.data.length + ')';
                 }
@@ -433,7 +434,7 @@ define(['jquery', 'backbone', 'underscore'],
             if (this.$head.find('.dt-header').length === 0) {
                 var tr = this._createRow(),
                     visible = 0;
-                
+
                 // render the column headers
                 this._forEach(this.columns, function(column, i) {
                     if (!column.hide) {
@@ -444,7 +445,7 @@ define(['jquery', 'backbone', 'underscore'],
                         if (typeof column === 'string') {
                             column = {property: column, sortable: true};
                         }
-                        
+
                         if (column.className) {
                             className += column.className;
                         } else {
@@ -483,13 +484,13 @@ define(['jquery', 'backbone', 'underscore'],
                 });
                 this.headRow = tr;
                 this.$head.append(tr);
-                
+
                 // set up the filter events
                 this._forEach(this.columns, function(column, i) {
                     // add a "filtered" indicator to a column that is filtered (or the only column showing if only one is showing)
                     if ((visible === 1 && self.filterCount() > 0) ||
                         (column.filter && self._filter[column.filter.property] && self._filter[column.filter.property].length > 0)) {
-                        
+
                         $(tr).find('[data-index=' + i + ']').append('<span class="filter-status">(filtered)</span>');
                     }
 
@@ -497,6 +498,7 @@ define(['jquery', 'backbone', 'underscore'],
                         if (column.filter.view) {
                             column.filter.view.off('filter');
                             column.filter.view.on('filter', function (prop, sel) {
+                                console.log('filter', prop, sel, this);
                                 self._filter[prop] = sel;
                                 self.reloadWithHeader();
                             });
@@ -511,7 +513,7 @@ define(['jquery', 'backbone', 'underscore'],
                 });
 
             }// end of if $header.find('.dt-header').length === 0
-            
+
             // set up the sort details
             var prop = this._sortBy,
                 dir = this._sortDir;
@@ -524,7 +526,7 @@ define(['jquery', 'backbone', 'underscore'],
             });
 
         },
-        
+
         // this method renders a comprehensive filter screen for all of the filterable columns in the table
         renderFilterMenu: function ($container) {
             var self = this;
@@ -596,9 +598,9 @@ define(['jquery', 'backbone', 'underscore'],
                 btnhtml += '<i class="fa fa-filter ' + iconClass + '"></i>';
             }
             btnhtml += '</div>';
-            
+
             var $obj, itemclass;
-            
+
             if ($('body > #' + column.property + '_selection.showing').length) {
                 if (expand) {
                     // the dropdown is showing, but we want to draw the accordion style menu, so we have to MURDER IT
@@ -608,8 +610,8 @@ define(['jquery', 'backbone', 'underscore'],
                     $obj.addClass('dropdown-active');
                     return $obj; // the menu is already drawn, so let's get out of here
                 }
-            } 
-            
+            }
+
             objhtml = '';
             if (expand) {
                 objhtml += '<div class="accordion-body"><div class="filter-menu" data-property="' + column.filter.property + '">';
@@ -618,7 +620,7 @@ define(['jquery', 'backbone', 'underscore'],
                 objhtml += '<div class="dropdown left shadow4" id="' + column.property + '_selection" data-property="' + column.filter.property + '" data-button="' + column.property + '_filter_toggle">';
                 itemclass = 'dropdown-option has-tooltip';
             }
-            
+
             objhtml += '<div class="' + itemclass + ' filter-all checked" data-value="all">';
             if (expand) {
                 objhtml += 'Clear Filter';
@@ -626,7 +628,7 @@ define(['jquery', 'backbone', 'underscore'],
                 objhtml += '<i class="fa fa-check-circle-o"></i> Show All';
             }
             objhtml += '</div>';
-            
+
             if (column.filter.collection) {
                 var col = column.filter.collection,
                     attrs = column.filter.attributes;
@@ -646,7 +648,7 @@ define(['jquery', 'backbone', 'underscore'],
             }
             objhtml += '</div></div>';
             $obj = $(btnhtml + objhtml);
-            
+
             if (this._filter && this._filter[column.filter.property]) {
                 this._uncheckOption($obj.find('.filter-all'));
                 var self = this;
@@ -674,7 +676,7 @@ define(['jquery', 'backbone', 'underscore'],
                 $menu = $option.parent(),
                 prop = $menu.data('property'),
                 self = this;
-            
+
             if (checked) {
                 this._uncheckOption($option);
                 if ($menu.find('.checked').length === 0) {
@@ -731,7 +733,7 @@ define(['jquery', 'backbone', 'underscore'],
                     self._filter[prop].push($(this).data('value'));
                 });
             }
-            
+
             this.$container.trigger('filter.dynamictable', self._filter);
         },
         _clickFilterOutput: function (e) {
@@ -775,9 +777,9 @@ define(['jquery', 'backbone', 'underscore'],
                 reverse = this._reverse,
                 autoPage = self.options.paginate && self.options.pageSize === "auto",
                 $oldtable = this.$table;
-            
+
             this.rows = [];
-            
+
             this.$table = this._tableBody();
             if (reverse) {
                 this.$table.addClass("right");
@@ -788,12 +790,12 @@ define(['jquery', 'backbone', 'underscore'],
                 var emptyRow = self._createRow();
                 emptyRow.className += ' dt-no-items';
                 emptyRow.innerHTML = "<h5>No " + self.options.items + " were found that match your chosen filters.</h5>";
-                
+
                 this.$table.append(emptyRow);
             }
-            
+
             this.$container.append(this.$table);
-            
+
             this._forEach(data, function(row, ri) {
                 var tr = self._createRow();
 
@@ -803,14 +805,14 @@ define(['jquery', 'backbone', 'underscore'],
                             text,
                             className = '',
                             colObj;
-                        
+
                         // make sure we're dealing with an object
                         if (typeof(column) === "string") {
                             colObj = {property: column};
                         } else {
                             colObj = column;
                         }
-                        
+
                         // get the text figured out
                         if (typeof(colObj.property) === "function") {
                             text = colObj.property(row, data);
@@ -838,7 +840,7 @@ define(['jquery', 'backbone', 'underscore'],
                                 m = date.getMinutes();
 
                             text = (date.getMonth() + 1) + "/" + (date.getDate()) + "/" + date.getFullYear();
-                            
+
                             if (h > 0 || m > 0) {
                                 if (h >= 12) {
                                     ampm = "PM";
@@ -854,7 +856,7 @@ define(['jquery', 'backbone', 'underscore'],
                                 text += " at " + h + ":" + m + " " + ampm;
                             }
                         }
-                        
+
                         if (typeof text === 'string') {
                             td.innerHTML = text;
                         } else {
@@ -872,7 +874,7 @@ define(['jquery', 'backbone', 'underscore'],
 
                 //$(tr).data("data", row);
                 tr.setAttribute('data-gameid', row.get('GameID'));
-                
+
                 if (reverse) {
                     self.$table.prepend(tr);
                 } else {
@@ -928,7 +930,7 @@ define(['jquery', 'backbone', 'underscore'],
             var self = this,
                 maxWidth = this.$container.width(),
                 totalSize = 0;
-            
+
             if (this._sizes.length === 0) {
                 var headChildren = self.headRow.childNodes;
 
@@ -940,13 +942,13 @@ define(['jquery', 'backbone', 'underscore'],
                         headCell.style.width = 'auto';
 
                         var size = headCell.offsetWidth;
-                        
+
                         self._forEach(self.rows, function(row) {
                             var cell = row.childNodes[ci];
                             cell.style.width = 'auto';
                             size = Math.max(size, cell.offsetWidth);
                         });
-                        
+
                         var perc = Math.ceil((size / maxWidth) * 100);
                         self._sizes.push(Math.min(perc, self.options.maxWidth));
                         totalSize += (perc);
@@ -1018,10 +1020,10 @@ define(['jquery', 'backbone', 'underscore'],
             this._forEach(this.rows, function(row) {
                 row.style.height = 'auto';
             });
-            
+
             var diff = this.getContainerHeight() - this.getHeight(),
                 pad, mod;
-            
+
             if (diff < 0 && this.options.paginate && this.options.pageSize === "auto") {
                 // if the page size is auto, and we have more rows than will fit, we have to remove rows until it does fit
                 while (diff < 0) {
